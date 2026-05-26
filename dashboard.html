@@ -1095,7 +1095,7 @@
     <div class="nav-item" onclick="switchPage('all')"><span class="icon">📋</span> 所有需求</div>
     <div class="nav-item" onclick="switchPage('partners')"><span class="icon">🌐</span> 服务商管理</div>
   </nav>
-  <div class="sidebar-bottom">周期：2026-W22 · 批次 #14</div>
+  <div class="sidebar-bottom">周期：2026-W22 · 批次 #14 <span onclick="showOnboarding()" title="使用引导" style="cursor:pointer;margin-left:8px;opacity:0.6;font-size:13px">❓</span></div>
 </div>
 
 <!-- Main -->
@@ -2976,6 +2976,67 @@ init().catch(err => {
   rebuildCountryFilters();
   renderTable();
 });
+
+// ── Onboarding Guide ──────────────────────────────────────────────────────────
+const ONBOARD_KEY = 'rm_onboarded_dashboard';
+const ONBOARD_STEPS = [
+  { icon: '👋', title: '欢迎使用需求管理平台', desc: '这是一个 AI 驱动的 ToB 需求归并与优先级管理工具，帮助 PM 高效收集、归并并跟踪来自全球服务商的产品需求。' },
+  { icon: '📊', title: '需求看板', desc: '查看经 AI 自动归并后的需求聚类。每个聚类有评分、状态和摘要，可直接修改状态（排期中 / 开发中 / 已上线）。' },
+  { icon: '📋', title: '所有需求', desc: '查看所有原始需求列表，支持按服务商、国家、状态筛选。也可点击「手动添加需求」直接录入未通过表单提交的需求。' },
+  { icon: '🌐', title: '服务商管理', desc: '在此配置合作服务商信息，并获取各服务商专属的需求提交链接，发给对应服务商团队即可开始收集需求。' },
+  { icon: '⚡', title: 'AI 归并', desc: '点击右上角「⚡ AI 归并」按钮，DeepSeek AI 将自动将所有待归并需求按业务语义聚类，归并结果立即显示在需求看板中。' },
+];
+let onboardStep = 0;
+
+function showOnboarding() {
+  onboardStep = 0;
+  document.getElementById('onboardDontShow').checked = false;
+  renderOnboardStep();
+  document.getElementById('onboardingOverlay').style.display = 'flex';
+}
+
+function renderOnboardStep() {
+  const s = ONBOARD_STEPS[onboardStep];
+  document.getElementById('onboardingStepContent').innerHTML =
+    `<div style="font-size:36px;margin-bottom:12px;text-align:center">${s.icon}</div>` +
+    `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#111827">${s.title}</h2>` +
+    `<p style="font-size:14px;color:#374151;line-height:1.8;text-align:center">${s.desc}</p>`;
+  document.getElementById('onboardPrevBtn').style.visibility = onboardStep === 0 ? 'hidden' : 'visible';
+  document.getElementById('onboardNextBtn').textContent = onboardStep === ONBOARD_STEPS.length - 1 ? '完成 ✓' : '下一步 →';
+  document.getElementById('onboardDots').innerHTML = ONBOARD_STEPS.map((_, i) =>
+    `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px;background:${i === onboardStep ? '#3b82f6' : '#d1d5db'};transition:background 0.2s"></span>`
+  ).join('');
+}
+
+function onboardNav(dir) {
+  if (dir === 1 && onboardStep === ONBOARD_STEPS.length - 1) { closeOnboarding(); return; }
+  onboardStep = Math.max(0, Math.min(ONBOARD_STEPS.length - 1, onboardStep + dir));
+  renderOnboardStep();
+}
+
+function closeOnboarding() {
+  document.getElementById('onboardingOverlay').style.display = 'none';
+  if (document.getElementById('onboardDontShow').checked) localStorage.setItem(ONBOARD_KEY, '1');
+}
+
+if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentLoaded', showOnboarding); }
 </script>
+
+<!-- Onboarding Overlay -->
+<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:40px 44px;max-width:480px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+    <div id="onboardingStepContent"></div>
+    <div id="onboardDots" style="text-align:center;margin-top:20px;margin-bottom:20px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <label style="font-size:13px;color:#6b7280;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" id="onboardDontShow"> 不再提醒
+      </label>
+      <div style="display:flex;gap:8px;">
+        <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:13px;">← 上一步</button>
+        <button id="onboardNextBtn" onclick="onboardNav(1)" style="padding:8px 20px;border:none;border-radius:8px;background:#3b82f6;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">下一步 →</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

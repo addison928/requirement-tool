@@ -590,6 +590,64 @@ if (!partner) {
     })
     .catch(() => renderList(partner.id));
 }
+
+// ── Onboarding Guide ──────────────────────────────────────────────────────────
+const ONBOARD_KEY = 'rm_onboarded_partner';
+const ONBOARD_STEPS = [
+  { icon: '📬', title: '欢迎使用需求跟踪页', desc: '在这里您可以查看贵公司提交的所有需求及其当前处理状态，随时了解 PM 的跟进进展。' },
+  { icon: '🔄', title: '需求状态说明', desc: '<b>待处理</b>：已收到，等待下一个归并周期处理<br><b>归并中</b>：正在与其他服务商需求合并分析<br><b>已排期</b>：已纳入产品路线图<br><b>开发中</b>：研发团队正在实现<br><b>已上线</b>：功能已发布，可在产品中使用' },
+];
+let onboardStep = 0;
+
+function showOnboarding() {
+  onboardStep = 0;
+  document.getElementById('onboardDontShow').checked = false;
+  renderOnboardStep();
+  document.getElementById('onboardingOverlay').style.display = 'flex';
+}
+
+function renderOnboardStep() {
+  const s = ONBOARD_STEPS[onboardStep];
+  document.getElementById('onboardingStepContent').innerHTML =
+    `<div style="font-size:36px;margin-bottom:12px;text-align:center">${s.icon}</div>` +
+    `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#111827">${s.title}</h2>` +
+    `<p style="font-size:14px;color:#374151;line-height:1.8;text-align:center">${s.desc}</p>`;
+  document.getElementById('onboardPrevBtn').style.visibility = onboardStep === 0 ? 'hidden' : 'visible';
+  document.getElementById('onboardNextBtn').textContent = onboardStep === ONBOARD_STEPS.length - 1 ? '完成 ✓' : '下一步 →';
+  document.getElementById('onboardDots').innerHTML = ONBOARD_STEPS.map((_, i) =>
+    `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px;background:${i === onboardStep ? '#3b82f6' : '#d1d5db'}"></span>`
+  ).join('');
+}
+
+function onboardNav(dir) {
+  if (dir === 1 && onboardStep === ONBOARD_STEPS.length - 1) { closeOnboarding(); return; }
+  onboardStep = Math.max(0, Math.min(ONBOARD_STEPS.length - 1, onboardStep + dir));
+  renderOnboardStep();
+}
+
+function closeOnboarding() {
+  document.getElementById('onboardingOverlay').style.display = 'none';
+  if (document.getElementById('onboardDontShow').checked) localStorage.setItem(ONBOARD_KEY, '1');
+}
+
+if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentLoaded', showOnboarding); }
 </script>
+
+<!-- Onboarding Overlay -->
+<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:40px 44px;max-width:480px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+    <div id="onboardingStepContent"></div>
+    <div id="onboardDots" style="text-align:center;margin-top:20px;margin-bottom:20px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <label style="font-size:13px;color:#6b7280;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" id="onboardDontShow"> 不再提醒
+      </label>
+      <div style="display:flex;gap:8px;">
+        <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:13px;">← 上一步</button>
+        <button id="onboardNextBtn" onclick="onboardNav(1)" style="padding:8px 20px;border:none;border-radius:8px;background:#3b82f6;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">下一步 →</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
