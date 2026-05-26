@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的需求追踪</title>
+  <script src="partners.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f2f5;
+      color: #111827;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1a56db 0%, #0e3fa3 100%);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 14px; }
+
+    .partner-avatar {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    .partner-info h1 { color: #fff; font-size: 17px; font-weight: 700; }
+    .partner-info p  { color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 2px; }
+
+    .header-stats { display: flex; gap: 20px; }
+
+    .stat-pill {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 8px 16px;
+      text-align: center;
+    }
+
+    .stat-pill .sv { color: #fff; font-size: 20px; font-weight: 700; }
+    .stat-pill .sl { color: rgba(255,255,255,0.7); font-size: 11px; margin-top: 2px; }
+
+    .header-right { display: flex; gap: 10px; align-items: center; }
+
+    .btn-outline {
+      border: 1.5px solid rgba(255,255,255,0.5);
+      color: #fff;
+      background: transparent;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.15s;
+    }
+
+    .btn-outline:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── Content ── */
+    .content { max-width: 900px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 { font-size: 15px; font-weight: 700; }
+
+    .filter-row { display: flex; gap: 8px; }
+
+    .filter-btn {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b7280;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      border-color: #1a56db;
+      color: #1a56db;
+      background: #eff6ff;
+    }
+
+    /* ── Ticket card ── */
+    .ticket {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      margin-bottom: 10px;
+      overflow: hidden;
+      border: 1.5px solid transparent;
+      transition: border-color 0.15s;
+    }
+
+    .ticket:hover { border-color: #dbeafe; }
+    .ticket.expanded { border-color: #1a56db; }
+
+    .ticket-row {
+      display: grid;
+      grid-template-columns: 100px 1fr auto auto auto;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      cursor: pointer;
+    }
+
+    .ticket-id {
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a56db;
+    }
+
+    .ticket-id .merchant {
+      display: block;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 400;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    .ticket-desc .original {
+      font-size: 13px;
+      color: #374151;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 380px;
+    }
+
+    .ticket-desc .ai-hint {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ticket-desc .ai-hint .ai-tag {
+      background: #eff6ff;
+      color: #1a56db;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .ticket-time { font-size: 12px; color: #9ca3af; white-space: nowrap; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-high { background: #fee2e2; color: #ef4444; }
+    .badge-mid  { background: #fef3c7; color: #d97706; }
+    .badge-low  { background: #d1fae5; color: #059669; }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-chip .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .s-pending    { background: #f3f4f6; color: #6b7280; }
+    .s-pending .dot { background: #9ca3af; }
+
+    .s-merged     { background: #ede9fe; color: #7c3aed; }
+    .s-merged .dot { background: #7c3aed; }
+
+    .s-scheduled  { background: #dbeafe; color: #1d4ed8; }
+    .s-scheduled .dot { background: #1d4ed8; }
+
+    .s-dev        { background: #fef3c7; color: #d97706; }
+    .s-dev .dot   { background: #d97706; }
+
+    .s-live       { background: #d1fae5; color: #059669; }
+    .s-live .dot  { background: #059669; }
+
+    .chevron {
+      color: #9ca3af;
+      font-size: 12px;
+      transition: transform 0.2s;
+      margin-left: 4px;
+    }
+
+    .ticket.expanded .chevron { transform: rotate(180deg); }
+
+    /* ── Expanded detail ── */
+    .ticket-detail {
+      display: none;
+      border-top: 1px solid #f3f4f6;
+      padding: 18px 18px 20px;
+      background: #fafbff;
+    }
+
+    .ticket.expanded .ticket-detail { display: block; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ai-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .ai-box .ai-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1d4ed8;
+      margin-bottom: 6px;
+    }
+
+    .ai-box p { font-size: 13px; color: #1e3a5f; line-height: 1.6; }
+
+    .cluster-meta {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .cluster-meta .cm-label { font-size: 11px; color: #9ca3af; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    .cm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    .cm-row:last-child { margin-bottom: 0; }
+    .cm-row .ck { color: #6b7280; }
+    .cm-row .cv { font-weight: 600; color: #111827; }
+
+    .similar-hint {
+      font-size: 12px;
+      color: #6b7280;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Timeline ── */
+    .timeline-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 12px;
+    }
+
+    .timeline {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .tl-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+
+    .tl-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #e5e7eb;
+      z-index: 0;
+    }
+
+    .tl-step.done:not(:last-child)::after { background: #1a56db; }
+
+    .tl-dot {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid #e5e7eb;
+      background: #fff;
+      z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+    }
+
+    .tl-step.done .tl-dot { background: #1a56db; border-color: #1a56db; color: #fff; }
+    .tl-step.current .tl-dot { background: #fff; border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,0.15); }
+
+    .tl-label {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 6px;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .tl-step.done .tl-label { color: #1a56db; font-weight: 600; }
+    .tl-step.current .tl-label { color: #111827; font-weight: 700; }
+
+    .tl-date { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+    /* ── Invalid token ── */
+    .invalid-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .invalid-page .inv-icon { font-size: 48px; margin-bottom: 16px; }
+    .invalid-page h2 { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 8px; }
+    .invalid-page p  { font-size: 14px; color: #6b7280; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9ca3af;
+    }
+
+    .empty .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- Invalid token fallback (shown via JS) -->
+<div class="invalid-page" id="invalidPage" style="display:none">
+  <div class="inv-icon">🔒</div>
+  <h2>链接无效 · Invalid Link</h2>
+  <p>此链接已失效或不存在，请联系您的对接人获取专属链接。<br>This link is invalid. Please contact your account manager.</p>
+</div>
+
+<!-- Main (hidden until token validated) -->
+<div id="mainWrap" style="display:none">
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="partner-avatar" id="partnerFlag">—</div>
+    <div class="partner-info">
+      <h1 id="partnerName">—</h1>
+      <p>需求追踪视图 · 当前周期：2026-W22</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-pill">
+      <div class="sv" id="statTotal">—</div>
+      <div class="sl">本周期提交</div>
+    </div>
+    <div class="stat-pill">
+      <div class="sv" id="statScheduled">—</div>
+      <div class="sl">已进入排期</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a id="submitLink" href="form.html" class="btn-outline">＋ 提交新需求</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="section-head">
+    <h2>我提交的需求工单</h2>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterTickets('all', this)">全部</button>
+      <button class="filter-btn" onclick="filterTickets('pending', this)">待处理</button>
+      <button class="filter-btn" onclick="filterTickets('merged', this)">已归并</button>
+      <button class="filter-btn" onclick="filterTickets('progress', this)">进行中</button>
+      <button class="filter-btn" onclick="filterTickets('live', this)">已上线</button>
+    </div>
+  </div>
+
+  <div id="ticketList"></div>
+</div><!-- /.content -->
+</div><!-- /#mainWrap -->
+
+<script>
+const API_BASE = '';
+let tickets = [];
+
+const statusConfig = {
+  pending:   { cls: 's-pending',   label: '待处理',          filterGroup: 'pending' },
+  merged:    { cls: 's-merged',    label: '已归并',          filterGroup: 'merged' },
+  scheduled: { cls: 's-scheduled', label: '排期中',          filterGroup: 'progress' },
+  dev:       { cls: 's-dev',       label: '开发中',          filterGroup: 'progress' },
+  live:      { cls: 's-live',      label: '已上线',          filterGroup: 'live' },
+};
+
+const impactConfig = {
+  high: { cls: 'badge-high', label: '高影响' },
+  mid:  { cls: 'badge-mid',  label: '中影响' },
+  low:  { cls: 'badge-low',  label: '低影响' },
+};
+
+const tlSteps = ['已归并', '排期中', '开发中', '已上线', '关闭'];
+const tlKeys  = ['merged', 'scheduled', 'dev', 'live', 'closed'];
+
+let currentFilter = 'all';
+let expandedId = null;
+
+function filterTickets(group, btn) {
+  currentFilter = group;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function toggle(id) {
+  expandedId = expandedId === id ? null : id;
+  renderList();
+}
+
+function renderTimeline(ticket) {
+  const statusOrder = ['merged', 'scheduled', 'dev', 'live', 'closed'];
+  const currentIdx = statusOrder.indexOf(ticket.status);
+  const isPending = ticket.status === 'pending';
+
+  // For pending tickets, show a leading "已提交" node as current,
+  // followed by the normal steps (all greyed out)
+  if (isPending) {
+    const pendingStep = `<div class="tl-step current">
+      <div class="tl-dot"></div>
+      <div class="tl-label">已提交</div>
+      ${ticket.timelineDates[0] ? `<div class="tl-date">${ticket.timelineDates[0]}</div>` : ''}
+    </div>`;
+    const restSteps = tlSteps.map((label, i) => `
+      <div class="tl-step">
+        <div class="tl-dot"></div>
+        <div class="tl-label">${label}</div>
+      </div>`).join('');
+    return `<div class="timeline">${pendingStep}${restSteps}</div>`;
+  }
+
+  return `<div class="timeline">
+    ${tlSteps.map((label, i) => {
+      const key = tlKeys[i];
+      const isDone = i < currentIdx || (ticket.status === key);
+      const isCurrent = ticket.status === key;
+      return `<div class="tl-step ${isDone ? 'done' : ''} ${isCurrent ? 'current' : ''}">
+        <div class="tl-dot">${isDone ? '✓' : ''}</div>
+        <div class="tl-label">${label}</div>
+        ${ticket.timelineDates[i] ? `<div class="tl-date">${ticket.timelineDates[i]}</div>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+let currentPartnerId = null;
+
+function renderList(pid) {
+  if (pid !== undefined) currentPartnerId = pid;
+  const list = document.getElementById('ticketList');
+  const filtered = tickets.filter(t => {
+    if (currentPartnerId && t.partnerId !== currentPartnerId) return false;
+    if (currentFilter === 'all') return true;
+    return statusConfig[t.status].filterGroup === currentFilter;
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>暂无相关工单</p></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(t => {
+    const sc = statusConfig[t.status];
+    const ic = impactConfig[t.impact];
+    const isExpanded = expandedId === t.id;
+    const canExpand = t.cluster !== null;
+
+    const statusLabel = t.cluster
+      ? `${sc.label}${t.status !== 'pending' ? ` · 需求簇 ${t.cluster}` : ''}`
+      : sc.label;
+
+    return `
+    <div class="ticket ${isExpanded ? 'expanded' : ''}" id="ticket-${t.id}">
+      <div class="ticket-row" onclick="${canExpand ? `toggle('${t.id}')` : ''}">
+        <div class="ticket-id">
+          ${t.id}
+          <span class="merchant">${t.merchant}</span>
+        </div>
+        <div class="ticket-desc">
+          <div class="original">${t.original}</div>
+          ${t.clusterSummary ? `<div class="ai-hint"><span class="ai-tag">AI摘要</span>${t.clusterSummary.slice(0, 40)}…</div>` : '<div class="ai-hint" style="color:#d1d5db">等待 AI 处理…</div>'}
+        </div>
+        <div class="ticket-time">${t.time}</div>
+        <div><span class="badge ${ic.cls}">${ic.label}</span></div>
+        <div style="display:flex;align-items:center">
+          <span class="status-chip ${sc.cls}"><span class="dot"></span>${statusLabel}</span>
+          ${canExpand ? `<span class="chevron">▼</span>` : ''}
+        </div>
+      </div>
+
+      ${canExpand ? `
+      <div class="ticket-detail">
+        <div class="detail-grid">
+          <div class="ai-box">
+            <div class="ai-label">✦ AI 需求摘要（中文）</div>
+            <p>${t.clusterSummary}</p>
+          </div>
+          <div class="cluster-meta">
+            <div class="cm-label">需求簇信息</div>
+            <div class="cm-row"><span class="ck">簇 ID</span><span class="cv">${t.cluster}</span></div>
+            <div class="cm-row"><span class="ck">优先级得分</span><span class="cv" style="color:#1a56db">${t.clusterScore}</span></div>
+            <div class="cm-row"><span class="ck">当前状态</span><span class="cv">${statusConfig[t.status].label}</span></div>
+          </div>
+        </div>
+        ${t.similarCount > 0 ? `
+        <div class="similar-hint">
+          🌏 该需求簇还归并了来自 <strong>${t.similarCountries} 个其他国家</strong>的 <strong>${t.similarCount} 条</strong>相似需求，共同推动优先级排序。
+        </div>` : ''}
+        <div class="timeline-title">进展时间线</div>
+        ${renderTimeline(t)}
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Token / partner resolution ──
+const partner = resolvePartner();
+
+if (!partner) {
+  document.getElementById('invalidPage').style.display = 'flex';
+} else {
+  document.getElementById('mainWrap').style.display = '';
+  document.getElementById('partnerFlag').textContent = partner.flag;
+  document.getElementById('partnerName').textContent = partner.name;
+  document.getElementById('submitLink').href = 'form.html?token=' + partner.token;
+
+  fetch(`${API_BASE}/api/tickets?token=${partner.token}&page_size=200`)
+    .then(r => r.json())
+    .then(data => {
+      tickets = (data.items || []).map(t => ({
+        id: t.id, partnerId: t.country_id, merchant: t.merchant,
+        original: t.text, time: t.time, impact: t.impact,
+        status: t.status, cluster: t.cluster_id,
+        clusterScore: null, clusterSummary: null,
+        similarCount: 0, similarCountries: 0,
+        timeline: [null, null, null, null, null],
+        timelineDates: ['', '', '', '', ''],
+      }));
+      document.getElementById('statTotal').textContent = tickets.length;
+      document.getElementById('statScheduled').textContent =
+        tickets.filter(t => ['scheduled','dev','live'].includes(t.status)).length;
+      renderList(partner.id);
+    })
+    .catch(() => renderList(partner.id));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2981 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>需求管理看板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f2f5;
+      color: #111827;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 220px;
+      background: #111827;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      z-index: 10;
+    }
+
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .sidebar-logo h2 { color: #fff; font-size: 15px; font-weight: 700; }
+    .sidebar-logo p { color: #6b7280; font-size: 11px; margin-top: 2px; }
+
+    .nav { flex: 1; padding: 12px 0; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: #9ca3af;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .nav-item.active { color: #fff; border-left-color: #1a56db; background: rgba(26,86,219,0.12); }
+    .nav-item .icon { font-size: 16px; }
+
+    .sidebar-bottom {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    /* ── Main ── */
+    .main {
+      margin-left: 220px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 28px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .topbar h1 { font-size: 16px; font-weight: 700; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-select {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: #374151;
+      outline: none;
+      background: #fafafa;
+    }
+
+    .btn-primary {
+      background: #1a56db;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .content { padding: 24px 28px; }
+
+    /* ── Stat cards ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .stat-card .label { font-size: 12px; color: #6b7280; margin-bottom: 8px; }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: #111827; }
+    .stat-card .sub { font-size: 12px; color: #10b981; margin-top: 4px; }
+    .stat-card .sub.warn { color: #ef4444; }
+
+    /* ── Charts row ── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .chart-card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 14px;
+    }
+
+    .chart-wrap { position: relative; height: 200px; }
+
+    /* ── Requirement clusters table ── */
+    .table-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .table-header h3 { font-size: 14px; font-weight: 700; }
+
+    .search-input {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      width: 200px;
+      outline: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead tr { border-bottom: 2px solid #f3f4f6; }
+    thead th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f9fafb;
+      transition: background 0.1s;
+      cursor: pointer;
+    }
+
+    tbody tr:hover { background: #f8faff; }
+
+    td { padding: 12px; color: #374151; }
+
+    .cluster-id { font-weight: 700; color: #1a56db; font-family: monospace; }
+
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-bar .bar {
+      flex: 1;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .score-bar .fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #1a56db, #3b82f6);
+    }
+
+    .score-bar .num { font-size: 12px; font-weight: 700; color: #374151; width: 24px; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-platform { background: #ede9fe; color: #7c3aed; }
+    .badge-saas { background: #dbeafe; color: #1d4ed8; }
+    .badge-cross { background: #fef3c7; color: #d97706; }
+
+    .badge-high { background: #fee2e2; color: #ef4444; }
+    .badge-mid  { background: #fef3c7; color: #d97706; }
+    .badge-low  { background: #d1fae5; color: #059669; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-pending  { background: #f3f4f6; color: #6b7280; }
+    .status-merged   { background: #ede9fe; color: #7c3aed; }
+    .status-scheduled { background: #dbeafe; color: #1d4ed8; }
+    .status-dev      { background: #fef3c7; color: #d97706; }
+    .status-live     { background: #d1fae5; color: #059669; }
+
+    .flag { font-size: 14px; }
+
+    .urgent-tag {
+      display: inline-block;
+      background: #fee2e2;
+      color: #ef4444;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* ── Detail drawer ── */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 50;
+    }
+
+    .drawer-overlay.show { display: block; }
+
+    .drawer {
+      position: fixed;
+      right: 0; top: 0; bottom: 0;
+      width: 480px;
+      background: #fff;
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      z-index: 51;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-head {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-head h2 { font-size: 16px; font-weight: 700; }
+
+    .close-btn {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+    .meta-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item { }
+    .meta-item .ml { font-size: 11px; color: #9ca3af; margin-bottom: 2px; }
+    .meta-item .mv { font-size: 13px; font-weight: 600; }
+
+    .ai-summary {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .ai-summary .ai-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0284c7;
+      margin-bottom: 6px;
+    }
+
+    .ai-summary p { font-size: 13px; color: #0c4a6e; line-height: 1.6; }
+
+    .sources-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .source-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .source-item:hover { border-color: #1a56db; background: #f8faff; }
+
+    .source-item .si-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .source-item .si-id { font-size: 12px; font-weight: 700; color: #1a56db; font-family: monospace; }
+    .source-item .si-time { font-size: 11px; color: #9ca3af; }
+    .source-item .si-text { font-size: 13px; color: #374151; line-height: 1.5; }
+    .source-item .si-meta { font-size: 11px; color: #6b7280; margin-top: 4px; }
+    .source-item .si-attach { font-size: 11px; color: #1a56db; margin-top: 6px; }
+
+    /* ── Ticket detail drawer ── */
+    .ticket-drawer {
+      position: fixed;
+      right: 0; top: 0; bottom: 0;
+      width: 560px;
+      background: #fff;
+      box-shadow: -8px 0 40px rgba(0,0,0,0.14);
+      z-index: 60;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ticket-drawer.open { transform: translateX(0); }
+
+    .td-head {
+      padding: 18px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .td-head-left { display: flex; align-items: center; gap: 10px; }
+    .td-head h2 { font-size: 15px; font-weight: 700; }
+
+    .td-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+    .td-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 18px 0 10px;
+    }
+
+    .td-section-title:first-child { margin-top: 0; }
+
+    .td-field { margin-bottom: 14px; }
+    .td-field .tf-label { font-size: 11px; color: #9ca3af; margin-bottom: 4px; }
+    .td-field .tf-value { font-size: 13px; color: #111827; font-weight: 500; line-height: 1.6; }
+
+    .td-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+    .td-original-box {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+
+    /* Attachments grid */
+    .attach-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .attach-item {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      background: #f3f4f6;
+      aspect-ratio: 16/9;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .attach-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.15s;
+    }
+
+    .attach-item:hover img { opacity: 0.85; }
+
+    .attach-item .video-thumb {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    .attach-item .video-thumb .play-icon {
+      width: 36px; height: 36px;
+      background: rgba(0,0,0,0.12);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .attach-item .zoom-btn {
+      position: absolute;
+      top: 6px; right: 6px;
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 11px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .attach-item:hover .zoom-btn { opacity: 1; }
+
+    .no-attach {
+      font-size: 13px;
+      color: #9ca3af;
+      padding: 12px 0;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox.show { display: flex; }
+
+    .lightbox img, .lightbox video {
+      max-width: 90vw;
+      max-height: 88vh;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 20px; right: 24px;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      border-radius: 8px;
+      padding: 4px 12px;
+      cursor: pointer;
+    }
+
+    /* ── Review panel ── */
+    .review-panel {
+      border-top: 1px solid #f3f4f6;
+      margin: 0 -24px;
+    }
+
+    .review-toggle {
+      width: 100%;
+      padding: 10px 24px;
+      background: #f8faff;
+      border: none;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .review-toggle:hover { background: #eff6ff; }
+    .review-toggle .rt-chevron { transition: transform 0.2s; font-size: 11px; color: #9ca3af; }
+    .review-toggle.open .rt-chevron { transform: rotate(180deg); }
+
+    .review-body {
+      display: none;
+      padding: 14px 24px 16px;
+      background: #fafbff;
+    }
+
+    .review-body.open { display: block; }
+
+    .review-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .review-row:last-child { margin-bottom: 0; }
+    .review-label { font-size: 12px; color: #6b7280; width: 72px; flex-shrink: 0; }
+
+    .review-row select {
+      flex: 1;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 7px;
+      padding: 6px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .review-row select.changed { border-color: #f59e0b; background: #fffbeb; }
+
+    .btn-sm {
+      padding: 5px 12px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-sm-primary { background: #1a56db; color: #fff; }
+    .btn-sm-primary:hover { opacity: 0.88; }
+
+    .btn-sm-danger {
+      background: #fee2e2;
+      color: #ef4444;
+      border: 1px solid #fecaca;
+    }
+
+    .btn-sm-danger:hover { background: #fecaca; }
+
+    .summary-editable {
+      font-size: 13px;
+      color: #0c4a6e;
+      line-height: 1.6;
+      outline: none;
+      border-radius: 6px;
+      padding: 2px 4px;
+      min-height: 40px;
+    }
+
+    .summary-editable[contenteditable="true"] {
+      background: #fff;
+      border: 1.5px solid #1a56db;
+      padding: 6px 8px;
+    }
+
+    .dissolve-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 9px;
+      background: #fff;
+      border: 1.5px solid #fca5a5;
+      border-radius: 8px;
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .dissolve-btn:hover { background: #fef2f2; }
+
+    .si-remove {
+      margin-left: auto;
+      padding: 3px 8px;
+      background: #fff;
+      border: 1px solid #fca5a5;
+      border-radius: 5px;
+      color: #ef4444;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .source-item:hover .si-remove { opacity: 1; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #111827;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      z-index: 300;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Confirm dialog ── */
+    /* ── AI Thinking overlay ── */
+    .thinking-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .thinking-overlay.show { display: flex; }
+    .thinking-box {
+      background: #1e1b4b;
+      border-radius: 20px;
+      padding: 36px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+    .thinking-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid rgba(139,92,246,0.3);
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .thinking-label {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.3px;
+    }
+    .thinking-sub {
+      font-size: 12px;
+      color: #a78bfa;
+      margin-top: -10px;
+    }
+
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 150;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .confirm-overlay.show { display: flex; }
+
+    .confirm-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px 28px;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+
+    .confirm-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .confirm-box p  { font-size: 13px; color: #6b7280; margin-bottom: 20px; line-height: 1.6; }
+
+    .confirm-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+    .confirm-btns .btn-cancel {
+      padding: 8px 16px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .confirm-btns .btn-confirm-danger {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .drawer-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 10px;
+    }
+
+    .drawer-footer select {
+      flex: 1;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .drawer-footer button {
+      padding: 8px 20px;
+      background: #1a56db;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .lang-pick-btn {
+      padding: 10px 8px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      background: #fafafa;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .lang-pick-btn:hover { border-color: #1a56db; background: #eff6ff; color: #1a56db; }
+
+    /* ── Partner management ── */
+    .pm-actions { display: flex; gap: 6px; }
+    .pm-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid;
+    }
+    .pm-btn-edit   { border-color: #93c5fd; color: #1a56db; background: #eff6ff; }
+    .pm-btn-delete { border-color: #fca5a5; color: #ef4444; background: #fef2f2; }
+    .pm-btn-edit:hover   { background: #dbeafe; }
+    .pm-btn-delete:hover { background: #fee2e2; }
+    .pm-token { font-family: monospace; font-size: 11px; color: #9ca3af; }
+    .copy-btn {
+      border: 1.5px solid #e5e7eb; background: #fff; border-radius: 8px;
+      padding: 6px 12px; font-size: 12px; font-weight: 600; color: #374151;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .copy-btn:hover { border-color: #1a56db; color: #1a56db; }
+    .copy-btn.copied { border-color: #10b981; color: #10b981; }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 8px 18px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover { color: #374151; }
+    .tab-btn.active { color: #1a56db; border-bottom-color: #1a56db; }
+
+    /* ── Pager ── */
+    .pager {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 16px 0 4px;
+    }
+
+    .pager-btn {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 7px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .pager-btn:hover:not(:disabled) { border-color: #1a56db; color: #1a56db; }
+    .pager-btn.active { background: #1a56db; border-color: #1a56db; color: #fff; }
+    .pager-btn:disabled { opacity: 0.35; cursor: default; }
+
+    /* ── Scoring panel ── */
+    .scoring-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 150;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 48px;
+    }
+
+    .scoring-overlay.show { display: flex; }
+
+    .scoring-panel {
+      background: #fff;
+      border-radius: 16px;
+      width: 560px;
+      max-height: 84vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sp-head {
+      padding: 18px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 2;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .sp-head h2 { font-size: 15px; font-weight: 700; }
+    .sp-head p  { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+
+    .sp-body { padding: 20px 24px; }
+
+    .sp-section { margin-bottom: 24px; }
+    .sp-section:last-child { margin-bottom: 0; }
+
+    .sp-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    .sp-section-hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    /* Preset toggle group */
+    .preset-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .preset-opt {
+      flex: 1;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: #fafafa;
+      user-select: none;
+    }
+
+    .preset-opt:hover { border-color: #93c5fd; background: #f0f9ff; }
+    .preset-opt.active { border-color: #1a56db; background: #eff6ff; }
+
+    .preset-opt .po-icon { font-size: 20px; margin-bottom: 4px; }
+    .preset-opt .po-label { font-size: 12px; font-weight: 700; color: #374151; }
+    .preset-opt .po-hint  { font-size: 10px; color: #9ca3af; margin-top: 2px; line-height: 1.3; }
+    .preset-opt.active .po-label { color: #1a56db; }
+
+    /* Country ranking list */
+    .country-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .country-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 9px;
+      padding: 9px 12px;
+      cursor: grab;
+      transition: box-shadow 0.15s, background 0.15s;
+      user-select: none;
+    }
+
+    .country-item:active { cursor: grabbing; }
+    .country-item.drag-over { border-color: #1a56db; background: #eff6ff; box-shadow: 0 0 0 2px #bfdbfe; }
+    .country-item.dragging { opacity: 0.4; }
+
+    .ci-rank {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: #6b7280;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .country-item.rank-1 .ci-rank { background: #fef3c7; color: #d97706; }
+    .country-item.rank-2 .ci-rank { background: #e2e8f0; color: #64748b; }
+    .country-item.rank-3 .ci-rank { background: #fef3c7; color: #92400e; opacity: 0.6; }
+
+    .ci-flag   { font-size: 20px; }
+    .ci-name   { flex: 1; font-size: 13px; font-weight: 600; color: #374151; }
+    .ci-weight { font-size: 11px; color: #9ca3af; margin-left: auto; }
+
+    .ci-arrows { display: flex; flex-direction: column; gap: 1px; }
+
+    .ci-arrow {
+      width: 20px; height: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 10px;
+      color: #9ca3af;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s, color 0.1s;
+    }
+
+    .ci-arrow:hover { background: #e5e7eb; color: #374151; }
+
+    /* Partner tier rows */
+    .partner-tier-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .partner-tier-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pt-flag { font-size: 18px; flex-shrink: 0; }
+    .pt-name { flex: 1; font-size: 13px; color: #374151; }
+
+    .tier-select {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      background: #fafafa;
+      cursor: pointer;
+      min-width: 88px;
+    }
+
+    .tier-select:focus { border-color: #1a56db; }
+    .tier-select[data-tier="strategic"] { border-color: #7c3aed; color: #7c3aed; background: #f5f3ff; }
+    .tier-select[data-tier="important"] { border-color: #1a56db; color: #1a56db; background: #eff6ff; }
+    .tier-select[data-tier="normal"]    { border-color: #e5e7eb; color: #6b7280; background: #fafafa; }
+
+    .sp-footer {
+      padding: 14px 24px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      border-radius: 0 0 16px 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h2>需求管理平台</h2>
+    <p>AI-Powered · v1.0</p>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" onclick="switchPage('dashboard')"><span class="icon">📊</span> 需求看板</div>
+    <div class="nav-item" onclick="switchPage('all')"><span class="icon">📋</span> 所有需求</div>
+    <div class="nav-item" onclick="switchPage('partners')"><span class="icon">🌐</span> 服务商管理</div>
+  </nav>
+  <div class="sidebar-bottom">周期：2026-W22 · 批次 #14</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="topbarTitle">需求看板 · Requirement Dashboard</h1>
+    <div class="topbar-right">
+      <div id="dashFilters" style="display:flex;gap:12px;align-items:center">
+        <select class="filter-select" id="dashFilterCountry" onchange="renderTable()">
+          <option value="">全部国家</option>
+          <option value="TH">🇹🇭 泰国</option>
+          <option value="ID">🇮🇩 印尼</option>
+          <option value="IT">🇮🇹 意大利</option>
+          <option value="KH">🇰🇭 柬埔寨</option>
+          <option value="MY">🇲🇾 马来西亚</option>
+        </select>
+        <select class="filter-select" id="dashFilterPeriod" onchange="renderTable()">
+          <option value="">全部周期</option>
+          <option value="2026-W22">2026-W22（当前）</option>
+          <option value="2026-W21">2026-W21</option>
+          <option value="2026-W20">2026-W20</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="mergeStatus" style="font-size:11px;color:#9ca3af"></span>
+        <button id="mergeBtn" class="btn-primary" onclick="runMerge()" style="background:#6d28d9">⚡ AI 归并</button>
+        <button class="btn-primary" style="background:#f0fdf4;color:#15803d;border:1.5px solid #86efac" onclick="openScoringPanel()">⚙ 评分规则</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page: Dashboard -->
+  <div class="content" id="page-dashboard">
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">本周期提交总量</div>
+        <div class="value">134</div>
+        <div class="sub">↑ 23 vs 上周期</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">聚合后需求簇</div>
+        <div class="value">38</div>
+        <div class="sub">压缩率 72%</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>来源国分布</h3>
+        <div class="chart-wrap">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>归属层分布</h3>
+        <div class="chart-wrap">
+          <canvas id="layerChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>周期提交量趋势</h3>
+        <div class="chart-wrap">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3>需求簇 · Top 10 优先级</h3>
+        <input class="search-input" id="dashSearch" placeholder="🔍 搜索需求..." oninput="renderTable()" />
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>需求摘要</th>
+            <th>归属层</th>
+            <th>业务影响</th>
+            <th>来源</th>
+            <th>频次</th>
+            <th>优先级</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="dashTableFooter" style="text-align:center;padding:14px 0 4px;font-size:12px;color:#9ca3af"></div>
+    </div>
+  </div>
+
+  <!-- Page: All Requirements -->
+  <div class="content" id="page-all" style="display:none">
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabBtnClusters" onclick="switchAllTab('clusters')">需求簇</button>
+      <button class="tab-btn" id="tabBtnTickets"  onclick="switchAllTab('tickets')">原始需求</button>
+    </div>
+
+    <!-- Tab: All Clusters -->
+    <div id="allTabClusters">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>全部需求簇</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="filter-select" id="acFilterCountry" onchange="clusterPage=1;renderAllClusters()">
+              <option value="">全部国家</option>
+              <option value="TH">🇹🇭 泰国</option>
+              <option value="ID">🇮🇩 印尼</option>
+              <option value="IT">🇮🇹 意大利</option>
+              <option value="KH">🇰🇭 柬埔寨</option>
+              <option value="MY">🇲🇾 马来西亚</option>
+            </select>
+            <select class="filter-select" id="acFilterStatus" onchange="clusterPage=1;renderAllClusters()">
+              <option value="">全部状态</option>
+              <option value="pending">待处理</option>
+              <option value="merged">已归并</option>
+              <option value="scheduled">排期中</option>
+              <option value="dev">开发中</option>
+              <option value="live">已上线</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>需求摘要</th>
+              <th>归属层</th>
+              <th>业务影响</th>
+              <th>来源</th>
+              <th>频次</th>
+              <th>优先级</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody id="allClustersBody"></tbody>
+        </table>
+        <div id="allClustersEmpty" style="display:none;text-align:center;padding:40px;color:#9ca3af;font-size:14px">暂无匹配需求簇</div>
+        <div id="allClustersPager" class="pager"></div>
+      </div>
+    </div>
+
+    <!-- Tab: All Tickets -->
+    <div id="allTabTickets" style="display:none">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>所有原始需求工单</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-primary" style="background:#f59e0b;border:none;white-space:nowrap" onclick="openManualForm()">＋ 人工录入</button>
+            <button class="btn-primary" style="background:#fff;color:#374151;border:1.5px solid #e5e7eb;white-space:nowrap" onclick="downloadTemplate()">⬇ 下载模板</button>
+            <label style="display:inline-flex;align-items:center;padding:7px 16px;background:#fff;color:#374151;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
+              ⬆ 批量导入
+              <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(this)" />
+            </label>
+            <select class="filter-select" id="allFilterCountry" onchange="ticketPage=1;renderAllTable()">
+              <option value="">全部国家</option>
+              <option value="🇹🇭">🇹🇭 泰国</option>
+              <option value="🇮🇩">🇮🇩 印尼</option>
+              <option value="🇮🇹">🇮🇹 意大利</option>
+              <option value="🇰🇭">🇰🇭 柬埔寨</option>
+              <option value="🇲🇾">🇲🇾 马来西亚</option>
+            </select>
+            <select class="filter-select" id="allFilterStatus" onchange="ticketPage=1;renderAllTable()">
+              <option value="">全部状态</option>
+              <option value="pending">待处理</option>
+              <option value="merged">已归并</option>
+              <option value="scheduled">排期中</option>
+              <option value="dev">开发中</option>
+              <option value="live">已上线</option>
+            </select>
+            <select class="filter-select" id="allFilterImpact" onchange="ticketPage=1;renderAllTable()">
+              <option value="">全部影响</option>
+              <option value="high">高</option>
+              <option value="mid">中</option>
+              <option value="low">低</option>
+            </select>
+            <input class="search-input" id="allSearch" placeholder="🔍 搜索工单..." oninput="ticketPage=1;renderAllTable()" style="width:180px" />
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>工单 ID</th>
+              <th>原始描述</th>
+              <th>商户</th>
+              <th>来源服务商</th>
+              <th>业务影响</th>
+              <th>涉及场景</th>
+              <th>提交时间</th>
+              <th>归并状态</th>
+            </tr>
+          </thead>
+          <tbody id="allTableBody"></tbody>
+        </table>
+        <div id="allTableEmpty" style="display:none;text-align:center;padding:40px;color:#9ca3af;font-size:14px">暂无匹配工单</div>
+        <div id="allTicketsPager" class="pager"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Page: Partner Management -->
+  <div class="content" id="page-partners" style="display:none">
+    <div class="table-header" style="margin-bottom:16px">
+      <h3 style="font-size:15px;font-weight:700">服务商管理</h3>
+      <button class="btn-primary" onclick="openPartnerForm(null)">＋ 新增服务商</button>
+    </div>
+    <div id="partnersCardList" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div>
+</div>
+
+<!-- Drawer overlay -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeAllDrawers()"></div>
+
+<!-- Detail drawer -->
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2 id="drawerTitle">需求簇详情</h2>
+    <button class="close-btn" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-footer">
+    <select id="statusSelect">
+      <option value="pending">待处理</option>
+      <option value="merged">已归并</option>
+      <option value="scheduled">排期中</option>
+      <option value="dev">开发中</option>
+      <option value="live">已上线</option>
+    </select>
+    <button onclick="saveStatus()">更新状态</button>
+  </div>
+</div>
+
+<!-- AI Thinking overlay -->
+<div class="thinking-overlay" id="thinkingOverlay">
+  <div class="thinking-box">
+    <div class="thinking-spinner"></div>
+    <div class="thinking-label">DeepSeek Thinking...</div>
+    <div class="thinking-sub" id="thinkingSubText">正在分析工单并归并需求簇</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confirm dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">确认操作</h3>
+    <p id="confirmMsg"></p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">取消</button>
+      <button class="btn-confirm-danger" id="confirmOkBtn">确认拆散</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scoring config panel -->
+<div class="scoring-overlay" id="scoringOverlay" onclick="closeScoringPanel(event)">
+  <div class="scoring-panel" onclick="event.stopPropagation()">
+    <div class="sp-head">
+      <div>
+        <h2>⚙ 优先级评分规则</h2>
+        <p>调整各维度权重，点击「重新计算」立即生效</p>
+      </div>
+      <button class="close-btn" onclick="closeScoringPanel()">✕</button>
+    </div>
+    <div class="sp-body">
+
+      <!-- Impact preset -->
+      <div class="sp-section">
+        <div class="sp-section-title">业务影响差距</div>
+        <div class="sp-section-hint">高/中/低影响的需求，排名差距有多大？</div>
+        <div class="preset-group" id="impactPresetGroup">
+          <div class="preset-opt" data-val="flat" onclick="selectPreset('impactPresetGroup', this)">
+            <div class="po-icon">🟰</div>
+            <div class="po-label">均等</div>
+            <div class="po-hint">不区分<br>影响等级</div>
+          </div>
+          <div class="preset-opt active" data-val="mid" onclick="selectPreset('impactPresetGroup', this)">
+            <div class="po-icon">⚖️</div>
+            <div class="po-label">适中差距</div>
+            <div class="po-hint">高影响明显<br>优先（默认）</div>
+          </div>
+          <div class="preset-opt" data-val="strong" onclick="selectPreset('impactPresetGroup', this)">
+            <div class="po-icon">🚀</div>
+            <div class="po-label">高度强调</div>
+            <div class="po-hint">高影响<br>大幅领先</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Country ranking -->
+      <div class="sp-section">
+        <div class="sp-section-title">来源国战略优先级</div>
+        <div class="sp-section-hint">拖动排序，排名越靠前权重越高 · 系统自动分配加成比例</div>
+        <div class="country-list" id="countryRankList"></div>
+      </div>
+
+      <!-- Partner tier -->
+      <div class="sp-section">
+        <div class="sp-section-title">服务商重要度</div>
+        <div class="sp-section-hint">战略级加权最高，普通级无额外加成</div>
+        <div class="partner-tier-list" id="partnerTierList"></div>
+      </div>
+
+      <!-- Period preset -->
+      <div class="sp-section">
+        <div class="sp-section-title">跨周期累计加成</div>
+        <div class="sp-section-hint">同一需求跨多个周期持续反馈，是否额外加分？</div>
+        <div class="preset-group" id="periodPresetGroup">
+          <div class="preset-opt" data-val="none" onclick="selectPreset('periodPresetGroup', this)">
+            <div class="po-icon">➖</div>
+            <div class="po-label">不加权</div>
+            <div class="po-hint">周期数<br>不影响得分</div>
+          </div>
+          <div class="preset-opt active" data-val="mid" onclick="selectPreset('periodPresetGroup', this)">
+            <div class="po-icon">📈</div>
+            <div class="po-label">适中加成</div>
+            <div class="po-hint">跨期需求<br>适度提升（默认）</div>
+          </div>
+          <div class="preset-opt" data-val="strong" onclick="selectPreset('periodPresetGroup', this)">
+            <div class="po-icon">🔥</div>
+            <div class="po-label">显著加成</div>
+            <div class="po-hint">长期需求<br>大幅优先</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="sp-footer">
+      <button style="padding:8px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#374151" onclick="closeScoringPanel()">取消</button>
+      <button class="btn-primary" onclick="applyScoringConfig()">✦ 重新计算得分</button>
+    </div>
+  </div>
+</div>
+
+<!-- Partner form modal -->
+<div class="confirm-overlay" id="partnerFormOverlay" style="align-items:center">
+  <div class="confirm-box" style="max-width:440px;width:92%">
+    <h3 id="partnerFormTitle">新增服务商</h3>
+    <div style="display:flex;flex-direction:column;gap:12px;margin:16px 0">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">国家 Flag（Emoji）</div>
+          <input id="pf_flag" placeholder="🇹🇭" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:18px;outline:none" />
+        </div>
+        <div>
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">国家代码（如 TH）</div>
+          <input id="pf_countryId" placeholder="TH" maxlength="4" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" />
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">国家名称（中文，如 泰国）</div>
+        <input id="pf_countryName" placeholder="泰国" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none" />
+      </div>
+      <div>
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">服务商名称（如 TH-Partner）</div>
+        <input id="pf_name" placeholder="TH-Partner" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">默认语言</div>
+          <select id="pf_lang" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="th">ภาษาไทย</option>
+            <option value="id">Indonesian</option>
+            <option value="it">Italiano</option>
+            <option value="fr">Français</option>
+            <option value="km">ខ្មែរ</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">重要度</div>
+          <select id="pf_tier" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none">
+            <option value="strategic">⭐ 战略级</option>
+            <option value="important">✦ 重要级</option>
+            <option value="normal">· 普通级</option>
+          </select>
+        </div>
+      </div>
+      <div id="pf_tokenRow" style="display:none">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">专属 Token（不可修改）</div>
+        <div id="pf_tokenDisplay" style="font-family:monospace;font-size:12px;color:#6b7280;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 10px"></div>
+      </div>
+    </div>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closePartnerForm()">取消</button>
+      <button class="btn-primary" onclick="savePartnerForm()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Template language picker modal -->
+<div class="confirm-overlay" id="templateLangOverlay" style="align-items:center">
+  <div class="confirm-box" style="max-width:400px;width:92%">
+    <h3 style="margin-bottom:6px">选择模板语言</h3>
+    <p style="font-size:12px;color:#9ca3af;margin-bottom:16px">模板表头和示例内容将以所选语言生成</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
+      <button class="lang-pick-btn" onclick="downloadTemplateInLang('zh')">🇨🇳 中文</button>
+      <button class="lang-pick-btn" onclick="downloadTemplateInLang('en')">🇬🇧 English</button>
+      <button class="lang-pick-btn" onclick="downloadTemplateInLang('th')">🇹🇭 ภาษาไทย</button>
+      <button class="lang-pick-btn" onclick="downloadTemplateInLang('id')">🇮🇩 Indonesia</button>
+      <button class="lang-pick-btn" onclick="downloadTemplateInLang('it')">🇮🇹 Italiano</button>
+      <button class="lang-pick-btn" onclick="downloadTemplateInLang('fr')">🇫🇷 Français</button>
+      <button class="lang-pick-btn" onclick="downloadTemplateInLang('km')" style="grid-column:1/-1">🇰🇭 ភាសាខ្មែរ</button>
+    </div>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="document.getElementById('templateLangOverlay').classList.remove('show')">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import result modal -->
+<div class="confirm-overlay" id="importResultOverlay" style="align-items:center">
+  <div class="confirm-box" style="max-width:420px;width:92%">
+    <h3 id="importResultTitle">导入完成</h3>
+    <div id="importResultBody" style="margin:14px 0;font-size:13px;color:#374151;line-height:1.8"></div>
+    <div class="confirm-btns">
+      <button class="btn-primary" onclick="document.getElementById('importResultOverlay').classList.remove('show')">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manual ticket entry modal -->
+<div class="confirm-overlay" id="manualFormOverlay" style="align-items:flex-start;padding-top:48px">
+  <div class="confirm-box" style="max-width:480px;width:94%;max-height:82vh;overflow-y:auto">
+    <h3 style="margin-bottom:4px">＋ 人工录入需求工单</h3>
+    <p style="font-size:12px;color:#9ca3af;margin-bottom:16px">代服务商录入，工单将标记为「人工」来源</p>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div>
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:5px">代录服务商 <span style="color:#ef4444">*</span></div>
+        <select id="mf_partner" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;outline:none">
+          <option value="">请选择服务商...</option>
+        </select>
+      </div>
+
+      <div>
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:5px">商户名称 <span style="color:#ef4444">*</span></div>
+        <input id="mf_merchant" placeholder="如：BangkokBistro" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;outline:none" />
+      </div>
+
+      <div>
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:5px">需求描述 <span style="color:#ef4444">*</span></div>
+        <textarea id="mf_text" rows="3" placeholder="请描述服务商反馈的具体需求（可用中文转述）..." style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;outline:none;resize:vertical;line-height:1.6"></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:8px">业务影响 <span style="color:#ef4444">*</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="mf_impact" value="high" /> <span style="color:#ef4444;font-weight:600">高</span> 影响</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="mf_impact" value="mid" checked /> <span style="color:#d97706;font-weight:600">中</span> 影响</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="mf_impact" value="low" /> <span style="color:#059669;font-weight:600">低</span> 影响</label>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:8px">涉及场景</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="收银" class="mf_scene" /> 收银</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="报表" class="mf_scene" /> 报表</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="会员" class="mf_scene" /> 会员</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="厨显" class="mf_scene" /> 厨显</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="支付" class="mf_scene" /> 支付</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="库存" class="mf_scene" /> 库存</label>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e">
+        ⚠ 该工单将标记为「人工录入」，与服务商在线提交的工单区分显示，但同样参与 AI 归并处理。
+      </div>
+
+    </div>
+
+    <div class="confirm-btns" style="margin-top:18px">
+      <button class="btn-cancel" onclick="closeManualForm()">取消</button>
+      <button class="btn-primary" style="background:#f59e0b" onclick="submitManualTicket()">提交工单</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ticket detail drawer -->
+<div class="ticket-drawer" id="ticketDrawer">
+  <div class="td-head">
+    <div class="td-head-left">
+      <button class="close-btn" onclick="closeTicketDrawer()">✕</button>
+      <h2 id="tdTitle">工单详情</h2>
+    </div>
+  </div>
+  <div class="td-body" id="tdBody"></div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <div id="lightboxContent"></div>
+</div>
+
+<script>
+const API_BASE = '';
+
+// ── Data (populated async from API) ──
+let clusters = [
+  {
+    id: "#042", score: 87, urgent: true,
+    summary: "支持打印自定义小票模板（Logo + 二维码）",
+    layer: "saas", impact: "high",
+    sources: ["🇹🇭", "🇮🇩", "🇮🇹"], sourceIds: ["TH", "ID", "IT"],
+    partners: ["TH-Partner", "ID-Partner", "IT-Partner"],
+    count: 5, periods: 2,
+    status: "scheduled",
+    aiSummary: "多个国家商户反馈需要在小票上打印门店 Logo 与收款二维码，主要集中于餐饮类商户，影响门店品牌形象与扫码收款效率。",
+    items: [
+      { id: "TH-0231", flag: "🇹🇭", lang: "Thai", text: "ลูกค้าต้องการให้ระบบพิมพ์โลโก้ร้านและ QR Code บนใบเสร็จ", merchant: "BangkokBistro", time: "2026-05-20 14:32", partner: "TH-Partner", impact:"high", scenes:["收银"], attachments:[{type:"image",url:"https://picsum.photos/seed/th231a/800/450",name:"receipt_sample.jpg"},{type:"image",url:"https://picsum.photos/seed/th231b/800/450",name:"qr_mockup.png"}] },
+      { id: "IT-0089", flag: "🇮🇹", lang: "Italian", text: "Il cliente richiede la stampa del logo del negozio sullo scontrino con QR code per pagamenti.", merchant: "RomaCafe", time: "2026-05-21 09:15", partner: "IT-Partner", impact:"high", scenes:["收银"], attachments:[{type:"image",url:"https://picsum.photos/seed/it089a/800/450",name:"scontrino.jpg"}] },
+      { id: "ID-0156", flag: "🇮🇩", lang: "Indonesian", text: "Pelanggan ingin cetak logo toko dan QR Code di struk kasir untuk memudahkan pembayaran.", merchant: "JakartaFood", time: "2026-05-22 11:40", partner: "ID-Partner", impact:"high", scenes:["收银"], attachments:[{type:"video",url:"",name:"demo_video.mp4"},{type:"image",url:"https://picsum.photos/seed/id156a/800/450",name:"struk.jpg"}] },
+    ]
+  },
+  {
+    id: "#038", score: 79, urgent: false,
+    summary: "报表支持按班次/时段导出 Excel",
+    layer: "saas", impact: "high",
+    sources: ["🇹🇭", "🇲🇾"], sourceIds: ["TH", "MY"],
+    partners: ["TH-Partner", "MY-Partner"],
+    count: 4, periods: 1,
+    status: "dev",
+    aiSummary: "泰国与马来西亚商户均反映现有报表缺少班次维度，无法按早/午/晚班次拆分营业数据，影响门店运营分析效率。",
+    items: [
+      { id: "TH-0198", flag: "🇹🇭", lang: "Thai", text: "ต้องการส่งออกรายงานตามกะงานเป็น Excel", merchant: "SiamMart", time: "2026-05-19 16:22", partner: "TH-Partner", impact:"high", scenes:["报表"], attachments:[{type:"image",url:"https://picsum.photos/seed/th198a/800/450",name:"report_screen.jpg"},{type:"image",url:"https://picsum.photos/seed/th198b/800/450",name:"shift_data.png"}] },
+      { id: "MY-0034", flag: "🇲🇾", lang: "Malay", text: "Pelanggan mahu laporan mengikut syif kerja boleh dieksport ke Excel.", merchant: "KLRetail", time: "2026-05-20 10:05", partner: "MY-Partner", impact:"high", scenes:["报表"], attachments:[] },
+    ]
+  },
+  {
+    id: "#035", score: 71, urgent: false,
+    summary: "会员积分支持跨门店通用",
+    layer: "cross", impact: "mid",
+    sources: ["🇰🇭", "🇮🇩"], sourceIds: ["KH", "ID"],
+    partners: ["KH-Partner", "ID-Partner"],
+    count: 3, periods: 2,
+    status: "merged",
+    aiSummary: "柬埔寨与印尼连锁商户希望实现会员积分跨门店累计与使用，目前积分体系仅限单店，影响连锁品牌统一运营。",
+    items: [
+      { id: "KH-0021", flag: "🇰🇭", lang: "Khmer", text: "ចង់ឱ្យពិន្ទុទំនិញអាចប្រើបានរវាងបណ្ណាល័យ", merchant: "PhnomPenhChain", time: "2026-05-18 08:30", partner: "KH-Partner", impact:"high", scenes:["会员"], attachments:[{type:"image",url:"https://picsum.photos/seed/kh021a/800/450",name:"loyalty_app.jpg"}] },
+    ]
+  },
+  {
+    id: "#031", score: 65, urgent: false,
+    summary: "低代码平台支持自定义审批流节点",
+    layer: "platform", impact: "mid",
+    sources: ["🇮🇹", "🇲🇾"], sourceIds: ["IT", "MY"],
+    partners: ["IT-Partner", "MY-Partner"],
+    count: 3, periods: 1,
+    status: "pending",
+    aiSummary: "意大利与马来西亚服务商反映，部分 SaaS 开发者需要在平台内配置多级审批流，现有节点类型不满足复杂业务场景。",
+    items: [
+      { id: "IT-0067", flag: "🇮🇹", lang: "Italian", text: "Necessità di nodi di approvazione personalizzati nel flusso di lavoro della piattaforma.", merchant: "MilanoSaaS", time: "2026-05-17 14:00", partner: "IT-Partner", impact:"mid", scenes:["报表"], attachments:[{type:"video",url:"",name:"workflow_demo.mp4"}] },
+    ]
+  },
+  {
+    id: "#028", score: 58, urgent: false,
+    summary: "厨显支持多语言菜品名称显示",
+    layer: "saas", impact: "mid",
+    sources: ["🇹🇭"], sourceIds: ["TH"],
+    partners: ["TH-Partner"],
+    count: 2, periods: 1,
+    status: "pending",
+    aiSummary: "泰国部分餐厅有外籍厨师，希望厨显菜品名称可以同时显示泰文与英文，方便厨房操作。",
+    items: [
+      { id: "TH-0210", flag: "🇹🇭", lang: "Thai", text: "ต้องการให้หน้าจอครัวแสดงชื่อเมนูทั้งภาษาไทยและอังกฤษ", merchant: "ChiangMaiKitchen", time: "2026-05-21 13:15", partner: "TH-Partner" },
+    ]
+  },
+  {
+    id: "#025", score: 44, urgent: false,
+    summary: "平台 API 限流阈值支持按租户独立配置",
+    layer: "platform", impact: "low",
+    sources: ["🇮🇩"], sourceIds: ["ID"],
+    partners: ["ID-Partner"],
+    count: 1, periods: 1,
+    status: "pending",
+    aiSummary: "印尼某 SaaS 开发者反映平台全局限流策略导致高峰期接口超时，希望针对大流量租户单独提升限流上限。",
+    items: [
+      { id: "ID-0141", flag: "🇮🇩", lang: "Indonesian", text: "Pengembang membutuhkan konfigurasi rate limit API per tenant agar tidak terkena pembatasan global.", merchant: "JakartaSaaS", time: "2026-05-22 15:00", partner: "ID-Partner", impact:"low", scenes:["报表"], attachments:[] },
+    ]
+  },
+];
+
+// ── Scoring config ──
+const scoringConfig = {
+  impactWeight:  { high: 3.0, mid: 2.0, low: 1.0 },
+  countryWeight: { TH: 1.5, ID: 1.3, IT: 1.2, MY: 1.1, KH: 1.0, FR: 1.0 },
+  partnerTier:   { 'TH-Partner': 'strategic', 'ID-Partner': 'important', 'IT-Partner': 'important', 'MY-Partner': 'normal', 'KH-Partner': 'normal', 'FR-Partner': 'normal' },
+  tierWeight:    { strategic: 2.0, important: 1.5, normal: 1.0 },
+  periodCoeff:   [1.0, 1.3, 1.6],
+};
+
+function calcScoreRaw(c) {
+  const impact    = scoringConfig.impactWeight[c.impact] || 1.0;
+  const countryW  = Math.max(...(c.sourceIds || ['KH']).map(id => scoringConfig.countryWeight[id] || 1.0));
+  const partnerW  = Math.max(...(c.partners  || ['KH-Partner']).map(p => scoringConfig.tierWeight[scoringConfig.partnerTier[p] || 'normal'] || 1.0));
+  const pidx      = Math.min((c.periods || 1) - 1, scoringConfig.periodCoeff.length - 1);
+  const coeff     = scoringConfig.periodCoeff[pidx];
+  return (c.count || 1) * impact * countryW * partnerW * coeff;
+}
+
+function recalcAllScores() {
+  const raws = clusters.map(calcScoreRaw);
+  const maxRaw = Math.max(...raws, 1);
+  clusters.forEach((c, i) => { c.score = Math.round(raws[i] / maxRaw * 100); });
+  clusters.sort((a, b) => b.score - a.score);
+}
+
+function scoreBreakdown(c) {
+  const impact    = scoringConfig.impactWeight[c.impact] || 1.0;
+  const countryW  = Math.max(...(c.sourceIds || ['KH']).map(id => scoringConfig.countryWeight[id] || 1.0));
+  const bestCountry = (c.sourceIds || ['KH']).reduce((a, b) =>
+    (scoringConfig.countryWeight[a] || 1.0) >= (scoringConfig.countryWeight[b] || 1.0) ? a : b, 'KH');
+  const partnerW  = Math.max(...(c.partners || ['KH-Partner']).map(p => scoringConfig.tierWeight[scoringConfig.partnerTier[p] || 'normal'] || 1.0));
+  const bestPartner = (c.partners || ['KH-Partner']).reduce((a, b) =>
+    (scoringConfig.tierWeight[scoringConfig.partnerTier[a] || 'normal'] || 1.0) >=
+    (scoringConfig.tierWeight[scoringConfig.partnerTier[b] || 'normal'] || 1.0) ? a : b, 'KH-Partner');
+  const pidx  = Math.min((c.periods || 1) - 1, scoringConfig.periodCoeff.length - 1);
+  const coeff = scoringConfig.periodCoeff[pidx];
+  const raw   = (c.count || 1) * impact * countryW * partnerW * coeff;
+  const tierLabel = { strategic: '战略级', important: '重要级', normal: '普通级' };
+  const impactLbl = { high: '高', mid: '中', low: '低' };
+  return { impact, countryW, bestCountry, partnerW, bestPartner, coeff, raw, tierLabel, impactLbl };
+}
+
+const layerLabel = { platform: "平台层", saas: "SaaS层", cross: "跨层" };
+const layerClass = { platform: "badge-platform", saas: "badge-saas", cross: "badge-cross" };
+const impactClass = { high: "badge-high", mid: "badge-mid", low: "badge-low" };
+const impactLabel = { high: "高", mid: "中", low: "低" };
+const statusMap = {
+  pending:   '<span class="status-badge status-pending">待处理</span>',
+  merged:    '<span class="status-badge status-merged">已归并</span>',
+  scheduled: '<span class="status-badge status-scheduled">排期中</span>',
+  dev:       '<span class="status-badge status-dev">开发中</span>',
+  live:      '<span class="status-badge status-live">已上线</span>',
+};
+
+const DASH_TOP = 10;
+
+function renderClusterRows(list) {
+  return list.map(c => {
+    const origIdx = clusters.indexOf(c);
+    return `
+    <tr onclick="openDrawer(${origIdx})">
+      <td><span class="cluster-id">${c.id}</span>${c.urgent ? '<span class="urgent-tag">紧急</span>' : ''}</td>
+      <td style="max-width:200px">${c.summary}</td>
+      <td><span class="badge ${layerClass[c.layer]}">${layerLabel[c.layer]}</span></td>
+      <td><span class="badge ${impactClass[c.impact]}">${impactLabel[c.impact]}</span></td>
+      <td>${c.sources.join(' ')}</td>
+      <td>${c.count}次 / ${c.periods}周期</td>
+      <td>
+        <div class="score-bar">
+          <div class="bar"><div class="fill" style="width:${c.score}%"></div></div>
+          <div class="num">${c.score}</div>
+        </div>
+      </td>
+      <td>${statusMap[c.status]}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTable() {
+  const countryEl = document.getElementById('dashFilterCountry');
+  const searchEl  = document.getElementById('dashSearch');
+  const country   = countryEl ? countryEl.value : '';
+  const q         = searchEl  ? searchEl.value.toLowerCase() : '';
+
+  const filtered = clusters.filter(c => {
+    if (country && !(c.sourceIds || []).includes(country)) return false;
+    if (q && !c.summary.toLowerCase().includes(q) && !c.id.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const top = filtered.slice(0, DASH_TOP);
+  document.getElementById('tableBody').innerHTML = renderClusterRows(top);
+
+  const footer = document.getElementById('dashTableFooter');
+  if (footer) {
+    const total = filtered.length;
+    if (total > DASH_TOP) {
+      footer.innerHTML = `共 ${total} 个需求簇，仅展示 Top ${DASH_TOP} · <a href="#" style="color:#1a56db" onclick="event.preventDefault();switchPage('all')">前往「所有需求」查看全部</a>`;
+    } else {
+      footer.innerHTML = `共 ${total} 个需求簇`;
+    }
+  }
+}
+
+let currentIdx = 0;
+
+function openDrawer(i) {
+  currentIdx = i;
+  const c = clusters[i];
+  document.getElementById('drawerTitle').textContent = `需求簇 ${c.id}`;
+  document.getElementById('statusSelect').value = c.status;
+
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="meta-row">
+      <div class="meta-item">
+        <div class="ml">优先级得分</div>
+        <div class="mv" style="color:#1a56db;font-size:20px;font-weight:800">${c.score}
+          <span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:4px;cursor:pointer" onclick="toggleScoreDetail()" title="查看得分明细">详情 ▾</span>
+        </div>
+        <div id="scoreDetail" style="display:none;margin-top:8px;background:#f8faff;border:1px solid #dbeafe;border-radius:8px;padding:10px 12px;font-size:12px;color:#374151;line-height:2">
+          ${(() => { const b = scoreBreakdown(c);
+            return `<div>提及频次：<b>${c.count}</b> 次 → 基础分 ${c.count}</div>
+            <div>业务影响：${b.impactLbl[c.impact]}（×${b.impact.toFixed(1)}）</div>
+            <div>来源国最优：${b.bestCountry}（×${b.countryW.toFixed(1)}）</div>
+            <div>服务商：${b.tierLabel[scoringConfig.partnerTier[b.bestPartner] || 'normal']}（×${b.partnerW.toFixed(1)}）</div>
+            <div>跨周期：${c.periods} 周期（×${b.coeff.toFixed(1)}）</div>
+            <div style="border-top:1px solid #bfdbfe;margin-top:4px;padding-top:4px">原始分：<b>${b.raw.toFixed(1)}</b> → 归一化：<b style="color:#1a56db">${c.score}</b></div>`;
+          })()}
+        </div>
+      </div>
+      <div class="meta-item">
+        <div class="ml">归属层</div>
+        <div class="mv"><span class="badge ${layerClass[c.layer]}">${layerLabel[c.layer]}</span></div>
+      </div>
+      <div class="meta-item">
+        <div class="ml">业务影响</div>
+        <div class="mv"><span class="badge ${impactClass[c.impact]}">${impactLabel[c.impact]}</span></div>
+      </div>
+      <div class="meta-item">
+        <div class="ml">反馈次数</div>
+        <div class="mv">${c.count}次（跨 ${c.periods} 个周期）</div>
+      </div>
+    </div>
+
+    <div class="ai-summary">
+      <div class="ai-label">✦ AI 生成摘要</div>
+      <p>${c.aiSummary}</p>
+    </div>
+
+    <div class="sources-title">原始需求条目（${c.items.length} 条）· 点击查看明细</div>
+    ${c.items.map(item => `
+      <div class="source-item" onclick="openTicketDrawer('${item.id}')">
+        <div class="si-head">
+          <span class="si-id">${item.flag} ${item.id}</span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span class="si-time">${item.time}</span>
+            <button class="si-remove" onclick="event.stopPropagation();removeItemFromCluster('${c.id}','${item.id}')">移出簇</button>
+          </span>
+        </div>
+        <div class="si-text">${item.text}</div>
+        <div class="si-meta">商户：${item.merchant} · 服务商：${item.partner} · 语言：${item.lang}</div>
+        ${item.attachments && item.attachments.length ? `<div class="si-attach">📎 ${item.attachments.length} 个附件（点击查看）</div>` : ''}
+      </div>
+    `).join('')}
+
+    <div class="review-panel">
+      <button class="review-toggle" id="reviewToggle" onclick="toggleReview()">
+        <span>🔍 人工核查 · 纠错</span>
+        <span class="rt-chevron">▼</span>
+      </button>
+      <div class="review-body" id="reviewBody">
+        <div class="review-row">
+          <span class="review-label">归属层</span>
+          <select id="reviewLayer" onchange="this.classList.toggle('changed', this.value !== '${c.layer}')">
+            <option value="platform" ${c.layer==='platform'?'selected':''}>平台层</option>
+            <option value="saas"     ${c.layer==='saas'?'selected':''}>SaaS 层</option>
+            <option value="cross"    ${c.layer==='cross'?'selected':''}>跨层</option>
+          </select>
+          <button class="btn-sm btn-sm-primary" onclick="saveLayer()">保存</button>
+        </div>
+        <div style="margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:12px;color:#6b7280">AI 摘要</span>
+            <button class="btn-sm btn-sm-primary" id="editSummaryBtn" onclick="toggleEditSummary()">编辑</button>
+          </div>
+          <div id="reviewSummary" class="summary-editable" contenteditable="false">${c.aiSummary}</div>
+        </div>
+        <button class="dissolve-btn" onclick="confirmDissolve('${c.id}')">⚠️ 拆散整个需求簇，所有工单重置为待处理</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('drawerOverlay').classList.add('show');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+function closeAllDrawers() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('ticketDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+function saveStatus() {
+  const val = document.getElementById('statusSelect').value;
+  const c = clusters[currentIdx];
+  c.status = val;
+  fetch(`${API_BASE}/api/clusters/${encodeURIComponent(c.id)}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: val }),
+  });
+  renderTable();
+  closeDrawer();
+}
+
+// ── Charts ──
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['🇹🇭 泰国', '🇮🇩 印尼', '🇮🇹 意大利', '🇰🇭 柬埔寨', '🇲🇾 马来西亚'],
+    datasets: [{ data: [52, 31, 24, 16, 11], backgroundColor: ['#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6'], borderWidth: 2, borderColor: '#fff' }]
+  },
+  options: { plugins: { legend: { position: 'right', labels: { font: { size: 12 }, boxWidth: 14, padding: 10 } } }, cutout: '55%' }
+});
+
+new Chart(document.getElementById('layerChart'), {
+  type: 'bar',
+  data: {
+    labels: ['平台层', 'SaaS层', '跨层'],
+    datasets: [{ data: [14, 19, 5], backgroundColor: ['#7c3aed','#1a56db','#d97706'], borderRadius: 6, borderWidth: 0 }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } }
+  }
+});
+
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: ['W18','W19','W20','W21','W22'],
+    datasets: [
+      { label: '泰国', data: [38, 42, 45, 49, 52], borderColor: '#1a56db', backgroundColor: 'rgba(26,86,219,0.08)', tension: 0.4, fill: true, pointRadius: 3 },
+      { label: '印尼', data: [20, 22, 25, 28, 31], borderColor: '#3b82f6', tension: 0.4, fill: false, pointRadius: 3 },
+      { label: '意大利', data: [18, 19, 21, 23, 24], borderColor: '#60a5fa', tension: 0.4, fill: false, pointRadius: 3 },
+    ]
+  },
+  options: {
+    plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 12 } } },
+    scales: { y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } }
+  }
+});
+
+// ── All Requirements page ──
+let allTickets = [];
+
+const statusBadge = {
+  pending:   '<span class="status-badge status-pending">待处理</span>',
+  merged:    '<span class="status-badge status-merged">已归并</span>',
+  scheduled: '<span class="status-badge status-scheduled">排期中</span>',
+  dev:       '<span class="status-badge status-dev">开发中</span>',
+  live:      '<span class="status-badge status-live">已上线</span>',
+};
+
+// ── Pager ──
+const PAGE_SIZE = 10;
+let clusterPage = 1;
+let ticketPage  = 1;
+
+function renderPager(containerId, total, currentPage, onPageChange) {
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+  let html = `<button class="pager-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="(${onPageChange})(${currentPage - 1})">‹ 上一页</button>`;
+  for (let p = 1; p <= totalPages; p++) {
+    if (totalPages > 7 && Math.abs(p - currentPage) > 2 && p !== 1 && p !== totalPages) {
+      if (p === currentPage - 3 || p === currentPage + 3) html += `<button class="pager-btn" disabled>…</button>`;
+      continue;
+    }
+    html += `<button class="pager-btn ${p === currentPage ? 'active' : ''}" onclick="(${onPageChange})(${p})">${p}</button>`;
+  }
+  html += `<button class="pager-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="(${onPageChange})(${currentPage + 1})">下一页 ›</button>`;
+  el.innerHTML = html;
+}
+
+// ── All page: Tab switching ──
+let allPageTab = 'clusters';
+
+function switchAllTab(tab) {
+  allPageTab = tab;
+  document.getElementById('allTabClusters').style.display = tab === 'clusters' ? '' : 'none';
+  document.getElementById('allTabTickets').style.display  = tab === 'tickets'  ? '' : 'none';
+  document.getElementById('tabBtnClusters').classList.toggle('active', tab === 'clusters');
+  document.getElementById('tabBtnTickets').classList.toggle('active',  tab === 'tickets');
+  if (tab === 'clusters') { clusterPage = 1; renderAllClusters(); }
+  else                    { ticketPage  = 1; renderAllTable(); }
+}
+
+function renderAllClusters() {
+  const country = document.getElementById('acFilterCountry').value;
+  const status  = document.getElementById('acFilterStatus').value;
+
+  const filtered = clusters.filter(c =>
+    (!country || (c.sourceIds || []).includes(country)) &&
+    (!status  || c.status === status)
+  );
+
+  const empty = document.getElementById('allClustersEmpty');
+  const tbody = document.getElementById('allClustersBody');
+  if (filtered.length === 0) { tbody.innerHTML = ''; empty.style.display = ''; document.getElementById('allClustersPager').innerHTML = ''; return; }
+  empty.style.display = 'none';
+
+  const page = filtered.slice((clusterPage - 1) * PAGE_SIZE, clusterPage * PAGE_SIZE);
+  tbody.innerHTML = renderClusterRows(page);
+  renderPager('allClustersPager', filtered.length, clusterPage, 'function(p){clusterPage=p;renderAllClusters()}');
+}
+
+function renderAllTable() {
+  const country = (document.getElementById('allFilterCountry') || {}).value || '';
+  const status  = (document.getElementById('allFilterStatus')  || {}).value || '';
+  const impact  = (document.getElementById('allFilterImpact')  || {}).value || '';
+  const q       = ((document.getElementById('allSearch')       || {}).value || '').toLowerCase();
+
+  const filtered = allTickets.filter(t =>
+    (!country || t.flag === country) &&
+    (!status  || t.status === status) &&
+    (!impact  || t.impact === impact) &&
+    (!q || t.id.toLowerCase().includes(q) || t.text.toLowerCase().includes(q) || t.merchant.toLowerCase().includes(q))
+  );
+
+  const tbody = document.getElementById('allTableBody');
+  const empty = document.getElementById('allTableEmpty');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    document.getElementById('allTicketsPager').innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const page = filtered.slice((ticketPage - 1) * PAGE_SIZE, ticketPage * PAGE_SIZE);
+  tbody.innerHTML = page.map(t => `
+    <tr style="cursor:pointer" onclick="openTicketDrawer('${t.id}')">
+      <td>
+        <span class="cluster-id">${t.id}</span>
+        ${t.manual ? `<span style="display:inline-block;background:#fef3c7;color:#d97706;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:4px">人工</span>` : ''}
+        ${t.attachments && t.attachments.length ? `<span style="font-size:10px;color:#1a56db;margin-left:4px">📎${t.attachments.length}</span>` : ''}
+      </td>
+      <td style="max-width:220px">
+        <div style="font-size:13px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px" title="${t.text}">${t.text}</div>
+      </td>
+      <td style="font-size:13px;color:#374151">${t.merchant}</td>
+      <td style="font-size:13px">${t.flag} ${t.partner}</td>
+      <td><span class="badge ${impactClass[t.impact]}">${impactLabel[t.impact]}</span></td>
+      <td style="font-size:12px;color:#6b7280">${t.scenes.join('、')}</td>
+      <td style="font-size:12px;color:#9ca3af;white-space:nowrap">${t.time}</td>
+      <td>
+        ${statusBadge[t.status]}
+        ${t.cluster ? `<span style="font-size:11px;color:#6b7280;margin-left:4px">→ ${t.cluster}</span>` : ''}
+      </td>
+    </tr>
+  `).join('');
+  renderPager('allTicketsPager', filtered.length, ticketPage, 'function(p){ticketPage=p;renderAllTable()}');
+}
+
+// ── Toast ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Confirm dialog ──
+let confirmCallback = null;
+function showConfirm(title, msg, onOk) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  confirmCallback = onOk;
+  document.getElementById('confirmOkBtn').onclick = () => { closeConfirm(); onOk(); };
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('show'); }
+
+function toggleScoreDetail() {
+  const el = document.getElementById('scoreDetail');
+  if (el) el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+// ── Review panel ──
+function toggleReview() {
+  const btn  = document.getElementById('reviewToggle');
+  const body = document.getElementById('reviewBody');
+  btn.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+function saveLayer() {
+  const newLayer = document.getElementById('reviewLayer').value;
+  const c = clusters[currentIdx];
+  c.layer = newLayer;
+  document.getElementById('reviewLayer').classList.remove('changed');
+  fetch(`${API_BASE}/api/clusters/${encodeURIComponent(c.id)}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ layer: newLayer }),
+  });
+  renderTable();
+  showToast(`归属层已更新为「${layerLabel[newLayer]}」`);
+}
+
+let editingSummary = false;
+function toggleEditSummary() {
+  const el  = document.getElementById('reviewSummary');
+  const btn = document.getElementById('editSummaryBtn');
+  if (!editingSummary) {
+    el.contentEditable = 'true';
+    el.focus();
+    btn.textContent = '保存';
+    editingSummary = true;
+  } else {
+    const newText = el.textContent.trim();
+    const c = clusters[currentIdx];
+    c.aiSummary = newText;
+    el.contentEditable = 'false';
+    btn.textContent = '编辑';
+    editingSummary = false;
+    fetch(`${API_BASE}/api/clusters/${encodeURIComponent(c.id)}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ai_summary: newText }),
+    });
+    showToast('AI 摘要已更新');
+  }
+}
+
+function removeItemFromCluster(clusterId, ticketId) {
+  const clusterIdx = clusters.findIndex(c => c.id === clusterId);
+  if (clusterIdx === -1) return;
+  const c = clusters[clusterIdx];
+  c.items = c.items.filter(i => i.id !== ticketId);
+
+  // Reset in allTickets
+  const t = allTickets.find(t => t.id === ticketId);
+  if (t) { t.status = 'pending'; t.cluster = null; }
+
+  if (c.items.length === 0) {
+    // Auto-dissolve empty cluster
+    clusters.splice(clusterIdx, 1);
+    closeDrawer();
+    renderTable();
+    showToast(`${ticketId} 已移出，需求簇已自动拆散`);
+  } else {
+    // Re-open drawer with updated data
+    openDrawer(clusterIdx);
+    showToast(`${ticketId} 已移出簇，状态重置为待处理`);
+  }
+  renderAllTable();
+}
+
+function confirmDissolve(clusterId) {
+  const clusterIdx = clusters.findIndex(c => c.id === clusterId);
+  if (clusterIdx === -1) return;
+  const c = clusters[clusterIdx];
+  showConfirm(
+    `拆散需求簇 ${c.id}`,
+    `将把 ${c.items.length} 条原始工单全部重置为「待处理」，需求簇 ${c.id} 将被删除。此操作不可撤销。`,
+    () => dissolveCluster(clusterId)
+  );
+}
+
+function dissolveCluster(clusterId) {
+  const clusterIdx = clusters.findIndex(c => c.id === clusterId);
+  if (clusterIdx === -1) return;
+  const c = clusters[clusterIdx];
+  const count = c.items.length;
+  const cid = c.id;
+
+  c.items.forEach(item => {
+    const t = allTickets.find(t => t.id === item.id);
+    if (t) { t.status = 'pending'; t.cluster = null; }
+  });
+
+  clusters.splice(clusterIdx, 1);
+  closeDrawer();
+  renderTable();
+  renderAllTable();
+  showToast(`需求簇 ${cid} 已拆散，${count} 条工单重置为待处理`);
+}
+
+// ── Ticket detail drawer ──
+function findTicket(id) {
+  // Search allTickets first, then cluster items
+  let t = allTickets.find(t => t.id === id);
+  if (t) return t;
+  for (const c of clusters) {
+    const item = c.items.find(i => i.id === id);
+    if (item) return item;
+  }
+  return null;
+}
+
+function renderAttachments(attachments) {
+  if (!attachments || attachments.length === 0)
+    return '<div class="no-attach">暂无附件</div>';
+
+  return `<div class="attach-grid">${attachments.map((a, i) => {
+    if (a.type === 'image') {
+      return `<div class="attach-item" onclick="event.stopPropagation();openLightbox('image','${a.url}')">
+        <img src="${a.url}" alt="${a.name}" loading="lazy" />
+        <button class="zoom-btn" onclick="event.stopPropagation();openLightbox('image','${a.url}')">🔍 查看</button>
+      </div>`;
+    } else {
+      return `<div class="attach-item" onclick="event.stopPropagation();openLightbox('video','${a.url}')">
+        <div class="video-thumb">
+          <div class="play-icon">▶</div>
+          <div>${a.name}</div>
+        </div>
+      </div>`;
+    }
+  }).join('')}</div>`;
+}
+
+function openTicketDrawer(id) {
+  const t = findTicket(id);
+  if (!t) return;
+
+  document.getElementById('tdTitle').textContent = t.id + (t.flag ? '  ' + t.flag : '');
+
+  const impactLabels = { high:'高', mid:'中', low:'低' };
+  const impactColors = { high:'#ef4444', mid:'#d97706', low:'#059669' };
+
+  document.getElementById('tdBody').innerHTML = `
+    <div class="td-section-title">基本信息</div>
+    <div class="td-grid">
+      <div class="td-field"><div class="tf-label">工单 ID</div><div class="tf-value" style="font-family:monospace;color:#1a56db;font-weight:700">${t.id}</div></div>
+      <div class="td-field"><div class="tf-label">提交时间</div><div class="tf-value">${t.time}</div></div>
+      <div class="td-field"><div class="tf-label">来源服务商</div><div class="tf-value">${t.flag || ''} ${t.partner || ''}</div></div>
+      <div class="td-field"><div class="tf-label">商户</div><div class="tf-value">${t.merchant}</div></div>
+      <div class="td-field"><div class="tf-label">业务影响</div><div class="tf-value" style="color:${impactColors[t.impact] || '#374151'}">${impactLabels[t.impact] || '-'}</div></div>
+      <div class="td-field"><div class="tf-label">涉及场景</div><div class="tf-value">${(t.scenes || []).join('、') || '-'}</div></div>
+    </div>
+
+    <div class="td-section-title">原始描述（${t.lang || '原文'}）</div>
+    <div class="td-original-box">${t.text}</div>
+
+    <div class="td-section-title">附件（${(t.attachments || []).length} 个）</div>
+    ${renderAttachments(t.attachments)}
+  `;
+
+  document.getElementById('ticketDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('show');
+}
+
+function closeTicketDrawer() {
+  document.getElementById('ticketDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+// ── Lightbox ──
+function openLightbox(type, url) {
+  const box = document.getElementById('lightbox');
+  const content = document.getElementById('lightboxContent');
+  if (type === 'image') {
+    content.innerHTML = `<img src="${url}" alt="附件预览" />`;
+  } else {
+    content.innerHTML = `<div style="color:#fff;text-align:center;padding:40px;font-size:16px">🎬<br><br>视频文件需联网后端支持加载<br><span style="font-size:13px;opacity:0.6">（原型阶段占位）</span></div>`;
+  }
+  box.classList.add('show');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+// ── Scoring panel ──
+
+// countryMeta and partnerMeta are derived dynamically from partnersList (defined later)
+// Rank-to-weight mapping (supports up to 10 partners; extra get 1.0)
+const rankWeights = [1.5, 1.3, 1.2, 1.1, 1.05, 1.0, 1.0, 1.0, 1.0, 1.0];
+
+let countryOrder = [];
+let impactPreset  = 'mid';
+let periodPreset  = 'mid';
+
+const impactPresets = {
+  flat:   { high: 1.5, mid: 1.5, low: 1.5 },
+  mid:    { high: 3.0, mid: 2.0, low: 1.0 },
+  strong: { high: 5.0, mid: 2.0, low: 0.8 },
+};
+
+const periodPresets = {
+  none:   [1.0, 1.0, 1.0],
+  mid:    [1.0, 1.3, 1.6],
+  strong: [1.0, 1.6, 2.5],
+};
+
+function selectPreset(groupId, el) {
+  document.querySelectorAll('#' + groupId + ' .preset-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function renderCountryRankList() {
+  const list = document.getElementById('countryRankList');
+  if (!list) return;
+  list.innerHTML = countryOrder.map((id, idx) => {
+    const cm = buildMeta();
+    const m = cm[id] || { flag: '🏳', name: id };
+    const w = rankWeights[idx] || 1.0;
+    const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+    return `
+    <div class="country-item ${rankClass}" draggable="true"
+      data-id="${id}"
+      ondragstart="onDragStart(event)"
+      ondragover="onDragOver(event)"
+      ondrop="onDrop(event)"
+      ondragend="onDragEnd(event)"
+      ondragleave="onDragLeave(event)">
+      <div class="ci-rank">${idx + 1}</div>
+      <div class="ci-flag">${m.flag}</div>
+      <div class="ci-name">${m.name}</div>
+      <div class="ci-weight">×${w.toFixed(2)} 加成</div>
+      <div class="ci-arrows">
+        <button class="ci-arrow" onclick="moveCountry(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.3"' : ''}>▲</button>
+        <button class="ci-arrow" onclick="moveCountry(${idx}, 1)"  ${idx === countryOrder.length - 1 ? 'disabled style="opacity:0.3"' : ''}>▼</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function moveCountry(idx, dir) {
+  const ni = idx + dir;
+  if (ni < 0 || ni >= countryOrder.length) return;
+  [countryOrder[idx], countryOrder[ni]] = [countryOrder[ni], countryOrder[idx]];
+  renderCountryRankList();
+}
+
+// Drag-and-drop state
+let dragSrcId = null;
+
+function onDragStart(e) {
+  dragSrcId = e.currentTarget.dataset.id;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+
+function onDragEnd(e) {
+  document.querySelectorAll('.country-item').forEach(el => {
+    el.classList.remove('dragging', 'drag-over');
+  });
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  const targetId = e.currentTarget.dataset.id;
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragSrcId || dragSrcId === targetId) return;
+  const si = countryOrder.indexOf(dragSrcId);
+  const ti = countryOrder.indexOf(targetId);
+  countryOrder.splice(si, 1);
+  countryOrder.splice(ti, 0, dragSrcId);
+  renderCountryRankList();
+}
+
+function renderPartnerTierList() {
+  const list = document.getElementById('partnerTierList');
+  if (!list) return;
+  list.innerHTML = partnersList.map(p => {
+    const tier = scoringConfig.partnerTier[p.name] || p.tier || 'normal';
+    const safeId = p.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+    return `
+    <div class="partner-tier-row">
+      <div class="pt-flag">${p.flag}</div>
+      <div class="pt-name">${p.name}（${p.countryName}）</div>
+      <select class="tier-select" id="ptier_${safeId}" data-tier="${tier}"
+        onchange="this.dataset.tier=this.value;this.style.cssText=''">
+        <option value="strategic" ${tier==='strategic'?'selected':''}>⭐ 战略级</option>
+        <option value="important" ${tier==='important'?'selected':''}>✦ 重要级</option>
+        <option value="normal"    ${tier==='normal'   ?'selected':''}>· 普通级</option>
+      </select>
+    </div>`;
+  }).join('');
+
+  // Apply color styles after render
+  list.querySelectorAll('.tier-select').forEach(sel => {
+    applyTierStyle(sel);
+    sel.addEventListener('change', () => applyTierStyle(sel));
+  });
+}
+
+function applyTierStyle(sel) {
+  const t = sel.value;
+  sel.dataset.tier = t;
+  if (t === 'strategic') { sel.style.borderColor='#7c3aed'; sel.style.color='#7c3aed'; sel.style.background='#f5f3ff'; }
+  else if (t === 'important') { sel.style.borderColor='#1a56db'; sel.style.color='#1a56db'; sel.style.background='#eff6ff'; }
+  else { sel.style.borderColor='#e5e7eb'; sel.style.color='#6b7280'; sel.style.background='#fafafa'; }
+}
+
+function openScoringPanel() {
+  // Restore UI state from current config
+  document.querySelectorAll('#impactPresetGroup .preset-opt').forEach(o => {
+    o.classList.toggle('active', o.dataset.val === impactPreset);
+  });
+  document.querySelectorAll('#periodPresetGroup .preset-opt').forEach(o => {
+    o.classList.toggle('active', o.dataset.val === periodPreset);
+  });
+  renderCountryRankList();
+  renderPartnerTierList();
+  document.getElementById('scoringOverlay').classList.add('show');
+}
+
+function closeScoringPanel(e) {
+  if (e && e.currentTarget !== e.target) return;
+  document.getElementById('scoringOverlay').classList.remove('show');
+}
+
+function applyScoringConfig() {
+  // Read impact preset
+  const impactEl = document.querySelector('#impactPresetGroup .preset-opt.active');
+  impactPreset = impactEl ? impactEl.dataset.val : 'mid';
+  const imp = impactPresets[impactPreset];
+  scoringConfig.impactWeight = { ...imp };
+
+  // Read country order → assign weights by rank
+  countryOrder.forEach((id, idx) => {
+    scoringConfig.countryWeight[id] = rankWeights[idx] || 1.0;
+  });
+
+  // Read partner tiers
+  partnersList.forEach(p => {
+    const safeId = p.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const sel = document.getElementById('ptier_' + safeId);
+    if (sel) scoringConfig.partnerTier[p.name] = sel.value;
+  });
+
+  // Read period preset
+  const periodEl = document.querySelector('#periodPresetGroup .preset-opt.active');
+  periodPreset = periodEl ? periodEl.dataset.val : 'mid';
+  scoringConfig.periodCoeff = [...periodPresets[periodPreset]];
+
+  recalcAllScores();
+  renderTable();
+  document.getElementById('scoringOverlay').classList.remove('show');
+  showToast('✦ 得分已重新计算，列表已按优先级排序');
+  fetch(`${API_BASE}/api/scoring-config`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(scoringConfig),
+  });
+}
+
+// ── Partner Management ──
+
+// Live partners list (populated from API on init)
+let partnersList = [];
+
+// Derive countryMeta and partnerMeta dynamically from partnersList
+function buildMeta() {
+  const cm = {};
+  partnersList.forEach(p => { cm[p.countryId] = { flag: p.flag, name: p.countryName }; });
+  return cm;
+}
+
+// Sync scoringConfig with current partnersList
+function syncScoringConfig() {
+  partnersList.forEach(p => {
+    if (!(p.countryId in scoringConfig.countryWeight)) scoringConfig.countryWeight[p.countryId] = 1.0;
+    scoringConfig.partnerTier[p.name] = p.tier;
+  });
+  // Update countryOrder: add new, remove deleted
+  const ids = [...new Set(partnersList.map(p => p.countryId))];
+  ids.forEach(id => { if (!countryOrder.includes(id)) countryOrder.push(id); });
+  countryOrder = countryOrder.filter(id => ids.includes(id));
+}
+
+// Rebuild country filter dropdowns
+function rebuildCountryFilters() {
+  const cm = buildMeta();
+  const opts = Object.entries(cm).map(([id, m]) =>
+    `<option value="${id}">${m.flag} ${m.name}</option>`).join('');
+
+  ['dashFilterCountry', 'acFilterCountry'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = `<option value="">全部国家</option>` + opts;
+    el.value = cur;
+  });
+
+  // allFilterCountry uses flag emoji as value
+  const allEl = document.getElementById('allFilterCountry');
+  if (allEl) {
+    const cur = allEl.value;
+    allEl.innerHTML = `<option value="">全部国家</option>` +
+      Object.entries(cm).map(([, m]) => `<option value="${m.flag}">${m.flag} ${m.name}</option>`).join('');
+    allEl.value = cur;
+  }
+}
+
+function renderPartnersPage() {
+  const tierLabel = { strategic: '⭐ 战略级', important: '✦ 重要级', normal: '· 普通级' };
+  const tierColor = { strategic: '#7c3aed', important: '#1a56db', normal: '#6b7280' };
+  const base = location.origin + location.pathname.replace('dashboard.html', '');
+  const container = document.getElementById('partnersCardList');
+  if (!container) return;
+  container.innerHTML = partnersList.map(p => {
+    const formUrl    = `${base}form.html?token=${p.token}`;
+    const partnerUrl = `${base}partner.html?token=${p.token}`;
+    return `
+    <div style="background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);padding:18px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:26px">${p.flag}</span>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#111827">${p.name}</div>
+            <div style="font-size:12px;color:#9ca3af;margin-top:2px">
+              ${p.countryName} · <span style="color:${tierColor[p.tier]};font-weight:600">${tierLabel[p.tier]}</span> · 语言: ${p.lang}
+            </div>
+          </div>
+        </div>
+        <div class="pm-actions">
+          <button class="pm-btn pm-btn-edit" onclick="openPartnerForm('${p.token}')">编辑</button>
+          <button class="pm-btn pm-btn-delete" onclick="deletePartner('${p.token}')">删除</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:72px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.4px;flex-shrink:0">提交表单</div>
+        <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 12px;font-size:12px;font-family:monospace;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${formUrl}</div>
+        <button class="copy-btn" onclick="pmCopyLink(this,'${formUrl}')">复制</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:72px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.4px;flex-shrink:0">需求追踪</div>
+        <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 12px;font-size:12px;font-family:monospace;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${partnerUrl}</div>
+        <button class="copy-btn" onclick="pmCopyLink(this,'${partnerUrl}')">复制</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pmCopyLink(btn, url) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '已复制 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+let editingToken = null;
+
+function openPartnerForm(token) {
+  editingToken = token;
+  const overlay = document.getElementById('partnerFormOverlay');
+  const tokenRow = document.getElementById('pf_tokenRow');
+
+  if (token) {
+    const p = partnersList.find(x => x.token === token);
+    if (!p) return;
+    document.getElementById('partnerFormTitle').textContent = '编辑服务商';
+    document.getElementById('pf_flag').value = p.flag;
+    document.getElementById('pf_countryId').value = p.countryId;
+    document.getElementById('pf_countryName').value = p.countryName;
+    document.getElementById('pf_name').value = p.name;
+    document.getElementById('pf_lang').value = p.lang;
+    document.getElementById('pf_tier').value = p.tier;
+    document.getElementById('pf_tokenDisplay').textContent = p.token;
+    tokenRow.style.display = '';
+  } else {
+    document.getElementById('partnerFormTitle').textContent = '新增服务商';
+    ['pf_flag','pf_countryId','pf_countryName','pf_name'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pf_lang').value = 'en';
+    document.getElementById('pf_tier').value = 'normal';
+    tokenRow.style.display = 'none';
+  }
+
+  overlay.classList.add('show');
+}
+
+function closePartnerForm() {
+  document.getElementById('partnerFormOverlay').classList.remove('show');
+}
+
+function savePartnerForm() {
+  const flag       = document.getElementById('pf_flag').value.trim();
+  const countryId  = document.getElementById('pf_countryId').value.trim().toUpperCase();
+  const countryName= document.getElementById('pf_countryName').value.trim();
+  const name       = document.getElementById('pf_name').value.trim();
+  const lang       = document.getElementById('pf_lang').value;
+  const tier       = document.getElementById('pf_tier').value;
+
+  if (!flag || !countryId || !countryName || !name) {
+    showToast('请填写所有必填字段');
+    return;
+  }
+
+  const body = { country_id: countryId, flag, country_name: countryName, name, lang, tier };
+  const url  = editingToken ? `${API_BASE}/api/partners/${editingToken}` : `${API_BASE}/api/partners`;
+  const method = editingToken ? 'PUT' : 'POST';
+
+  fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+    .then(() => {
+      closePartnerForm();
+      showToast(editingToken ? '服务商信息已更新' : `服务商「${name}」已新增`);
+      return reloadPartners();
+    })
+    .catch(() => showToast('保存失败，请检查后端服务'));
+}
+
+function deletePartner(token) {
+  const p = partnersList.find(x => x.token === token);
+  if (!p) return;
+  showConfirm(
+    `删除服务商 ${p.name}`,
+    `删除后其专属链接将失效，此操作不可撤销。`,
+    () => {
+      fetch(`${API_BASE}/api/partners/${token}`, { method: 'DELETE' })
+        .then(r => { if (!r.ok) throw new Error(); })
+        .then(() => {
+          showToast(`服务商「${p.name}」已删除`);
+          return reloadPartners();
+        })
+        .catch(() => showToast('删除失败，请检查后端服务'));
+    }
+  );
+}
+
+async function reloadPartners() {
+  partnersList = await fetch(`${API_BASE}/api/partners`).then(r => r.json());
+  // normalize field names (backend uses snake_case)
+  partnersList = partnersList.map(p => ({
+    token: p.token, countryId: p.country_id, flag: p.flag,
+    countryName: p.country_name, name: p.name, lang: p.lang, tier: p.tier,
+  }));
+  syncScoringConfig();
+  rebuildCountryFilters();
+  renderPartnersPage();
+}
+
+// ── Excel template download & import ──
+
+// Template i18n config
+const TMPL_I18N = {
+  zh: {
+    sheet: '需求录入模板', refSheet: '服务商参考列表',
+    headers: ['服务商名称', '商户名称', '需求描述', '业务影响', '涉及场景'],
+    hint: ['填写服务商名称（见第2个Sheet）', '填写商户名称', '描述具体需求', '高 / 中 / 低', '多个场景用逗号分隔：收银,报表,会员,厨显,支付,库存'],
+    exDesc: '希望系统支持打印门店 Logo 和二维码', exImpact: '高', exScene: '收银,报表',
+    refHeaders: ['服务商名称', '国家', '旗帜'], filename: '需求批量录入模板',
+  },
+  en: {
+    sheet: 'Requirement Template', refSheet: 'Partner Reference',
+    headers: ['Partner Name', 'Merchant Name', 'Requirement Description', 'Business Impact', 'Scenes'],
+    hint: ['Fill partner name (see Sheet 2)', 'Fill merchant name', 'Describe the requirement', 'high / mid / low', 'Separate multiple: cashier,report,member,kds,payment,inventory'],
+    exDesc: 'Customer wants to print store logo and QR code on receipt', exImpact: 'high', exScene: 'cashier,report',
+    refHeaders: ['Partner Name', 'Country', 'Flag'], filename: 'requirement_import_template',
+  },
+  th: {
+    sheet: 'แบบฟอร์มความต้องการ', refSheet: 'รายชื่อพาร์ทเนอร์',
+    headers: ['ชื่อพาร์ทเนอร์', 'ชื่อร้านค้า', 'รายละเอียดความต้องการ', 'ผลกระทบ', 'หมวดหมู่'],
+    hint: ['กรอกชื่อพาร์ทเนอร์ (ดู Sheet 2)', 'กรอกชื่อร้านค้า', 'อธิบายความต้องการ', 'สูง / กลาง / ต่ำ', 'คั่นด้วยเครื่องหมายจุลภาค: แคชเชียร์,รายงาน,สมาชิก'],
+    exDesc: 'ต้องการพิมพ์โลโก้ร้านและ QR Code บนใบเสร็จ', exImpact: 'สูง', exScene: 'แคชเชียร์,รายงาน',
+    refHeaders: ['ชื่อพาร์ทเนอร์', 'ประเทศ', 'ธง'], filename: 'requirement_template_th',
+  },
+  id: {
+    sheet: 'Template Kebutuhan', refSheet: 'Referensi Mitra',
+    headers: ['Nama Mitra', 'Nama Merchant', 'Deskripsi Kebutuhan', 'Dampak Bisnis', 'Skenario'],
+    hint: ['Isi nama mitra (lihat Sheet 2)', 'Isi nama merchant', 'Jelaskan kebutuhannya', 'tinggi / sedang / rendah', 'Pisahkan dengan koma: kasir,laporan,anggota'],
+    exDesc: 'Pelanggan ingin cetak logo toko dan QR Code di struk kasir', exImpact: 'tinggi', exScene: 'kasir,laporan',
+    refHeaders: ['Nama Mitra', 'Negara', 'Bendera'], filename: 'requirement_template_id',
+  },
+  it: {
+    sheet: 'Modello Requisiti', refSheet: 'Elenco Partner',
+    headers: ['Nome Partner', 'Nome Commerciante', 'Descrizione Requisito', 'Impatto Business', 'Scenari'],
+    hint: ['Inserire nome partner (vedi Sheet 2)', 'Inserire nome commerciante', 'Descrivere il requisito', 'alto / medio / basso', 'Separare con virgola: cassa,report,fidelity'],
+    exDesc: 'Il cliente vuole stampare il logo del negozio sullo scontrino', exImpact: 'alto', exScene: 'cassa,report',
+    refHeaders: ['Nome Partner', 'Paese', 'Bandiera'], filename: 'requirement_template_it',
+  },
+  fr: {
+    sheet: 'Modèle de Besoins', refSheet: 'Liste des Partenaires',
+    headers: ['Nom du Partenaire', 'Nom du Marchand', 'Description du Besoin', 'Impact Métier', 'Scénarios'],
+    hint: ['Saisir le nom du partenaire (voir Sheet 2)', 'Saisir le nom du marchand', 'Décrire le besoin', 'élevé / moyen / faible', 'Séparer par virgule: caisse,rapport,fidélité'],
+    exDesc: 'Le client souhaite imprimer le logo du magasin sur le reçu', exImpact: 'élevé', exScene: 'caisse,rapport',
+    refHeaders: ['Nom Partenaire', 'Pays', 'Drapeau'], filename: 'requirement_template_fr',
+  },
+  km: {
+    sheet: 'ទម្រង់តម្រូវការ', refSheet: 'បញ្ជីដៃគូ',
+    headers: ['ឈ្មោះដៃគូ', 'ឈ្មោះពាណិជ្ជករ', 'ការពិពណ៌នាតម្រូវការ', 'ផលប៉ះពាល់', 'សេណារីយ៉ូ'],
+    hint: ['បំពេញឈ្មោះដៃគូ (មើល Sheet 2)', 'បំពេញឈ្មោះពាណិជ្ជករ', 'ពិពណ៌នាតម្រូវការ', 'ខ្ពស់ / មធ្យម / ទាប', 'ញែកដោយក្បៀស: ការបង់ប្រាក់,របាយការណ៍'],
+    exDesc: 'ចង់បោះពុម្ពនិមិត្តសញ្ញានិង QR Code លើវិក្កយបត្រ', exImpact: 'ខ្ពស់', exScene: 'ការបង់ប្រាក់,របាយការណ៍',
+    refHeaders: ['ឈ្មោះដៃគូ', 'ប្រទេស', 'ទង់ជាតិ'], filename: 'requirement_template_km',
+  },
+};
+
+function downloadTemplate() {
+  if (typeof XLSX === 'undefined') { showToast('Excel 库加载中，请稍后重试'); return; }
+  document.getElementById('templateLangOverlay').classList.add('show');
+}
+
+function downloadTemplateInLang(lang) {
+  document.getElementById('templateLangOverlay').classList.remove('show');
+  const t = TMPL_I18N[lang] || TMPL_I18N.zh;
+
+  // Row 1: headers, Row 2: hint row (grey guide), Row 3+: examples
+  const hintRow  = t.hint;
+  const exPartner = partnersList[0]?.name || 'TH-Partner';
+  const exRow    = [exPartner, t.exDesc.slice(0, 12) + '…', t.exDesc, t.exImpact, t.exScene];
+
+  const ws = XLSX.utils.aoa_to_sheet([t.headers, hintRow, exRow]);
+  ws['!cols'] = [{ wch: 20 }, { wch: 18 }, { wch: 44 }, { wch: 16 }, { wch: 32 }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, t.sheet);
+
+  // Partner reference sheet
+  const refRows = partnersList.map(p => [p.name, p.countryName, p.flag]);
+  const wsRef = XLSX.utils.aoa_to_sheet([t.refHeaders, ...refRows]);
+  wsRef['!cols'] = [{ wch: 20 }, { wch: 14 }, { wch: 6 }];
+  XLSX.utils.book_append_sheet(wb, wsRef, t.refSheet);
+
+  XLSX.writeFile(wb, `${t.filename}.xlsx`);
+  showToast('模板已下载');
+}
+
+function importExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be re-imported
+
+  if (typeof XLSX === 'undefined') { showToast('Excel 库加载中，请稍后重试'); return; }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb   = XLSX.read(e.target.result, { type: 'binary' });
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+      const partnerMap = {};
+      partnersList.forEach(p => { partnerMap[p.name.trim()] = p; });
+
+      const impactMap = { '高': 'high', '中': 'mid', '低': 'low', 'high': 'high', 'mid': 'mid', 'low': 'low' };
+
+      let imported = 0, skipped = 0;
+      const skipReasons = [];
+
+      rows.forEach((row, idx) => {
+        const partnerName = String(row['服务商名称'] || '').trim();
+        const merchant    = String(row['商户名称']   || '').trim();
+        const text        = String(row['需求描述']   || '').trim();
+        const impactRaw   = String(row['业务影响(高/中/低)'] || row['业务影响'] || '中').trim();
+        const scenesRaw   = String(row['涉及场景(多个用逗号分隔)'] || row['涉及场景'] || '').trim();
+
+        const rowLabel = `第 ${idx + 2} 行`;
+
+        if (!partnerName) { skipped++; skipReasons.push(`${rowLabel}：缺少服务商名称`); return; }
+        if (!text)        { skipped++; skipReasons.push(`${rowLabel}：缺少需求描述`); return; }
+
+        const partner = partnerMap[partnerName];
+        if (!partner) { skipped++; skipReasons.push(`${rowLabel}：服务商「${partnerName}」不存在`); return; }
+
+        const impact = impactMap[impactRaw] || 'mid';
+        const scenes = scenesRaw ? scenesRaw.split(/[,，]/).map(s => s.trim()).filter(Boolean) : ['其他'];
+
+        let newId;
+        do {
+          const num = Math.floor(1000 + Math.random() * 9000);
+          newId = `${partner.countryId}-${num}`;
+        } while (allTickets.some(t => t.id === newId));
+
+        const now = new Date();
+        const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+        allTickets.unshift({
+          id: newId,
+          flag: partner.flag,
+          partner: partner.name,
+          text,
+          merchant: merchant || '未知商户',
+          impact,
+          scenes,
+          time: timeStr,
+          status: 'pending',
+          cluster: null,
+          attachments: [],
+          manual: true,
+          lang: '中文（批量导入）',
+        });
+        imported++;
+      });
+
+      ticketPage = 1;
+      renderAllTable();
+
+      // Show result modal
+      document.getElementById('importResultTitle').textContent = `导入完成：成功 ${imported} 条`;
+      let body = `<div style="color:#059669;margin-bottom:8px">✓ 成功录入 <b>${imported}</b> 条工单</div>`;
+      if (skipped > 0) {
+        body += `<div style="color:#d97706;margin-bottom:8px">⚠ 跳过 <b>${skipped}</b> 条（缺少必填或服务商不匹配）</div>`;
+        body += `<div style="background:#f9fafb;border-radius:6px;padding:8px 10px;font-size:12px;color:#6b7280;max-height:120px;overflow-y:auto">${skipReasons.join('<br>')}</div>`;
+      }
+      document.getElementById('importResultBody').innerHTML = body;
+      document.getElementById('importResultOverlay').classList.add('show');
+
+    } catch(err) {
+      showToast('文件解析失败，请确认为有效的 Excel 文件');
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ── Manual ticket entry ──
+function openManualForm() {
+  // Populate partner dropdown from partnersList
+  const sel = document.getElementById('mf_partner');
+  sel.innerHTML = '<option value="">请选择服务商...</option>' +
+    partnersList.map(p => `<option value="${p.token}">${p.flag} ${p.name}（${p.countryName}）</option>`).join('');
+  // Reset fields
+  document.getElementById('mf_merchant').value = '';
+  document.getElementById('mf_text').value = '';
+  document.querySelector('input[name="mf_impact"][value="mid"]').checked = true;
+  document.querySelectorAll('.mf_scene').forEach(cb => cb.checked = false);
+  document.getElementById('manualFormOverlay').classList.add('show');
+}
+
+function closeManualForm() {
+  document.getElementById('manualFormOverlay').classList.remove('show');
+}
+
+function submitManualTicket() {
+  const token    = document.getElementById('mf_partner').value;
+  const merchant = document.getElementById('mf_merchant').value.trim();
+  const text     = document.getElementById('mf_text').value.trim();
+  const impact   = document.querySelector('input[name="mf_impact"]:checked')?.value || 'mid';
+  const scenes   = [...document.querySelectorAll('.mf_scene:checked')].map(cb => cb.value);
+
+  if (!token)    { showToast('请选择代录服务商'); return; }
+  if (!merchant) { showToast('请填写商户名称'); return; }
+  if (!text)     { showToast('请填写需求描述'); return; }
+
+  fetch(`${API_BASE}/api/tickets`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, merchant, text, impact, scenes: scenes.length ? scenes : ['其他'], manual: true, lang: '中文（人工录入）' }),
+  })
+    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+    .then(data => {
+      closeManualForm();
+      return reloadTickets();
+    })
+    .then(() => showToast(`工单已录入，状态：待处理`))
+    .catch(() => showToast('录入失败，请检查后端服务'));
+}
+
+// ── AI Merge ──
+async function runMerge() {
+  const btn = document.getElementById('mergeBtn');
+  const statusEl = document.getElementById('mergeStatus');
+  const overlay = document.getElementById('thinkingOverlay');
+  const subText = document.getElementById('thinkingSubText');
+
+  btn.disabled = true;
+  overlay.classList.add('show');
+  statusEl.textContent = '';
+
+  // Cycle through hint messages while waiting
+  const hints = ['正在分析工单并归并需求簇', '识别多语言需求中…', '匹配相似功能诉求…', '生成中文需求摘要…'];
+  let hintIdx = 0;
+  const hintTimer = setInterval(() => {
+    hintIdx = (hintIdx + 1) % hints.length;
+    subText.textContent = hints[hintIdx];
+  }, 2200);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/merge`, { method: 'POST' }).then(r => r.json());
+    if (res.error || res.detail) throw new Error(res.detail || res.error);
+    if (res.ticket_count === 0) {
+      showToast('没有待归并的工单（所有工单已有归属）');
+    } else {
+      showToast(`✦ AI 归并完成：处理 ${res.ticket_count} 条工单，新增 ${res.created} 个需求簇`);
+      statusEl.textContent = `上次归并：刚刚 · 新增 ${res.created} 簇`;
+      await Promise.all([reloadClusters(), reloadTickets()]);
+    }
+  } catch(e) {
+    showToast('归并失败：' + (e.message || '请检查后端服务和 DEEPSEEK_API_KEY'));
+  } finally {
+    clearInterval(hintTimer);
+    overlay.classList.remove('show');
+    btn.disabled = false;
+    subText.textContent = hints[0];
+  }
+}
+
+// ── Page switching ──
+function switchPage(page) {
+  ['page-dashboard','page-all','page-partners'].forEach(id => {
+    document.getElementById(id).style.display = id === `page-${page}` ? '' : 'none';
+  });
+  document.getElementById('dashFilters').style.display = page === 'dashboard' ? 'flex' : 'none';
+  document.querySelectorAll('.nav-item').forEach((el, i) => {
+    el.classList.toggle('active',
+      (page === 'dashboard' && i === 0) ||
+      (page === 'all'       && i === 1) ||
+      (page === 'partners'  && i === 2)
+    );
+  });
+  const titles = { dashboard: '需求看板 · Requirement Dashboard', all: '所有需求 · All Requirements', partners: '服务商管理 · Partner Management' };
+  document.getElementById('topbarTitle').textContent = titles[page] || '';
+  if (page === 'all')      switchAllTab('clusters');
+  if (page === 'partners') renderPartnersPage();
+}
+
+// ── API helpers ──
+
+async function reloadTickets() {
+  const data = await fetch(`${API_BASE}/api/tickets?page_size=200`).then(r => r.json());
+  allTickets = (data.items || []).map(t => ({
+    id: t.id, flag: t.flag, partner: t.partner_name, text: t.text,
+    merchant: t.merchant, impact: t.impact, scenes: t.scenes || [],
+    time: t.time, status: t.status, cluster: t.cluster_id,
+    attachments: t.attachments || [], manual: t.manual, lang: t.lang,
+  }));
+  renderAllTable();
+}
+
+async function reloadClusters() {
+  const data = await fetch(`${API_BASE}/api/clusters?page_size=200`).then(r => r.json());
+  clusters = (data.items || []).map(c => ({
+    id: c.id, score: c.score, urgent: c.urgent, summary: c.summary,
+    layer: c.layer, impact: c.impact,
+    sources: (c.source_ids || []).map(id => partnersList.find(p => p.countryId === id)?.flag || id),
+    sourceIds: c.source_ids || [],
+    partners: c.partners || [],
+    count: c.count, periods: c.periods, status: c.status,
+    aiSummary: c.ai_summary,
+    items: (c.items || []).map(t => ({
+      id: t.id, flag: t.flag, lang: t.lang, text: t.text, merchant: t.merchant,
+      time: t.time, partner: t.partner_name, impact: t.impact,
+      scenes: t.scenes || [], attachments: t.attachments || [],
+    })),
+  }));
+  recalcAllScores();
+  renderTable();
+}
+
+// Init on load
+async function init() {
+  // Load scoring config
+  try {
+    const cfg = await fetch(`${API_BASE}/api/scoring-config`).then(r => r.json());
+    Object.assign(scoringConfig, cfg);
+  } catch(e) {}
+
+  // Load partners
+  await reloadPartners();
+
+  // Load clusters and tickets in parallel
+  await Promise.all([reloadClusters(), reloadTickets()]);
+
+  rebuildCountryFilters();
+  renderTable();
+  renderAllTable();
+}
+
+init().catch(err => {
+  console.error('API init failed:', err);
+  // Fallback: run with empty data so the UI doesn't break
+  syncScoringConfig();
+  rebuildCountryFilters();
+  renderTable();
+});
+</script>
+</body>
+</html>
