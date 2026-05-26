@@ -16,6 +16,7 @@ if sys.stderr.encoding != 'utf-8':
 from openai import OpenAI
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -475,6 +476,11 @@ def run_merge():
                 )
 
     return {'created': len(clusters_data), 'ticket_count': len(tickets)}
+
+
+@app.get('/')
+def root():
+    return RedirectResponse(url='/dashboard.html')
 
 
 # ── Serve frontend static files (must be last) ───────────────────────────────
