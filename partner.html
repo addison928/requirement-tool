@@ -593,35 +593,97 @@ if (!partner) {
 
 // ── Onboarding Guide ──────────────────────────────────────────────────────────
 const ONBOARD_KEY = 'rm_onboarded_partner';
-const ONBOARD_STEPS = [
-  { icon: '📬', title: '欢迎使用需求跟踪页', desc: '在这里您可以查看贵公司提交的所有需求及其当前处理状态，随时了解 PM 的跟进进展。' },
-  { icon: '🔄', title: '需求状态说明', desc: '<b>待处理</b>：已收到，等待下一个归并周期处理<br><b>归并中</b>：正在与其他服务商需求合并分析<br><b>已排期</b>：已纳入产品路线图<br><b>开发中</b>：研发团队正在实现<br><b>已上线</b>：功能已发布，可在产品中使用' },
-];
+const ONBOARD_LANGS = ['en','zh','it','fr','th','km'];
+const ONBOARD_LABELS = { en:'EN', zh:'中文', it:'IT', fr:'FR', th:'ภาษาไทย', km:'ខ្មែរ' };
+const ONBOARD_I18N = {
+  en: {
+    dontShow: "Don't show again", prev: '← Back', finish: 'Done ✓', next: 'Next →',
+    steps: [
+      { icon: '📬', title: 'Welcome to Requirement Tracking', desc: 'Here you can view all requirements submitted by your company and their current status, staying updated on PM progress at any time.' },
+      { icon: '🔄', title: 'Status Explained', desc: '<b>Pending</b>: Received, awaiting next merge cycle<br><b>Merged</b>: Combined with similar requests from other partners<br><b>Scheduled</b>: Added to the product roadmap<br><b>In Dev</b>: Being implemented by the engineering team<br><b>Live</b>: Feature released and available' },
+    ],
+  },
+  zh: {
+    dontShow: '不再提醒', prev: '← 上一步', finish: '完成 ✓', next: '下一步 →',
+    steps: [
+      { icon: '📬', title: '欢迎使用需求跟踪页', desc: '在这里您可以查看贵公司提交的所有需求及其当前处理状态，随时了解 PM 的跟进进展。' },
+      { icon: '🔄', title: '需求状态说明', desc: '<b>待处理</b>：已收到，等待下一个归并周期处理<br><b>已归并</b>：正在与其他服务商需求合并分析<br><b>已排期</b>：已纳入产品路线图<br><b>开发中</b>：研发团队正在实现<br><b>已上线</b>：功能已发布，可在产品中使用' },
+    ],
+  },
+  it: {
+    dontShow: 'Non mostrare più', prev: '← Indietro', finish: 'Fine ✓', next: 'Avanti →',
+    steps: [
+      { icon: '📬', title: 'Benvenuto nel monitoraggio requisiti', desc: 'Qui puoi visualizzare tutti i requisiti inviati dalla tua azienda e il loro stato attuale, tenendoti aggiornato sui progressi del PM.' },
+      { icon: '🔄', title: 'Spiegazione degli stati', desc: '<b>In attesa</b>: Ricevuto, in attesa del prossimo ciclo<br><b>Unito</b>: Combinato con richieste simili di altri partner<br><b>Pianificato</b>: Aggiunto alla roadmap del prodotto<br><b>In sviluppo</b>: In fase di implementazione<br><b>Live</b>: Funzionalità rilasciata e disponibile' },
+    ],
+  },
+  fr: {
+    dontShow: 'Ne plus afficher', prev: '← Retour', finish: 'Terminer ✓', next: 'Suivant →',
+    steps: [
+      { icon: '📬', title: 'Bienvenue sur le suivi des besoins', desc: "Ici, vous pouvez consulter tous les besoins soumis par votre équipe et leur statut actuel, pour suivre l'avancement du PM à tout moment." },
+      { icon: '🔄', title: 'Explication des statuts', desc: "<b>En attente</b> : Reçu, en attente du prochain cycle<br><b>Fusionné</b> : Combiné avec des demandes similaires d'autres partenaires<br><b>Planifié</b> : Ajouté à la feuille de route produit<br><b>En développement</b> : En cours d'implémentation<br><b>En ligne</b> : Fonctionnalité publiée et disponible" },
+    ],
+  },
+  th: {
+    dontShow: 'ไม่ต้องแสดงอีก', prev: '← ย้อนกลับ', finish: 'เสร็จสิ้น ✓', next: 'ถัดไป →',
+    steps: [
+      { icon: '📬', title: 'ยินดีต้อนรับสู่การติดตามความต้องการ', desc: 'ที่นี่คุณสามารถดูความต้องการทั้งหมดที่บริษัทของคุณส่งมาและสถานะปัจจุบัน เพื่อติดตามความคืบหน้าของ PM ได้ตลอดเวลา' },
+      { icon: '🔄', title: 'อธิบายสถานะ', desc: '<b>รอดำเนินการ</b>: ได้รับแล้ว รอรอบถัดไป<br><b>รวมแล้ว</b>: รวมกับคำขอที่คล้ายกันจากพาร์ทเนอร์อื่น<br><b>จัดตารางแล้ว</b>: เพิ่มในแผนงานผลิตภัณฑ์<br><b>กำลังพัฒนา</b>: กำลังดำเนินการโดยทีมวิศวกรรม<br><b>เปิดตัวแล้ว</b>: ฟีเจอร์เผยแพร่และใช้งานได้แล้ว' },
+    ],
+  },
+  km: {
+    dontShow: 'កុំបង្ហាញទៀត', prev: '← ថយក្រោយ', finish: 'រួចរាល់ ✓', next: 'បន្ទាប់ →',
+    steps: [
+      { icon: '📬', title: 'សូមស្វាគមន៍មកកាន់ការតាមដានតម្រូវការ', desc: 'នៅទីនេះ អ្នកអាចមើលតម្រូវការទាំងអស់ដែលក្រុមហ៊ុនរបស់អ្នកបានបញ្ជូន និងស្ថានភាពបច្ចុប្បន្នរបស់ពួកវា ដើម្បីតាមដានការរីកចម្រើនរបស់ PM បានគ្រប់ពេល។' },
+      { icon: '🔄', title: 'ការពន្យល់ស្ថានភាព', desc: '<b>កំពុងរង់ចាំ</b>: បានទទួល រង់ចាំវដ្តបន្ទាប់<br><b>បានរួបរួម</b>: បានរួបរួមជាមួយសំណើស្រដៀងគ្នាពីដៃគូផ្សេង<br><b>បានកំណត់ពេល</b>: បានបន្ថែមទៅផែនការផលិតផល<br><b>កំពុងអភិវឌ្ឍ</b>: កំពុងដំណើរការដោយក្រុមវិស្វករ<br><b>បានដំណើរការ</b>: មុខងារត្រូវបានចេញផ្សាយ' },
+    ],
+  },
+};
+
 let onboardStep = 0;
+let onboardLang = (partner && partner.lang && ONBOARD_I18N[partner.lang]) ? partner.lang : 'zh';
 
 function showOnboarding() {
   onboardStep = 0;
   document.getElementById('onboardDontShow').checked = false;
+  renderOnboardLangBar();
   renderOnboardStep();
   document.getElementById('onboardingOverlay').style.display = 'flex';
 }
 
+function renderOnboardLangBar() {
+  document.getElementById('onboardLangBar').innerHTML = ONBOARD_LANGS.map(code =>
+    `<button onclick="onboardSwitchLang('${code}')" style="padding:3px 8px;border-radius:6px;border:1.5px solid ${code===onboardLang?'#1a56db':'#e5e7eb'};background:${code===onboardLang?'#1a56db':'#fff'};color:${code===onboardLang?'#fff':'#374151'};cursor:pointer;font-size:11px;font-weight:500">${ONBOARD_LABELS[code]}</button>`
+  ).join('');
+}
+
+function onboardSwitchLang(code) {
+  onboardLang = code;
+  renderOnboardLangBar();
+  renderOnboardStep();
+}
+
 function renderOnboardStep() {
-  const s = ONBOARD_STEPS[onboardStep];
+  const t = ONBOARD_I18N[onboardLang] || ONBOARD_I18N.zh;
+  const steps = t.steps;
+  const s = steps[onboardStep];
   document.getElementById('onboardingStepContent').innerHTML =
     `<div style="font-size:36px;margin-bottom:12px;text-align:center">${s.icon}</div>` +
     `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#111827">${s.title}</h2>` +
     `<p style="font-size:14px;color:#374151;line-height:1.8;text-align:center">${s.desc}</p>`;
+  document.getElementById('onboardDontShowLabel').textContent = t.dontShow;
   document.getElementById('onboardPrevBtn').style.visibility = onboardStep === 0 ? 'hidden' : 'visible';
-  document.getElementById('onboardNextBtn').textContent = onboardStep === ONBOARD_STEPS.length - 1 ? '完成 ✓' : '下一步 →';
-  document.getElementById('onboardDots').innerHTML = ONBOARD_STEPS.map((_, i) =>
+  document.getElementById('onboardPrevBtn').textContent = t.prev;
+  document.getElementById('onboardNextBtn').textContent = onboardStep === steps.length - 1 ? t.finish : t.next;
+  document.getElementById('onboardDots').innerHTML = steps.map((_, i) =>
     `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px;background:${i === onboardStep ? '#3b82f6' : '#d1d5db'}"></span>`
   ).join('');
 }
 
 function onboardNav(dir) {
-  if (dir === 1 && onboardStep === ONBOARD_STEPS.length - 1) { closeOnboarding(); return; }
-  onboardStep = Math.max(0, Math.min(ONBOARD_STEPS.length - 1, onboardStep + dir));
+  const steps = (ONBOARD_I18N[onboardLang] || ONBOARD_I18N.zh).steps;
+  if (dir === 1 && onboardStep === steps.length - 1) { closeOnboarding(); return; }
+  onboardStep = Math.max(0, Math.min(steps.length - 1, onboardStep + dir));
   renderOnboardStep();
 }
 
@@ -635,12 +697,13 @@ if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentL
 
 <!-- Onboarding Overlay -->
 <div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:40px 44px;max-width:480px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+  <div style="background:#fff;border-radius:16px;padding:32px 40px;max-width:500px;width:92%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+    <div id="onboardLangBar" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;justify-content:center;"></div>
     <div id="onboardingStepContent"></div>
-    <div id="onboardDots" style="text-align:center;margin-top:20px;margin-bottom:20px;"></div>
+    <div id="onboardDots" style="text-align:center;margin-top:18px;margin-bottom:18px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <label style="font-size:13px;color:#6b7280;cursor:pointer;display:flex;align-items:center;gap:6px;">
-        <input type="checkbox" id="onboardDontShow"> 不再提醒
+        <input type="checkbox" id="onboardDontShow"> <span id="onboardDontShowLabel">不再提醒</span>
       </label>
       <div style="display:flex;gap:8px;">
         <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:13px;">← 上一步</button>

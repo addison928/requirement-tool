@@ -864,35 +864,105 @@
 
 // ── Onboarding Guide ──────────────────────────────────────────────────────────
 const ONBOARD_KEY = 'rm_onboarded_form';
-const ONBOARD_STEPS = [
-  { icon: '👋', title: '欢迎使用需求提交页', desc: '这是专为服务商合作伙伴设计的需求收集页面。您可以通过此页面向我们的产品团队提交功能需求或业务反馈，PM 会在每个周期集中处理。' },
-  { icon: '✍️', title: '如何填写更有效？', desc: '请尽量详细描述您的业务场景和实际影响——例如涉及哪些商户、影响多少交易量、希望的优先级等。描述越具体，越能帮助 PM 快速理解并正确归并您的需求。' },
-];
+const ONBOARD_LANGS = ['en','zh','it','fr','th','km'];
+const ONBOARD_LABELS = { en:'EN', zh:'中文', it:'IT', fr:'FR', th:'ภาษาไทย', km:'ខ្មែរ' };
+const ONBOARD_I18N = {
+  en: {
+    dontShow: "Don't show again",
+    prev: '← Back', finish: 'Done ✓', next: 'Next →',
+    steps: [
+      { icon: '👋', title: 'Welcome to Requirement Submission', desc: 'This page collects product requirements from partner teams. Your submission goes into the next processing cycle where our PM reviews and merges similar requests.' },
+      { icon: '✍️', title: 'How to Write an Effective Request?', desc: 'Describe your business scenario and actual impact in detail — e.g. which merchants are affected, transaction volume, and desired priority. The more specific you are, the better the PM can understand and merge your request.' },
+    ],
+  },
+  zh: {
+    dontShow: '不再提醒',
+    prev: '← 上一步', finish: '完成 ✓', next: '下一步 →',
+    steps: [
+      { icon: '👋', title: '欢迎使用需求提交页', desc: '这是专为服务商合作伙伴设计的需求收集页面。您可以通过此页面向我们的产品团队提交功能需求或业务反馈，PM 会在每个周期集中处理。' },
+      { icon: '✍️', title: '如何填写更有效？', desc: '请尽量详细描述您的业务场景和实际影响——例如涉及哪些商户、影响多少交易量、希望的优先级等。描述越具体，越能帮助 PM 快速理解并正确归并您的需求。' },
+    ],
+  },
+  it: {
+    dontShow: 'Non mostrare più',
+    prev: '← Indietro', finish: 'Fine ✓', next: 'Avanti →',
+    steps: [
+      { icon: '👋', title: 'Benvenuto nella pagina di invio', desc: 'Questa pagina raccoglie le esigenze di prodotto dai team partner. Il tuo invio verrà elaborato nel prossimo ciclo dal nostro PM che unirà richieste simili.' },
+      { icon: '✍️', title: 'Come compilare in modo efficace?', desc: "Descrivi dettagliatamente il contesto aziendale e l'impatto: commercianti coinvolti, volume delle transazioni e priorità desiderata. Più sei specifico, più il PM potrà elaborare correttamente la tua richiesta." },
+    ],
+  },
+  fr: {
+    dontShow: 'Ne plus afficher',
+    prev: '← Retour', finish: 'Terminer ✓', next: 'Suivant →',
+    steps: [
+      { icon: '👋', title: 'Bienvenue sur la page de soumission', desc: 'Cette page recueille les besoins produit des équipes partenaires. Votre soumission sera traitée lors du prochain cycle par notre PM qui regroupe les demandes similaires.' },
+      { icon: '✍️', title: 'Comment remplir efficacement ?', desc: "Décrivez en détail le contexte métier et l'impact : marchands concernés, volume de transactions et priorité souhaitée. Plus votre description est précise, mieux le PM pourra traiter votre demande." },
+    ],
+  },
+  th: {
+    dontShow: 'ไม่ต้องแสดงอีก',
+    prev: '← ย้อนกลับ', finish: 'เสร็จสิ้น ✓', next: 'ถัดไป →',
+    steps: [
+      { icon: '👋', title: 'ยินดีต้อนรับสู่หน้าส่งความต้องการ', desc: 'หน้านี้รวบรวมความต้องการผลิตภัณฑ์จากทีมพาร์ทเนอร์ การส่งของคุณจะถูกประมวลผลในรอบถัดไปโดย PM ของเรา' },
+      { icon: '✍️', title: 'วิธีกรอกให้มีประสิทธิภาพ?', desc: 'อธิบายสถานการณ์ทางธุรกิจและผลกระทบอย่างละเอียด เช่น ร้านค้าที่ได้รับผลกระทบ ปริมาณธุรกรรม และความสำคัญที่ต้องการ ยิ่งเฉพาะเจาะจงมากเท่าไร PM ก็ยิ่งเข้าใจและรวมคำขอได้ถูกต้องมากขึ้น' },
+    ],
+  },
+  km: {
+    dontShow: 'កុំបង្ហាញទៀត',
+    prev: '← ថយក្រោយ', finish: 'រួចរាល់ ✓', next: 'បន្ទាប់ →',
+    steps: [
+      { icon: '👋', title: 'សូមស្វាគមន៍មកកាន់ទំព័របញ្ជូន', desc: 'ទំព័រនេះប្រមូលតម្រូវការផលិតផលពីក្រុមដៃគូ។ ការបញ្ជូនរបស់អ្នកនឹងត្រូវបានដំណើរការក្នុងវដ្តបន្ទាប់ដោយ PM របស់យើង។' },
+      { icon: '✍️', title: 'របៀបបំពេញប្រកបដោយប្រសិទ្ធភាព?', desc: 'ពណ៌នាអំពីបរិបទអាជីវកម្ម និងផលប៉ះពាល់ដោយលម្អិត ដូចជា ឈ្មួញដែលរងផលប៉ះពាល់ ចំនួនប្រតិបត្តិការ និងអាទិភាពដែលចង់បាន។' },
+    ],
+  },
+};
+
 let onboardStep = 0;
+let onboardLang = currentLang;
 
 function showOnboarding() {
   onboardStep = 0;
+  onboardLang = currentLang;
   document.getElementById('onboardDontShow').checked = false;
+  renderOnboardLangBar();
   renderOnboardStep();
   document.getElementById('onboardingOverlay').style.display = 'flex';
 }
 
+function renderOnboardLangBar() {
+  document.getElementById('onboardLangBar').innerHTML = ONBOARD_LANGS.map(code =>
+    `<button onclick="onboardSwitchLang('${code}')" style="padding:3px 8px;border-radius:6px;border:1.5px solid ${code===onboardLang?'#1a56db':'#e5e7eb'};background:${code===onboardLang?'#1a56db':'#fff'};color:${code===onboardLang?'#fff':'#374151'};cursor:pointer;font-size:11px;font-weight:500">${ONBOARD_LABELS[code]}</button>`
+  ).join('');
+}
+
+function onboardSwitchLang(code) {
+  onboardLang = code;
+  setLang(code);
+  renderOnboardLangBar();
+  renderOnboardStep();
+}
+
 function renderOnboardStep() {
-  const s = ONBOARD_STEPS[onboardStep];
+  const t = ONBOARD_I18N[onboardLang] || ONBOARD_I18N.en;
+  const steps = t.steps;
+  const s = steps[onboardStep];
   document.getElementById('onboardingStepContent').innerHTML =
     `<div style="font-size:36px;margin-bottom:12px;text-align:center">${s.icon}</div>` +
     `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#111827">${s.title}</h2>` +
     `<p style="font-size:14px;color:#374151;line-height:1.8;text-align:center">${s.desc}</p>`;
+  document.getElementById('onboardDontShowLabel').textContent = t.dontShow;
   document.getElementById('onboardPrevBtn').style.visibility = onboardStep === 0 ? 'hidden' : 'visible';
-  document.getElementById('onboardNextBtn').textContent = onboardStep === ONBOARD_STEPS.length - 1 ? '完成 ✓' : '下一步 →';
-  document.getElementById('onboardDots').innerHTML = ONBOARD_STEPS.map((_, i) =>
+  document.getElementById('onboardPrevBtn').textContent = t.prev;
+  document.getElementById('onboardNextBtn').textContent = onboardStep === steps.length - 1 ? t.finish : t.next;
+  document.getElementById('onboardDots').innerHTML = steps.map((_, i) =>
     `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px;background:${i === onboardStep ? '#3b82f6' : '#d1d5db'}"></span>`
   ).join('');
 }
 
 function onboardNav(dir) {
-  if (dir === 1 && onboardStep === ONBOARD_STEPS.length - 1) { closeOnboarding(); return; }
-  onboardStep = Math.max(0, Math.min(ONBOARD_STEPS.length - 1, onboardStep + dir));
+  const steps = (ONBOARD_I18N[onboardLang] || ONBOARD_I18N.en).steps;
+  if (dir === 1 && onboardStep === steps.length - 1) { closeOnboarding(); return; }
+  onboardStep = Math.max(0, Math.min(steps.length - 1, onboardStep + dir));
   renderOnboardStep();
 }
 
@@ -906,12 +976,13 @@ if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentL
 
 <!-- Onboarding Overlay -->
 <div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:40px 44px;max-width:480px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+  <div style="background:#fff;border-radius:16px;padding:32px 40px;max-width:500px;width:92%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+    <div id="onboardLangBar" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;justify-content:center;"></div>
     <div id="onboardingStepContent"></div>
-    <div id="onboardDots" style="text-align:center;margin-top:20px;margin-bottom:20px;"></div>
+    <div id="onboardDots" style="text-align:center;margin-top:18px;margin-bottom:18px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <label style="font-size:13px;color:#6b7280;cursor:pointer;display:flex;align-items:center;gap:6px;">
-        <input type="checkbox" id="onboardDontShow"> 不再提醒
+        <input type="checkbox" id="onboardDontShow"> <span id="onboardDontShowLabel">不再提醒</span>
       </label>
       <div style="display:flex;gap:8px;">
         <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:13px;">← 上一步</button>
