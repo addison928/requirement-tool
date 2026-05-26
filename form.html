@@ -8,212 +8,387 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&family=Noto+Sans+Khmer&display=swap" rel="stylesheet">
   <script src="partners.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      background: #f5f5f7;
       min-height: 100vh;
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      padding: 40px 16px 60px;
+      padding: 48px 16px 80px;
+      -webkit-font-smoothing: antialiased;
     }
 
+    /* ── Card ── */
     .card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
       width: 100%;
       max-width: 640px;
       overflow: hidden;
     }
 
-    /* ── Language switcher ── */
+    /* ── Language bar ── */
     .lang-bar {
       display: flex;
-      justify-content: flex-end;
-      padding: 10px 14px 0;
-      gap: 4px;
-      background: #fff;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 16px 24px 14px;
+      background: #ffffff;
+      border-bottom: 1px solid #f2f2f7;
     }
 
     .lang-btn {
-      border: 1.5px solid #e5e7eb;
-      border-radius: 6px;
-      padding: 4px 9px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 980px;
+      padding: 5px 14px;
       font-size: 12px;
       font-weight: 500;
-      color: #6b7280;
-      background: #fafafa;
+      color: #1d1d1f;
+      background: #f5f5f7;
       cursor: pointer;
-      transition: all 0.15s;
-      line-height: 1.4;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      line-height: 1.5;
+      letter-spacing: -0.01em;
     }
 
-    .lang-btn:hover { border-color: #1a56db; color: #1a56db; background: #eff6ff; }
-    .lang-btn.active { border-color: #1a56db; color: #fff; background: #1a56db; }
+    .lang-btn:hover {
+      border-color: #0071e3;
+      color: #0071e3;
+      background: #f0f7ff;
+    }
 
+    .lang-btn.active {
+      border-color: #0071e3;
+      color: #ffffff;
+      background: #0071e3;
+    }
+
+    /* ── Header ── */
     .header {
-      background: linear-gradient(135deg, #1a56db 0%, #0e3fa3 100%);
-      padding: 28px 32px 24px;
-      color: #fff;
+      background: linear-gradient(180deg, #1d1d1f 0%, #2d2d2d 100%);
+      padding: 32px 36px 28px;
+      color: #ffffff;
     }
 
     .header .badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255,255,255,0.18);
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 12px;
-      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 980px;
+      padding: 4px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      margin-bottom: 14px;
+      text-transform: uppercase;
     }
 
     .header h1 {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
-      margin-bottom: 4px;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+      line-height: 1.2;
     }
 
     .header p {
       font-size: 13px;
-      opacity: 0.8;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: -0.01em;
     }
 
     .source-tag {
-      margin-top: 16px;
+      margin-top: 20px;
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 8px;
-      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 11px 16px;
       font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
     }
 
     .source-tag .dot {
-      width: 8px; height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: #4ade80;
+      background: #30d158;
       flex-shrink: 0;
+      box-shadow: 0 0 0 2px rgba(48, 209, 88, 0.3);
     }
 
-    .body { padding: 28px 32px 32px; }
+    /* ── Form body ── */
+    .body {
+      padding: 32px 36px 40px;
+    }
 
-    .field { margin-bottom: 22px; }
+    .field {
+      margin-bottom: 24px;
+    }
 
     label {
       display: block;
       font-size: 13px;
       font-weight: 600;
-      color: #374151;
-      margin-bottom: 6px;
+      color: #1d1d1f;
+      margin-bottom: 7px;
+      letter-spacing: -0.01em;
     }
 
-    label .req { color: #ef4444; margin-left: 2px; }
-    label .hint { font-weight: 400; color: #9ca3af; font-size: 12px; margin-left: 6px; }
+    label .req {
+      color: #ff3b30;
+      margin-left: 2px;
+    }
 
-    textarea, input[type="text"], select {
+    label .hint {
+      font-weight: 400;
+      color: #6e6e73;
+      font-size: 12px;
+      margin-left: 6px;
+      letter-spacing: 0;
+    }
+
+    textarea,
+    input[type="text"],
+    select {
       width: 100%;
-      border: 1.5px solid #e5e7eb;
+      border: 1.5px solid #d2d2d7;
       border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 14px;
-      color: #111827;
+      padding: 12px 16px;
+      font-size: 15px;
+      color: #1d1d1f;
       outline: none;
-      transition: border-color 0.15s;
-      background: #fafafa;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: #ffffff;
       font-family: inherit;
+      -webkit-font-smoothing: antialiased;
     }
 
-    textarea:focus, input[type="text"]:focus, select:focus {
-      border-color: #1a56db;
-      background: #fff;
+    textarea:focus,
+    input[type="text"]:focus,
+    select:focus {
+      border-color: #0071e3;
+      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
     }
 
-    textarea { resize: vertical; min-height: 100px; }
+    textarea::placeholder,
+    input[type="text"]::placeholder {
+      color: #aeaeb2;
+    }
 
-    .radio-group, .check-group {
+    textarea {
+      resize: vertical;
+      min-height: 108px;
+      line-height: 1.6;
+    }
+
+    /* ── Merchant type radio — compact row ── */
+    .radio-group {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
 
-    .radio-group label, .check-group label {
+    .radio-group label {
       display: flex;
       align-items: center;
-      gap: 7px;
-      padding: 8px 14px;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
+      gap: 6px;
+      padding: 9px 16px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1d1d1f;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+      background: #ffffff;
+      margin-bottom: 0;
+    }
+
+    .radio-group input { display: none; }
+
+    .radio-group label:has(input:checked) {
+      border-color: #0071e3;
+      background: #f0f7ff;
+      color: #0071e3;
+    }
+
+    /* ── Impact — segmented control style ── */
+    .impact-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .impact-group label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 12px 8px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 12px;
       cursor: pointer;
       font-size: 13px;
       font-weight: 500;
-      color: #374151;
-      transition: all 0.15s;
+      color: #1d1d1f;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
       user-select: none;
-      background: #fafafa;
+      background: #ffffff;
+      text-align: center;
+      line-height: 1.3;
+      margin-bottom: 0;
     }
 
-    .radio-group input, .check-group input { display: none; }
+    .impact-group input { display: none; }
 
-    .radio-group label:has(input:checked) {
-      border-color: #1a56db;
-      background: #eff6ff;
-      color: #1a56db;
+    .impact-indicator {
+      font-size: 18px;
+      line-height: 1;
     }
+
+    .impact-label-text {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .impact-sub {
+      font-size: 11px;
+      font-weight: 400;
+      color: #6e6e73;
+    }
+
+    .impact-high:has(input:checked) {
+      border-color: #ff3b30 !important;
+      background: #fff5f5 !important;
+      color: #ff3b30 !important;
+    }
+
+    .impact-high:has(input:checked) .impact-sub { color: #ff3b30; opacity: 0.7; }
+
+    .impact-mid:has(input:checked) {
+      border-color: #ff9f0a !important;
+      background: #fffbf0 !important;
+      color: #c87800 !important;
+    }
+
+    .impact-mid:has(input:checked) .impact-sub { color: #c87800; opacity: 0.7; }
+
+    .impact-low:has(input:checked) {
+      border-color: #30d158 !important;
+      background: #f0fff5 !important;
+      color: #1d8a3c !important;
+    }
+
+    .impact-low:has(input:checked) .impact-sub { color: #1d8a3c; opacity: 0.7; }
+
+    /* ── Module chips ── */
+    .check-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .check-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 980px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1d1d1f;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+      background: #ffffff;
+      margin-bottom: 0;
+    }
+
+    .check-group input { display: none; }
 
     .check-group label:has(input:checked) {
-      border-color: #1a56db;
-      background: #eff6ff;
-      color: #1a56db;
+      border-color: #0071e3;
+      background: #e8f1ff;
+      color: #0071e3;
     }
-
-    .impact-high:has(input:checked)  { border-color: #ef4444 !important; background: #fef2f2 !important; color: #ef4444 !important; }
-    .impact-mid:has(input:checked)   { border-color: #f59e0b !important; background: #fffbeb !important; color: #d97706 !important; }
-    .impact-low:has(input:checked)   { border-color: #10b981 !important; background: #f0fdf4 !important; color: #10b981 !important; }
 
     /* ── Upload area ── */
     .upload-area {
-      border: 2px dashed #d1d5db;
-      border-radius: 10px;
-      padding: 24px 16px;
+      border: 1.5px dashed #c7c7cc;
+      border-radius: 12px;
+      padding: 28px 20px;
       text-align: center;
       cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
       background: #fafafa;
     }
 
-    .upload-area:hover, .upload-area.drag-over {
-      border-color: #1a56db;
-      background: #eff6ff;
+    .upload-area:hover,
+    .upload-area.drag-over {
+      border-color: #0071e3;
+      background: #f0f7ff;
     }
 
-    .upload-icon { font-size: 24px; margin-bottom: 6px; }
-    .upload-text { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 3px; }
-    .upload-hint { font-size: 12px; color: #9ca3af; }
+    .upload-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
 
-    .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .upload-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .upload-hint {
+      font-size: 12px;
+      color: #6e6e73;
+    }
+
+    .file-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
     .file-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
+      gap: 12px;
+      padding: 10px 14px;
+      background: #f5f5f7;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
       font-size: 13px;
     }
 
     .file-item .fi-thumb {
-      width: 36px; height: 36px;
-      border-radius: 6px;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
       object-fit: cover;
-      background: #e5e7eb;
-      display: flex; align-items: center; justify-content: center;
+      background: #e5e5ea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 18px;
       flex-shrink: 0;
       overflow: hidden;
@@ -222,112 +397,186 @@
     .file-item .fi-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
     .file-item .fi-info { flex: 1; min-width: 0; }
-    .file-item .fi-name { font-weight: 500; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .file-item .fi-size { font-size: 11px; color: #9ca3af; margin-top: 1px; }
+    .file-item .fi-name {
+      font-weight: 500;
+      color: #1d1d1f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-item .fi-size {
+      font-size: 11px;
+      color: #6e6e73;
+      margin-top: 2px;
+    }
 
     .file-item .fi-remove {
-      background: none; border: none; cursor: pointer;
-      color: #9ca3af; font-size: 16px; padding: 2px 4px;
-      flex-shrink: 0; line-height: 1;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aeaeb2;
+      font-size: 15px;
+      padding: 4px;
+      flex-shrink: 0;
+      line-height: 1;
+      border-radius: 50%;
+      transition: color 0.15s, background 0.15s;
     }
 
-    .file-item .fi-remove:hover { color: #ef4444; }
+    .file-item .fi-remove:hover {
+      color: #ff3b30;
+      background: rgba(255, 59, 48, 0.08);
+    }
 
+    /* ── Divider ── */
     .divider {
       border: none;
-      border-top: 1px solid #f3f4f6;
-      margin: 24px 0;
+      border-top: 1px solid #f2f2f7;
+      margin: 28px 0;
     }
 
+    /* ── Auto-recorded fields ── */
     .auto-fields {
-      background: #f8faff;
-      border: 1px solid #e0e7ff;
-      border-radius: 10px;
-      padding: 14px 16px;
+      background: #f5f5f7;
+      border-radius: 12px;
+      padding: 16px 20px;
       display: flex;
-      gap: 20px;
+      gap: 0;
     }
 
-    .auto-field { flex: 1; }
-    .auto-field .af-label { font-size: 11px; color: #6b7280; margin-bottom: 3px; }
-    .auto-field .af-value { font-size: 13px; font-weight: 600; color: #1e40af; }
+    .auto-field {
+      flex: 1;
+      padding: 0 8px;
+    }
 
+    .auto-field:not(:last-child) {
+      border-right: 1px solid #e5e5ea;
+      margin-right: 8px;
+    }
+
+    .auto-field .af-label {
+      font-size: 11px;
+      color: #6e6e73;
+      margin-bottom: 4px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+    .auto-field .af-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0071e3;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Submit button ── */
     .submit-btn {
       width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #1a56db, #0e3fa3);
-      color: #fff;
+      height: 52px;
+      background: #0071e3;
+      color: #ffffff;
       border: none;
-      border-radius: 10px;
-      font-size: 15px;
+      border-radius: 980px;
+      font-size: 17px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 24px;
-      transition: opacity 0.15s, transform 0.1s;
-      letter-spacing: 0.3px;
+      margin-top: 28px;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      letter-spacing: -0.01em;
+      font-family: inherit;
     }
 
-    .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
-    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:hover {
+      background: #0077ed;
+      box-shadow: 0 4px 16px rgba(0, 113, 227, 0.35);
+    }
 
+    .submit-btn:active {
+      background: #006edb;
+      transform: scale(0.99);
+      box-shadow: none;
+    }
+
+    /* ── Success overlay ── */
     .success-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.5);
       align-items: center;
       justify-content: center;
       z-index: 100;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
     }
 
     .success-overlay.show { display: flex; }
 
     .success-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 40px 36px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 44px 40px 40px;
       text-align: center;
       max-width: 360px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.18);
     }
 
     .success-icon {
-      width: 64px; height: 64px;
-      background: #f0fdf4;
+      width: 72px;
+      height: 72px;
+      background: #f0fff5;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 16px;
-      font-size: 28px;
+      margin: 0 auto 20px;
+      font-size: 32px;
     }
 
-    .success-box h2 { font-size: 20px; color: #111827; margin-bottom: 8px; }
-    .success-box p { font-size: 13px; color: #6b7280; margin-bottom: 6px; }
+    .success-box h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+    }
+
+    .success-box p {
+      font-size: 14px;
+      color: #6e6e73;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
 
     .id-badge {
       display: inline-block;
-      background: #eff6ff;
-      color: #1a56db;
-      border-radius: 6px;
-      padding: 4px 12px;
+      background: #e8f1ff;
+      color: #0071e3;
+      border-radius: 8px;
+      padding: 5px 16px;
       font-size: 13px;
       font-weight: 700;
-      margin: 12px 0 20px;
+      margin: 14px 0 20px;
       letter-spacing: 1px;
     }
 
     .success-box button {
-      padding: 10px 28px;
-      background: #1a56db;
-      color: #fff;
+      padding: 0 32px;
+      height: 44px;
+      background: #0071e3;
+      color: #ffffff;
       border: none;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 980px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
     }
+
+    .success-box button:hover { background: #0077ed; }
 
     /* ── Invalid token page ── */
     .invalid-page {
@@ -340,9 +589,37 @@
       padding: 40px;
     }
 
-    .invalid-page .inv-icon { font-size: 48px; margin-bottom: 16px; }
-    .invalid-page h2 { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 8px; }
-    .invalid-page p  { font-size: 14px; color: #6b7280; }
+    .invalid-page .inv-icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+    }
+
+    .invalid-page h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 10px;
+      letter-spacing: -0.03em;
+    }
+
+    .invalid-page p {
+      font-size: 14px;
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+
+    /* ── Section separator label ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #aeaeb2;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+      margin-top: 32px;
+    }
+
+    .section-label:first-child { margin-top: 0; }
   </style>
 </head>
 <body>
@@ -408,10 +685,25 @@
       <!-- Business Impact -->
       <div class="field">
         <label data-i18n="labelImpact">Business Impact <span class="req">*</span><span class="hint" data-i18n="hintImpact">How much does this affect the merchant?</span></label>
-        <div class="radio-group">
-          <label class="impact-high"><input type="radio" name="impact" value="high" required> 🔴 <span data-i18n="impactHigh">High · Blocks core workflow</span></label>
-          <label class="impact-mid"><input type="radio" name="impact" value="mid"> 🟡 <span data-i18n="impactMid">Medium · Affects some features</span></label>
-          <label class="impact-low"><input type="radio" name="impact" value="low"> 🟢 <span data-i18n="impactLow">Low · Nice to have</span></label>
+        <div class="impact-group radio-group">
+          <label class="impact-high">
+            <input type="radio" name="impact" value="high" required>
+            <span class="impact-indicator">🔴</span>
+            <span class="impact-label-text">High</span>
+            <span class="impact-sub" data-i18n="impactHigh">Blocks core workflow</span>
+          </label>
+          <label class="impact-mid">
+            <input type="radio" name="impact" value="mid">
+            <span class="impact-indicator">🟡</span>
+            <span class="impact-label-text">Medium</span>
+            <span class="impact-sub" data-i18n="impactMid">Affects some features</span>
+          </label>
+          <label class="impact-low">
+            <input type="radio" name="impact" value="low">
+            <span class="impact-indicator">🟢</span>
+            <span class="impact-label-text">Low</span>
+            <span class="impact-sub" data-i18n="impactLow">Nice to have</span>
+          </label>
         </div>
       </div>
 
@@ -434,7 +726,7 @@
         <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
           <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none" onchange="handleFiles(this.files)" />
           <div class="upload-icon">📎</div>
-          <div class="upload-text" data-i18n="uploadText">Click to upload or drag & drop</div>
+          <div class="upload-text" data-i18n="uploadText">Click to upload or drag &amp; drop</div>
           <div class="upload-hint" data-i18n="uploadHint">Images or videos · Max 20 MB each</div>
         </div>
         <div id="fileList" class="file-list"></div>
@@ -469,9 +761,9 @@
     <div class="success-icon">✅</div>
     <h2 data-i18n="successTitle">Submitted!</h2>
     <p data-i18n="successMsg">Your requirement has entered the processing queue</p>
-    <p style="font-size:12px;color:#9ca3af;margin-top:4px;" data-i18n="successAI">AI will process and classify it in the next batch</p>
+    <p style="font-size:12px;color:#aeaeb2;margin-top:4px;" data-i18n="successAI">AI will process and classify it in the next batch</p>
     <div class="id-badge" id="submittedId">TH-0000</div>
-    <p style="font-size:12px;color:#6b7280;margin-bottom:0" data-i18n="successNotify">You will be notified when the status changes</p>
+    <p style="font-size:12px;color:#6e6e73;margin-bottom:0" data-i18n="successNotify">You will be notified when the status changes</p>
     <br/>
     <button onclick="resetForm()" data-i18n="submitAnother">Submit Another</button>
   </div>
@@ -496,9 +788,9 @@
       restaurant: 'Restaurant', retail: 'Retail', other: 'Other',
       labelImpact: 'Business Impact <span class="req">*</span>',
       hintImpact: 'How much does this affect the merchant?',
-      impactHigh: 'High · Blocks core workflow',
-      impactMid: 'Medium · Affects some features',
-      impactLow: 'Low · Nice to have',
+      impactHigh: 'Blocks core workflow',
+      impactMid: 'Affects some features',
+      impactLow: 'Nice to have',
       labelModules: 'Related Modules <span class="req">*</span>',
       hintModules: 'Select all that apply',
       modPOS: 'POS', modReport: 'Reports', modMember: 'Membership',
@@ -534,9 +826,9 @@
       restaurant: '餐厅', retail: '零售', other: '其他',
       labelImpact: '业务影响 <span class="req">*</span>',
       hintImpact: '此需求对商户业务的影响程度',
-      impactHigh: '高 · 影响核心流程',
-      impactMid: '中 · 影响部分功能',
-      impactLow: '低 · 体验改善',
+      impactHigh: '影响核心流程',
+      impactMid: '影响部分功能',
+      impactLow: '体验改善',
       labelModules: '涉及场景 <span class="req">*</span>',
       hintModules: '可多选',
       modPOS: '收银', modReport: '报表', modMember: '会员',
@@ -572,9 +864,9 @@
       restaurant: 'Ristorante', retail: 'Vendita al dettaglio', other: 'Altro',
       labelImpact: 'Impatto sul business <span class="req">*</span>',
       hintImpact: 'Quanto influisce sul commerciante?',
-      impactHigh: 'Alto · Blocca il flusso principale',
-      impactMid: 'Medio · Influenza alcune funzioni',
-      impactLow: 'Basso · Miglioria opzionale',
+      impactHigh: 'Blocca il flusso principale',
+      impactMid: 'Influenza alcune funzioni',
+      impactLow: 'Miglioria opzionale',
       labelModules: 'Moduli coinvolti <span class="req">*</span>',
       hintModules: 'Selezione multipla possibile',
       modPOS: 'POS', modReport: 'Report', modMember: 'Membership',
@@ -610,9 +902,9 @@
       restaurant: 'Restaurant', retail: 'Commerce de détail', other: 'Autre',
       labelImpact: 'Impact métier <span class="req">*</span>',
       hintImpact: 'Dans quelle mesure cela affecte-t-il le marchand ?',
-      impactHigh: 'Élevé · Bloque le flux principal',
-      impactMid: 'Moyen · Affecte certaines fonctions',
-      impactLow: 'Faible · Amélioration optionnelle',
+      impactHigh: 'Bloque le flux principal',
+      impactMid: 'Affecte certaines fonctions',
+      impactLow: 'Amélioration optionnelle',
       labelModules: 'Modules concernés <span class="req">*</span>',
       hintModules: 'Sélection multiple possible',
       modPOS: 'Point de vente', modReport: 'Rapports', modMember: 'Fidélité',
@@ -648,9 +940,9 @@
       restaurant: 'ร้านอาหาร', retail: 'ร้านค้าปลีก', other: 'อื่นๆ',
       labelImpact: 'ผลกระทบต่อธุรกิจ <span class="req">*</span>',
       hintImpact: 'ความต้องการนี้ส่งผลต่อร้านค้ามากแค่ไหน?',
-      impactHigh: 'สูง · กระทบกระบวนการหลัก',
-      impactMid: 'กลาง · กระทบบางฟีเจอร์',
-      impactLow: 'ต่ำ · ปรับปรุงประสบการณ์',
+      impactHigh: 'กระทบกระบวนการหลัก',
+      impactMid: 'กระทบบางฟีเจอร์',
+      impactLow: 'ปรับปรุงประสบการณ์',
       labelModules: 'โมดูลที่เกี่ยวข้อง <span class="req">*</span>',
       hintModules: 'เลือกได้หลายรายการ',
       modPOS: 'แคชเชียร์', modReport: 'รายงาน', modMember: 'สมาชิก',
@@ -686,9 +978,9 @@
       restaurant: 'ភោជនីយដ្ឋាន', retail: 'ការលក់រាយ', other: 'ផ្សេងៗ',
       labelImpact: 'ផលប៉ះពាល់អាជីវកម្ម <span class="req">*</span>',
       hintImpact: 'តម្រូវការនេះប៉ះពាល់ដល់ឈ្មួញប៉ុណ្ណា?',
-      impactHigh: 'ខ្ពស់ · រារាំងដំណើរការចម្បង',
-      impactMid: 'មធ្យម · ប៉ះពាល់មុខងារខ្លះ',
-      impactLow: 'ទាប · កែលម្អបទពិសោធ',
+      impactHigh: 'រារាំងដំណើរការចម្បង',
+      impactMid: 'ប៉ះពាល់មុខងារខ្លះ',
+      impactLow: 'កែលម្អបទពិសោធ',
       labelModules: 'ម៉ូឌុលដែលពាក់ព័ន្ធ <span class="req">*</span>',
       hintModules: 'អាចជ្រើសរើសច្រើន',
       modPOS: 'ការទូទាត់', modReport: 'របាយការណ៍', modMember: 'សមាជិក',

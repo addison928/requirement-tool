@@ -6,188 +6,280 @@
   <title>我的需求追踪</title>
   <script src="partners.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f0f2f5;
-      color: #111827;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     /* ── Header ── */
     .header {
-      background: linear-gradient(135deg, #1a56db 0%, #0e3fa3 100%);
-      padding: 20px 32px;
+      background: linear-gradient(180deg, #1d1d1f 0%, #2d2d2d 100%);
+      padding: 24px 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 24px;
     }
 
-    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
     .partner-avatar {
-      width: 44px; height: 44px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 12px;
+      width: 48px; height: 48px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
+      font-size: 24px;
+      flex-shrink: 0;
     }
 
-    .partner-info h1 { color: #fff; font-size: 17px; font-weight: 700; }
-    .partner-info p  { color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 2px; }
+    .partner-info h1 {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
 
-    .header-stats { display: flex; gap: 20px; }
+    .partner-info p {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      margin-top: 3px;
+      letter-spacing: 0.1px;
+    }
+
+    .header-stats { display: flex; gap: 12px; }
 
     .stat-pill {
-      background: rgba(255,255,255,0.15);
-      border-radius: 10px;
-      padding: 8px 16px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 10px 20px;
       text-align: center;
+      min-width: 90px;
     }
 
-    .stat-pill .sv { color: #fff; font-size: 20px; font-weight: 700; }
-    .stat-pill .sl { color: rgba(255,255,255,0.7); font-size: 11px; margin-top: 2px; }
+    .stat-pill .sv {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
 
-    .header-right { display: flex; gap: 10px; align-items: center; }
+    .stat-pill .sl {
+      color: rgba(255,255,255,0.45);
+      font-size: 11px;
+      margin-top: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    .header-right { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
 
     .btn-outline {
-      border: 1.5px solid rgba(255,255,255,0.5);
+      border: 1.5px solid rgba(255,255,255,0.6);
       color: #fff;
       background: transparent;
-      border-radius: 8px;
-      padding: 8px 16px;
+      border-radius: 980px;
+      padding: 8px 18px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
-      transition: background 0.15s;
+      transition: background 0.18s, border-color 0.18s;
+      letter-spacing: 0.1px;
+      white-space: nowrap;
     }
 
-    .btn-outline:hover { background: rgba(255,255,255,0.15); }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.85);
+    }
 
     /* ── Content ── */
-    .content { max-width: 900px; margin: 0 auto; padding: 28px 20px 60px; }
+    .content {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
 
     .section-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
+      gap: 16px;
     }
 
-    .section-head h2 { font-size: 15px; font-weight: 700; }
+    .section-head h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -0.1px;
+    }
 
-    .filter-row { display: flex; gap: 8px; }
+    /* ── Filter segmented control ── */
+    .filter-row {
+      display: flex;
+      gap: 0;
+      background: #e5e5ea;
+      border-radius: 980px;
+      padding: 3px;
+    }
 
     .filter-btn {
-      border: 1.5px solid #e5e7eb;
-      border-radius: 20px;
-      padding: 4px 12px;
+      border: none;
+      border-radius: 980px;
+      padding: 5px 14px;
       font-size: 12px;
       font-weight: 500;
-      color: #6b7280;
-      background: #fff;
+      color: #6e6e73;
+      background: transparent;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.18s;
+      letter-spacing: 0.1px;
+      white-space: nowrap;
     }
 
-    .filter-btn.active, .filter-btn:hover {
-      border-color: #1a56db;
-      color: #1a56db;
-      background: #eff6ff;
+    .filter-btn.active {
+      background: #ffffff;
+      color: #1d1d1f;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      font-weight: 600;
     }
+
+    .filter-btn:not(.active):hover { color: #1d1d1f; }
 
     /* ── Ticket card ── */
     .ticket {
-      background: #fff;
+      background: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
       margin-bottom: 10px;
       overflow: hidden;
       border: 1.5px solid transparent;
-      transition: border-color 0.15s;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      position: relative;
     }
 
-    .ticket:hover { border-color: #dbeafe; }
-    .ticket.expanded { border-color: #1a56db; }
+    .ticket::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 4px;
+      border-radius: 12px 0 0 12px;
+      background: #e5e5ea;
+      transition: background 0.2s;
+    }
+
+    .ticket.s-accent-pending::before   { background: #8e8e93; }
+    .ticket.s-accent-merged::before    { background: #0071e3; }
+    .ticket.s-accent-scheduled::before { background: #9b59b6; }
+    .ticket.s-accent-dev::before       { background: #ff9500; }
+    .ticket.s-accent-live::before      { background: #34c759; }
+
+    .ticket:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .ticket.expanded {
+      border-color: #0071e3;
+      box-shadow: 0 4px 16px rgba(0,113,227,0.12), 0 1px 3px rgba(0,0,0,0.06);
+    }
 
     .ticket-row {
       display: grid;
-      grid-template-columns: 100px 1fr auto auto auto;
+      grid-template-columns: 108px 1fr auto auto auto;
       align-items: center;
-      gap: 14px;
-      padding: 14px 18px;
+      gap: 16px;
+      padding: 16px 20px 16px 22px;
       cursor: pointer;
     }
 
     .ticket-id {
-      font-family: monospace;
       font-size: 13px;
       font-weight: 700;
-      color: #1a56db;
+      color: #0071e3;
+      letter-spacing: -0.1px;
     }
 
     .ticket-id .merchant {
       display: block;
-      font-family: inherit;
       font-size: 11px;
       font-weight: 400;
-      color: #9ca3af;
-      margin-top: 2px;
+      color: #6e6e73;
+      margin-top: 3px;
+      letter-spacing: 0.1px;
     }
 
     .ticket-desc .original {
-      font-size: 13px;
-      color: #374151;
+      font-size: 13.5px;
+      font-weight: 400;
+      color: #1d1d1f;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 380px;
+      letter-spacing: -0.1px;
     }
 
     .ticket-desc .ai-hint {
       font-size: 11px;
-      color: #6b7280;
-      margin-top: 3px;
+      color: #6e6e73;
+      margin-top: 4px;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
 
     .ticket-desc .ai-hint .ai-tag {
-      background: #eff6ff;
-      color: #1a56db;
+      background: #e8f0ff;
+      color: #0071e3;
       border-radius: 4px;
       padding: 1px 5px;
       font-size: 10px;
       font-weight: 700;
+      letter-spacing: 0.2px;
     }
 
-    .ticket-time { font-size: 12px; color: #9ca3af; white-space: nowrap; }
+    .ticket-time {
+      font-size: 12px;
+      color: #6e6e73;
+      white-space: nowrap;
+      letter-spacing: 0.1px;
+    }
 
+    /* ── Impact badges ── */
     .badge {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
+      padding: 3px 9px;
+      border-radius: 980px;
       font-size: 11px;
       font-weight: 600;
+      letter-spacing: 0.1px;
     }
 
-    .badge-high { background: #fee2e2; color: #ef4444; }
-    .badge-mid  { background: #fef3c7; color: #d97706; }
-    .badge-low  { background: #d1fae5; color: #059669; }
+    .badge-high { background: #fff0f0; color: #ff3b30; }
+    .badge-mid  { background: #fff8e6; color: #ff9500; }
+    .badge-low  { background: #f0f9ff; color: #0071e3; }
 
+    /* ── Status chips ── */
     .status-chip {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
+      padding: 4px 11px;
+      border-radius: 980px;
+      font-size: 11.5px;
       font-weight: 600;
       white-space: nowrap;
+      letter-spacing: 0.1px;
     }
 
     .status-chip .dot {
@@ -196,26 +288,27 @@
       flex-shrink: 0;
     }
 
-    .s-pending    { background: #f3f4f6; color: #6b7280; }
-    .s-pending .dot { background: #9ca3af; }
+    .s-pending   { background: #f2f2f7; color: #6e6e73; }
+    .s-pending .dot { background: #8e8e93; }
 
-    .s-merged     { background: #ede9fe; color: #7c3aed; }
-    .s-merged .dot { background: #7c3aed; }
+    .s-merged    { background: #e6f2ff; color: #0071e3; }
+    .s-merged .dot { background: #0071e3; }
 
-    .s-scheduled  { background: #dbeafe; color: #1d4ed8; }
-    .s-scheduled .dot { background: #1d4ed8; }
+    .s-scheduled { background: #f5eeff; color: #9b59b6; }
+    .s-scheduled .dot { background: #9b59b6; }
 
-    .s-dev        { background: #fef3c7; color: #d97706; }
-    .s-dev .dot   { background: #d97706; }
+    .s-dev       { background: #fff4e6; color: #ff9500; }
+    .s-dev .dot  { background: #ff9500; }
 
-    .s-live       { background: #d1fae5; color: #059669; }
-    .s-live .dot  { background: #059669; }
+    .s-live      { background: #edfaf2; color: #34c759; }
+    .s-live .dot { background: #34c759; }
 
+    /* ── Chevron ── */
     .chevron {
-      color: #9ca3af;
-      font-size: 12px;
-      transition: transform 0.2s;
-      margin-left: 4px;
+      color: #c7c7cc;
+      font-size: 11px;
+      transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+      margin-left: 5px;
     }
 
     .ticket.expanded .chevron { transform: rotate(180deg); }
@@ -223,9 +316,16 @@
     /* ── Expanded detail ── */
     .ticket-detail {
       display: none;
-      border-top: 1px solid #f3f4f6;
-      padding: 18px 18px 20px;
-      background: #fafbff;
+      border-top: 1px solid #f2f2f7;
+      padding: 20px 22px 24px 22px;
+      background: #f9f9f9;
+      border-radius: 0 0 12px 12px;
+      animation: slideDown 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .ticket.expanded .ticket-detail { display: block; }
@@ -233,64 +333,91 @@
     .detail-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
+    /* ── AI summary box ── */
     .ai-box {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 10px;
+      background: #f0f4ff;
+      border-left: 3px solid #0071e3;
+      border-radius: 0 8px 8px 0;
       padding: 14px 16px;
     }
 
     .ai-box .ai-label {
       font-size: 11px;
       font-weight: 700;
-      color: #1d4ed8;
-      margin-bottom: 6px;
+      color: #0071e3;
+      margin-bottom: 7px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
     }
 
-    .ai-box p { font-size: 13px; color: #1e3a5f; line-height: 1.6; }
+    .ai-box p {
+      font-size: 13px;
+      color: #1d1d1f;
+      line-height: 1.65;
+    }
 
+    /* ── Cluster meta ── */
     .cluster-meta {
-      background: #fff;
-      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      border: 1px solid #e5e5ea;
       border-radius: 10px;
       padding: 14px 16px;
     }
 
-    .cluster-meta .cm-label { font-size: 11px; color: #9ca3af; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+    .cluster-meta .cm-label {
+      font-size: 10.5px;
+      color: #6e6e73;
+      margin-bottom: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
 
-    .cm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    .cm-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
     .cm-row:last-child { margin-bottom: 0; }
-    .cm-row .ck { color: #6b7280; }
-    .cm-row .cv { font-weight: 600; color: #111827; }
+    .cm-row .ck { color: #6e6e73; font-weight: 400; }
+    .cm-row .cv { font-weight: 600; color: #1d1d1f; }
 
+    /* ── Similar hint ── */
     .similar-hint {
-      font-size: 12px;
-      color: #6b7280;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+      font-size: 12.5px;
+      color: #1d1d1f;
+      background: #e8f4ff;
       border-radius: 8px;
-      padding: 8px 12px;
-      margin-bottom: 16px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.5;
     }
 
     /* ── Timeline ── */
     .timeline-title {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-      color: #6b7280;
+      color: #6e6e73;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
-      margin-bottom: 12px;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
     }
 
     .timeline {
       display: flex;
       align-items: flex-start;
       gap: 0;
+      padding-bottom: 4px;
     }
 
     .tl-step {
@@ -301,46 +428,80 @@
       position: relative;
     }
 
+    /* Connector line: extends from center of this dot to center of next dot */
     .tl-step:not(:last-child)::after {
       content: '';
       position: absolute;
-      top: 10px;
+      top: 11px;
       left: 50%;
       width: 100%;
       height: 2px;
-      background: #e5e7eb;
+      background: #e5e5ea;
       z-index: 0;
+      transition: background 0.3s;
     }
 
-    .tl-step.done:not(:last-child)::after { background: #1a56db; }
+    .tl-step.done:not(:last-child)::after { background: #0071e3; }
 
     .tl-dot {
-      width: 20px; height: 20px;
+      width: 22px; height: 22px;
       border-radius: 50%;
-      border: 2px solid #e5e7eb;
-      background: #fff;
+      border: 2px solid #d1d1d6;
+      background: #f5f5f7;
       z-index: 1;
       display: flex; align-items: center; justify-content: center;
-      font-size: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: transparent;
+      transition: all 0.25s;
+      flex-shrink: 0;
     }
 
-    .tl-step.done .tl-dot { background: #1a56db; border-color: #1a56db; color: #fff; }
-    .tl-step.current .tl-dot { background: #fff; border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,0.15); }
+    .tl-step.done .tl-dot {
+      background: #0071e3;
+      border-color: #0071e3;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,113,227,0.35);
+    }
+
+    .tl-step.current .tl-dot {
+      background: #fff;
+      border-color: #0071e3;
+      border-width: 2.5px;
+      color: #0071e3;
+      box-shadow: 0 0 0 4px rgba(0,113,227,0.15), 0 2px 6px rgba(0,113,227,0.2);
+    }
 
     .tl-label {
-      font-size: 10px;
-      color: #9ca3af;
-      margin-top: 6px;
+      font-size: 10.5px;
+      color: #8e8e93;
+      margin-top: 7px;
       text-align: center;
-      line-height: 1.3;
+      line-height: 1.35;
+      letter-spacing: 0.1px;
     }
 
-    .tl-step.done .tl-label { color: #1a56db; font-weight: 600; }
-    .tl-step.current .tl-label { color: #111827; font-weight: 700; }
+    .tl-step.done .tl-label {
+      color: #0071e3;
+      font-weight: 600;
+    }
 
-    .tl-date { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+    .tl-step.current .tl-label {
+      color: #1d1d1f;
+      font-weight: 700;
+    }
 
-    /* ── Invalid token ── */
+    .tl-date {
+      font-size: 10px;
+      color: #8e8e93;
+      margin-top: 3px;
+      text-align: center;
+      letter-spacing: 0.1px;
+    }
+
+    .tl-step.done .tl-date, .tl-step.current .tl-date { color: #6e6e73; }
+
+    /* ── Invalid token page ── */
     .invalid-page {
       display: flex;
       flex-direction: column;
@@ -349,21 +510,47 @@
       min-height: 100vh;
       text-align: center;
       padding: 40px;
+      background: #f5f5f7;
     }
 
-    .invalid-page .inv-icon { font-size: 48px; margin-bottom: 16px; }
-    .invalid-page h2 { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 8px; }
-    .invalid-page p  { font-size: 14px; color: #6b7280; }
+    .invalid-page .inv-icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+      filter: grayscale(0.2);
+    }
+
+    .invalid-page h2 {
+      font-size: 21px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+
+    .invalid-page p {
+      font-size: 14px;
+      color: #6e6e73;
+      line-height: 1.7;
+    }
 
     /* ── Empty state ── */
     .empty {
       text-align: center;
-      padding: 60px 20px;
-      color: #9ca3af;
+      padding: 64px 20px;
+      color: #8e8e93;
     }
 
-    .empty .empty-icon { font-size: 40px; margin-bottom: 12px; }
-    .empty p { font-size: 14px; }
+    .empty .empty-icon {
+      font-size: 44px;
+      margin-bottom: 14px;
+      opacity: 0.7;
+    }
+
+    .empty p {
+      font-size: 14px;
+      color: #6e6e73;
+      letter-spacing: 0.1px;
+    }
   </style>
 </head>
 <body>
@@ -506,18 +693,21 @@ function renderList(pid) {
     return;
   }
 
+  const accentMap = { pending: 's-accent-pending', merged: 's-accent-merged', scheduled: 's-accent-scheduled', dev: 's-accent-dev', live: 's-accent-live' };
+
   list.innerHTML = filtered.map(t => {
     const sc = statusConfig[t.status];
     const ic = impactConfig[t.impact];
     const isExpanded = expandedId === t.id;
     const canExpand = t.cluster !== null;
+    const accentCls = accentMap[t.status] || '';
 
     const statusLabel = t.cluster
       ? `${sc.label}${t.status !== 'pending' ? ` · 需求簇 ${t.cluster}` : ''}`
       : sc.label;
 
     return `
-    <div class="ticket ${isExpanded ? 'expanded' : ''}" id="ticket-${t.id}">
+    <div class="ticket ${isExpanded ? 'expanded' : ''} ${accentCls}" id="ticket-${t.id}">
       <div class="ticket-row" onclick="${canExpand ? `toggle('${t.id}')` : ''}">
         <div class="ticket-id">
           ${t.id}
@@ -525,7 +715,7 @@ function renderList(pid) {
         </div>
         <div class="ticket-desc">
           <div class="original">${t.original}</div>
-          ${t.clusterSummary ? `<div class="ai-hint"><span class="ai-tag">AI摘要</span>${t.clusterSummary.slice(0, 40)}…</div>` : '<div class="ai-hint" style="color:#d1d5db">等待 AI 处理…</div>'}
+          ${t.clusterSummary ? `<div class="ai-hint"><span class="ai-tag">AI摘要</span>${t.clusterSummary.slice(0, 40)}…</div>` : '<div class="ai-hint" style="color:#d1d1d6">等待 AI 处理…</div>'}
         </div>
         <div class="ticket-time">${t.time}</div>
         <div><span class="badge ${ic.cls}">${ic.label}</span></div>
@@ -545,7 +735,7 @@ function renderList(pid) {
           <div class="cluster-meta">
             <div class="cm-label">需求簇信息</div>
             <div class="cm-row"><span class="ck">簇 ID</span><span class="cv">${t.cluster}</span></div>
-            <div class="cm-row"><span class="ck">优先级得分</span><span class="cv" style="color:#1a56db">${t.clusterScore}</span></div>
+            <div class="cm-row"><span class="ck">优先级得分</span><span class="cv" style="color:#0071e3">${t.clusterScore}</span></div>
             <div class="cm-row"><span class="ck">当前状态</span><span class="cv">${statusConfig[t.status].label}</span></div>
           </div>
         </div>
@@ -653,7 +843,7 @@ function showOnboarding() {
 
 function renderOnboardLangBar() {
   document.getElementById('onboardLangBar').innerHTML = ONBOARD_LANGS.map(code =>
-    `<button onclick="onboardSwitchLang('${code}')" style="padding:3px 8px;border-radius:6px;border:1.5px solid ${code===onboardLang?'#1a56db':'#e5e7eb'};background:${code===onboardLang?'#1a56db':'#fff'};color:${code===onboardLang?'#fff':'#374151'};cursor:pointer;font-size:11px;font-weight:500">${ONBOARD_LABELS[code]}</button>`
+    `<button onclick="onboardSwitchLang('${code}')" style="padding:4px 10px;border-radius:980px;border:1.5px solid ${code===onboardLang?'#0071e3':'#d1d1d6'};background:${code===onboardLang?'#0071e3':'#f5f5f7'};color:${code===onboardLang?'#fff':'#1d1d1f'};cursor:pointer;font-size:11px;font-weight:${code===onboardLang?'600':'500'};font-family:inherit;transition:all 0.15s">${ONBOARD_LABELS[code]}</button>`
   ).join('');
 }
 
@@ -668,15 +858,15 @@ function renderOnboardStep() {
   const steps = t.steps;
   const s = steps[onboardStep];
   document.getElementById('onboardingStepContent').innerHTML =
-    `<div style="font-size:36px;margin-bottom:12px;text-align:center">${s.icon}</div>` +
-    `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#111827">${s.title}</h2>` +
-    `<p style="font-size:14px;color:#374151;line-height:1.8;text-align:center">${s.desc}</p>`;
+    `<div style="font-size:40px;margin-bottom:14px;text-align:center">${s.icon}</div>` +
+    `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#1d1d1f;letter-spacing:-0.3px;font-family:inherit">${s.title}</h2>` +
+    `<p style="font-size:14px;color:#6e6e73;line-height:1.75;text-align:center;font-family:inherit">${s.desc}</p>`;
   document.getElementById('onboardDontShowLabel').textContent = t.dontShow;
   document.getElementById('onboardPrevBtn').style.visibility = onboardStep === 0 ? 'hidden' : 'visible';
   document.getElementById('onboardPrevBtn').textContent = t.prev;
   document.getElementById('onboardNextBtn').textContent = onboardStep === steps.length - 1 ? t.finish : t.next;
   document.getElementById('onboardDots').innerHTML = steps.map((_, i) =>
-    `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px;background:${i === onboardStep ? '#3b82f6' : '#d1d5db'}"></span>`
+    `<span style="display:inline-block;width:${i === onboardStep ? '20px' : '8px'};height:8px;border-radius:980px;margin:0 3px;background:${i === onboardStep ? '#0071e3' : '#d1d1d6'};transition:all 0.2s"></span>`
   ).join('');
 }
 
@@ -696,18 +886,18 @@ if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentL
 </script>
 
 <!-- Onboarding Overlay -->
-<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:32px 40px;max-width:500px;width:92%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
-    <div id="onboardLangBar" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;justify-content:center;"></div>
+<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+  <div style="background:#ffffff;border-radius:20px;padding:36px 40px;max-width:500px;width:92%;box-shadow:0 32px 80px rgba(0,0,0,0.28),0 8px 24px rgba(0,0,0,0.12);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text',sans-serif;">
+    <div id="onboardLangBar" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;justify-content:center;"></div>
     <div id="onboardingStepContent"></div>
-    <div id="onboardDots" style="text-align:center;margin-top:18px;margin-bottom:18px;"></div>
+    <div id="onboardDots" style="text-align:center;margin-top:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;">
-      <label style="font-size:13px;color:#6b7280;cursor:pointer;display:flex;align-items:center;gap:6px;">
-        <input type="checkbox" id="onboardDontShow"> <span id="onboardDontShowLabel">不再提醒</span>
+      <label style="font-size:12.5px;color:#6e6e73;cursor:pointer;display:flex;align-items:center;gap:7px;">
+        <input type="checkbox" id="onboardDontShow" style="accent-color:#0071e3"> <span id="onboardDontShowLabel">不再提醒</span>
       </label>
       <div style="display:flex;gap:8px;">
-        <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:13px;">← 上一步</button>
-        <button id="onboardNextBtn" onclick="onboardNav(1)" style="padding:8px 20px;border:none;border-radius:8px;background:#3b82f6;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">下一步 →</button>
+        <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 18px;border:1.5px solid #d1d1d6;border-radius:980px;background:#f5f5f7;cursor:pointer;font-size:13px;font-weight:500;color:#1d1d1f;font-family:inherit;transition:background 0.15s;">← 上一步</button>
+        <button id="onboardNextBtn" onclick="onboardNav(1)" style="padding:8px 22px;border:none;border-radius:980px;background:#0071e3;color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:background 0.15s;">下一步 →</button>
       </div>
     </div>
   </div>

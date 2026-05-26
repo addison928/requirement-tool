@@ -10,9 +10,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f0f2f5;
-      color: #111827;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* ── Sidebar ── */
@@ -20,7 +21,7 @@
       position: fixed;
       left: 0; top: 0; bottom: 0;
       width: 220px;
-      background: #111827;
+      background: #1d1d1f;
       display: flex;
       flex-direction: column;
       padding: 0;
@@ -28,37 +29,43 @@
     }
 
     .sidebar-logo {
-      padding: 20px 20px 16px;
+      padding: 24px 20px 18px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    .sidebar-logo h2 { color: #fff; font-size: 15px; font-weight: 700; }
-    .sidebar-logo p { color: #6b7280; font-size: 11px; margin-top: 2px; }
+    .sidebar-logo h2 {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .sidebar-logo p { color: #6e6e73; font-size: 11px; margin-top: 3px; }
 
-    .nav { flex: 1; padding: 12px 0; }
+    .nav { flex: 1; padding: 10px 10px; }
 
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 20px;
-      color: #9ca3af;
+      gap: 9px;
+      padding: 9px 12px;
+      color: rgba(255,255,255,0.55);
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.15s;
-      border-left: 3px solid transparent;
+      transition: all 0.2s ease;
+      border-radius: 8px;
+      margin-bottom: 2px;
     }
 
-    .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
-    .nav-item.active { color: #fff; border-left-color: #1a56db; background: rgba(26,86,219,0.12); }
-    .nav-item .icon { font-size: 16px; }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .nav-item.active { color: #fff; background: rgba(255,255,255,0.15); }
+    .nav-item .icon { font-size: 15px; opacity: 0.85; }
 
     .sidebar-bottom {
-      padding: 16px 20px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      font-size: 12px;
-      color: #4b5563;
+      padding: 14px 20px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
     }
 
     /* ── Main ── */
@@ -68,10 +75,12 @@
     }
 
     .topbar {
-      background: #fff;
-      border-bottom: 1px solid #e5e7eb;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid #d2d2d7;
       padding: 0 28px;
-      height: 56px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -80,36 +89,58 @@
       z-index: 5;
     }
 
-    .topbar h1 { font-size: 16px; font-weight: 700; }
+    .topbar h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -0.01em;
+    }
 
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .filter-select {
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 6px 10px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 10px;
+      padding: 7px 12px;
       font-size: 13px;
-      color: #374151;
+      color: #1d1d1f;
       outline: none;
-      background: #fafafa;
-    }
-
-    .btn-primary {
-      background: #1a56db;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 7px 16px;
-      font-size: 13px;
-      font-weight: 600;
+      background: #fff;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      appearance: none;
+      -webkit-appearance: none;
       cursor: pointer;
     }
 
-    .content { padding: 24px 28px; }
+    .filter-select:focus {
+      border-color: #0071e3;
+      outline: 3px solid rgba(0,113,227,0.3);
+      outline-offset: 0;
+    }
+
+    .btn-primary {
+      background: #0071e3;
+      color: #fff;
+      border: none;
+      border-radius: 980px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover { background: #0077ed; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .content { padding: 28px 32px; }
 
     /* ── Stat cards ── */
     .stats {
@@ -121,15 +152,33 @@
 
     .stat-card {
       background: #fff;
-      border-radius: 12px;
-      padding: 18px 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.04);
+      transition: all 0.2s ease;
     }
 
-    .stat-card .label { font-size: 12px; color: #6b7280; margin-bottom: 8px; }
-    .stat-card .value { font-size: 28px; font-weight: 700; color: #111827; }
-    .stat-card .sub { font-size: 12px; color: #10b981; margin-top: 4px; }
-    .stat-card .sub.warn { color: #ef4444; }
+    .stat-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 0 1px rgba(0,0,0,0.04);
+      transform: translateY(-1px);
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: #6e6e73;
+      margin-bottom: 10px;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+    .stat-card .value {
+      font-size: 36px;
+      font-weight: 700;
+      color: #1d1d1f;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .stat-card .sub { font-size: 12px; color: #34c759; margin-top: 6px; font-weight: 500; }
+    .stat-card .sub.warn { color: #ff3b30; }
 
     /* ── Charts row ── */
     .charts-row {
@@ -141,16 +190,17 @@
 
     .chart-card {
       background: #fff;
-      border-radius: 12px;
-      padding: 18px 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border-radius: 18px;
+      padding: 20px 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.04);
     }
 
     .chart-card h3 {
       font-size: 13px;
       font-weight: 600;
-      color: #374151;
-      margin-bottom: 14px;
+      color: #1d1d1f;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
     }
 
     .chart-wrap { position: relative; height: 200px; }
@@ -158,27 +208,42 @@
     /* ── Requirement clusters table ── */
     .table-card {
       background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.04);
     }
 
     .table-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
-    .table-header h3 { font-size: 14px; font-weight: 700; }
+    .table-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -0.02em;
+    }
 
     .search-input {
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 6px 12px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 10px;
+      padding: 7px 14px;
       font-size: 13px;
-      width: 200px;
+      width: 210px;
       outline: none;
+      font-family: inherit;
+      color: #1d1d1f;
+      background: #fff;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: #0071e3;
+      outline: 3px solid rgba(0,113,227,0.3);
+      outline-offset: 0;
     }
 
     table {
@@ -187,28 +252,29 @@
       font-size: 13px;
     }
 
-    thead tr { border-bottom: 2px solid #f3f4f6; }
+    thead tr { border-bottom: 1px solid #f2f2f7; }
     thead th {
       text-align: left;
-      padding: 10px 12px;
+      padding: 10px 14px;
       font-size: 11px;
       font-weight: 600;
-      color: #6b7280;
+      color: #6e6e73;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.04em;
     }
 
     tbody tr {
-      border-bottom: 1px solid #f9fafb;
-      transition: background 0.1s;
+      border-bottom: 1px solid #f2f2f7;
+      transition: background 0.15s ease;
       cursor: pointer;
     }
 
-    tbody tr:hover { background: #f8faff; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f5f5f7; }
 
-    td { padding: 12px; color: #374151; }
+    td { padding: 13px 14px; color: #1d1d1f; }
 
-    .cluster-id { font-weight: 700; color: #1a56db; font-family: monospace; }
+    .cluster-id { font-weight: 600; color: #0071e3; font-family: "SF Mono", "Menlo", monospace; font-size: 12px; }
 
     .score-bar {
       display: flex;
@@ -218,63 +284,63 @@
 
     .score-bar .bar {
       flex: 1;
-      height: 6px;
-      background: #e5e7eb;
-      border-radius: 3px;
+      height: 4px;
+      background: #f2f2f7;
+      border-radius: 2px;
       overflow: hidden;
     }
 
     .score-bar .fill {
       height: 100%;
-      border-radius: 3px;
-      background: linear-gradient(90deg, #1a56db, #3b82f6);
+      border-radius: 2px;
+      background: linear-gradient(90deg, #0071e3, #34aadc);
     }
 
-    .score-bar .num { font-size: 12px; font-weight: 700; color: #374151; width: 24px; }
+    .score-bar .num { font-size: 12px; font-weight: 600; color: #1d1d1f; width: 26px; }
 
     .badge {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
+      padding: 3px 9px;
+      border-radius: 980px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 500;
     }
 
-    .badge-platform { background: #ede9fe; color: #7c3aed; }
-    .badge-saas { background: #dbeafe; color: #1d4ed8; }
-    .badge-cross { background: #fef3c7; color: #d97706; }
+    .badge-platform { background: rgba(175,82,222,0.1); color: #af52de; }
+    .badge-saas { background: rgba(0,113,227,0.1); color: #0071e3; }
+    .badge-cross { background: rgba(255,149,0,0.1); color: #ff9500; }
 
-    .badge-high { background: #fee2e2; color: #ef4444; }
-    .badge-mid  { background: #fef3c7; color: #d97706; }
-    .badge-low  { background: #d1fae5; color: #059669; }
+    .badge-high { background: rgba(255,59,48,0.1); color: #ff3b30; }
+    .badge-mid  { background: rgba(255,149,0,0.1); color: #ff9500; }
+    .badge-low  { background: rgba(52,199,89,0.1); color: #34c759; }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 8px;
-      border-radius: 20px;
+      padding: 3px 9px;
+      border-radius: 980px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 500;
     }
 
-    .status-pending  { background: #f3f4f6; color: #6b7280; }
-    .status-merged   { background: #ede9fe; color: #7c3aed; }
-    .status-scheduled { background: #dbeafe; color: #1d4ed8; }
-    .status-dev      { background: #fef3c7; color: #d97706; }
-    .status-live     { background: #d1fae5; color: #059669; }
+    .status-pending  { background: rgba(110,110,115,0.1); color: #6e6e73; }
+    .status-merged   { background: rgba(175,82,222,0.1); color: #af52de; }
+    .status-scheduled { background: rgba(0,113,227,0.1); color: #0071e3; }
+    .status-dev      { background: rgba(255,149,0,0.1); color: #ff9500; }
+    .status-live     { background: rgba(52,199,89,0.1); color: #34c759; }
 
     .flag { font-size: 14px; }
 
     .urgent-tag {
       display: inline-block;
-      background: #fee2e2;
-      color: #ef4444;
-      border-radius: 4px;
-      padding: 1px 6px;
+      background: rgba(255,59,48,0.1);
+      color: #ff3b30;
+      border-radius: 980px;
+      padding: 1px 7px;
       font-size: 10px;
-      font-weight: 700;
-      margin-left: 4px;
+      font-weight: 600;
+      margin-left: 5px;
     }
 
     /* ── Detail drawer ── */
@@ -282,8 +348,10 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.25);
       z-index: 50;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
     }
 
     .drawer-overlay.show { display: block; }
@@ -293,10 +361,10 @@
       right: 0; top: 0; bottom: 0;
       width: 480px;
       background: #fff;
-      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      box-shadow: -2px 0 32px rgba(0,0,0,0.12), -1px 0 0 rgba(0,0,0,0.04);
       z-index: 51;
       transform: translateX(100%);
-      transition: transform 0.25s ease;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
     }
@@ -305,75 +373,86 @@
 
     .drawer-head {
       padding: 20px 24px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #f2f2f7;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .drawer-head h2 { font-size: 16px; font-weight: 700; }
+    .drawer-head h2 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -0.02em;
+    }
 
     .close-btn {
-      width: 32px; height: 32px;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      font-size: 16px;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: #f5f5f7;
+      font-size: 14px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      color: #6e6e73;
+      transition: all 0.2s ease;
     }
+
+    .close-btn:hover { background: #e8e8ed; color: #1d1d1f; }
 
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
 
     .meta-row {
       display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 16px;
+      margin-bottom: 18px;
       flex-wrap: wrap;
     }
 
     .meta-item { }
-    .meta-item .ml { font-size: 11px; color: #9ca3af; margin-bottom: 2px; }
-    .meta-item .mv { font-size: 13px; font-weight: 600; }
+    .meta-item .ml { font-size: 11px; color: #6e6e73; margin-bottom: 3px; font-weight: 400; }
+    .meta-item .mv { font-size: 13px; font-weight: 600; color: #1d1d1f; }
 
     .ai-summary {
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      border-radius: 10px;
+      background: rgba(0,113,227,0.05);
+      border: 1px solid rgba(0,113,227,0.15);
+      border-radius: 12px;
       padding: 14px 16px;
       margin-bottom: 16px;
     }
 
     .ai-summary .ai-label {
       font-size: 11px;
-      font-weight: 700;
-      color: #0284c7;
+      font-weight: 600;
+      color: #0071e3;
       margin-bottom: 6px;
+      letter-spacing: 0.02em;
     }
 
-    .ai-summary p { font-size: 13px; color: #0c4a6e; line-height: 1.6; }
+    .ai-summary p { font-size: 13px; color: #1d1d1f; line-height: 1.65; }
 
     .sources-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #6b7280;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6e6e73;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.04em;
       margin-bottom: 10px;
     }
 
     .source-item {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
+      border: 1px solid #f2f2f7;
+      border-radius: 12px;
       padding: 12px 14px;
       margin-bottom: 8px;
       cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
+      transition: all 0.2s ease;
+      background: #fff;
     }
 
-    .source-item:hover { border-color: #1a56db; background: #f8faff; }
+    .source-item:hover { border-color: #0071e3; background: rgba(0,113,227,0.02); box-shadow: 0 2px 8px rgba(0,113,227,0.08); }
 
     .source-item .si-head {
       display: flex;
@@ -382,11 +461,11 @@
       margin-bottom: 6px;
     }
 
-    .source-item .si-id { font-size: 12px; font-weight: 700; color: #1a56db; font-family: monospace; }
-    .source-item .si-time { font-size: 11px; color: #9ca3af; }
-    .source-item .si-text { font-size: 13px; color: #374151; line-height: 1.5; }
-    .source-item .si-meta { font-size: 11px; color: #6b7280; margin-top: 4px; }
-    .source-item .si-attach { font-size: 11px; color: #1a56db; margin-top: 6px; }
+    .source-item .si-id { font-size: 12px; font-weight: 600; color: #0071e3; font-family: "SF Mono", "Menlo", monospace; }
+    .source-item .si-time { font-size: 11px; color: #6e6e73; }
+    .source-item .si-text { font-size: 13px; color: #1d1d1f; line-height: 1.5; }
+    .source-item .si-meta { font-size: 11px; color: #6e6e73; margin-top: 5px; }
+    .source-item .si-attach { font-size: 11px; color: #0071e3; margin-top: 6px; }
 
     /* ── Ticket detail drawer ── */
     .ticket-drawer {
@@ -394,10 +473,10 @@
       right: 0; top: 0; bottom: 0;
       width: 560px;
       background: #fff;
-      box-shadow: -8px 0 40px rgba(0,0,0,0.14);
+      box-shadow: -2px 0 32px rgba(0,0,0,0.14), -1px 0 0 rgba(0,0,0,0.04);
       z-index: 60;
       transform: translateX(100%);
-      transition: transform 0.25s ease;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
     }
@@ -406,7 +485,7 @@
 
     .td-head {
       padding: 18px 24px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #f2f2f7;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -414,34 +493,34 @@
     }
 
     .td-head-left { display: flex; align-items: center; gap: 10px; }
-    .td-head h2 { font-size: 15px; font-weight: 700; }
+    .td-head h2 { font-size: 15px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.01em; }
 
     .td-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
 
     .td-section-title {
       font-size: 11px;
-      font-weight: 700;
-      color: #6b7280;
+      font-weight: 600;
+      color: #6e6e73;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.04em;
       margin: 18px 0 10px;
     }
 
     .td-section-title:first-child { margin-top: 0; }
 
     .td-field { margin-bottom: 14px; }
-    .td-field .tf-label { font-size: 11px; color: #9ca3af; margin-bottom: 4px; }
-    .td-field .tf-value { font-size: 13px; color: #111827; font-weight: 500; line-height: 1.6; }
+    .td-field .tf-label { font-size: 11px; color: #6e6e73; margin-bottom: 4px; }
+    .td-field .tf-value { font-size: 13px; color: #1d1d1f; font-weight: 500; line-height: 1.6; }
 
     .td-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
 
     .td-original-box {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 12px 14px;
+      background: #f5f5f7;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 16px;
       font-size: 13px;
-      color: #374151;
+      color: #1d1d1f;
       line-height: 1.7;
       margin-bottom: 14px;
     }
@@ -455,14 +534,17 @@
     }
 
     .attach-item {
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
-      border: 1px solid #e5e7eb;
-      background: #f3f4f6;
+      border: 1px solid #f2f2f7;
+      background: #f5f5f7;
       aspect-ratio: 16/9;
       position: relative;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
+
+    .attach-item:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
 
     .attach-item img {
       width: 100%; height: 100%;
@@ -471,20 +553,20 @@
       transition: opacity 0.15s;
     }
 
-    .attach-item:hover img { opacity: 0.85; }
+    .attach-item:hover img { opacity: 0.88; }
 
     .attach-item .video-thumb {
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       gap: 4px;
-      color: #6b7280;
+      color: #6e6e73;
       font-size: 12px;
     }
 
     .attach-item .video-thumb .play-icon {
       width: 36px; height: 36px;
-      background: rgba(0,0,0,0.12);
+      background: rgba(0,0,0,0.1);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 16px;
@@ -493,12 +575,12 @@
     .attach-item .zoom-btn {
       position: absolute;
       top: 6px; right: 6px;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.5);
       color: #fff;
       border: none;
-      border-radius: 4px;
-      padding: 2px 6px;
-      font-size: 11px;
+      border-radius: 980px;
+      padding: 3px 8px;
+      font-size: 10px;
       cursor: pointer;
       opacity: 0;
       transition: opacity 0.15s;
@@ -508,7 +590,7 @@
 
     .no-attach {
       font-size: 13px;
-      color: #9ca3af;
+      color: #6e6e73;
       padding: 12px 0;
     }
 
@@ -517,10 +599,12 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.88);
       z-index: 200;
       align-items: center;
       justify-content: center;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .lightbox.show { display: flex; }
@@ -528,52 +612,58 @@
     .lightbox img, .lightbox video {
       max-width: 90vw;
       max-height: 88vh;
-      border-radius: 8px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
     }
 
     .lightbox-close {
       position: fixed;
       top: 20px; right: 24px;
-      background: rgba(255,255,255,0.15);
-      border: none;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.15);
       color: #fff;
-      font-size: 20px;
-      border-radius: 8px;
-      padding: 4px 12px;
+      font-size: 18px;
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
+
+    .lightbox-close:hover { background: rgba(255,255,255,0.22); }
 
     /* ── Review panel ── */
     .review-panel {
-      border-top: 1px solid #f3f4f6;
+      border-top: 1px solid #f2f2f7;
       margin: 0 -24px;
     }
 
     .review-toggle {
       width: 100%;
-      padding: 10px 24px;
-      background: #f8faff;
+      padding: 12px 24px;
+      background: #f5f5f7;
       border: none;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #f2f2f7;
       text-align: left;
       font-size: 13px;
       font-weight: 600;
-      color: #374151;
+      color: #1d1d1f;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      font-family: inherit;
+      transition: background 0.2s ease;
     }
 
-    .review-toggle:hover { background: #eff6ff; }
-    .review-toggle .rt-chevron { transition: transform 0.2s; font-size: 11px; color: #9ca3af; }
+    .review-toggle:hover { background: #ebebf0; }
+    .review-toggle .rt-chevron { transition: transform 0.2s; font-size: 11px; color: #6e6e73; }
     .review-toggle.open .rt-chevron { transform: rotate(180deg); }
 
     .review-body {
       display: none;
       padding: 14px 24px 16px;
-      background: #fafbff;
+      background: #fafafa;
     }
 
     .review-body.open { display: block; }
@@ -586,84 +676,92 @@
     }
 
     .review-row:last-child { margin-bottom: 0; }
-    .review-label { font-size: 12px; color: #6b7280; width: 72px; flex-shrink: 0; }
+    .review-label { font-size: 12px; color: #6e6e73; width: 72px; flex-shrink: 0; }
 
     .review-row select {
       flex: 1;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 7px;
-      padding: 6px 10px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 10px;
+      padding: 7px 10px;
       font-size: 13px;
       outline: none;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
 
-    .review-row select.changed { border-color: #f59e0b; background: #fffbeb; }
+    .review-row select:focus { border-color: #0071e3; outline: 3px solid rgba(0,113,227,0.3); }
+    .review-row select.changed { border-color: #ff9500; background: rgba(255,149,0,0.04); }
 
     .btn-sm {
-      padding: 5px 12px;
-      border-radius: 7px;
+      padding: 6px 14px;
+      border-radius: 980px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .btn-sm-primary { background: #0071e3; color: #fff; }
+    .btn-sm-primary:hover { background: #0077ed; }
+
+    .btn-sm-danger {
+      background: rgba(255,59,48,0.1);
+      color: #ff3b30;
       border: none;
     }
 
-    .btn-sm-primary { background: #1a56db; color: #fff; }
-    .btn-sm-primary:hover { opacity: 0.88; }
-
-    .btn-sm-danger {
-      background: #fee2e2;
-      color: #ef4444;
-      border: 1px solid #fecaca;
-    }
-
-    .btn-sm-danger:hover { background: #fecaca; }
+    .btn-sm-danger:hover { background: rgba(255,59,48,0.18); }
 
     .summary-editable {
       font-size: 13px;
-      color: #0c4a6e;
+      color: #1d1d1f;
       line-height: 1.6;
       outline: none;
-      border-radius: 6px;
+      border-radius: 10px;
       padding: 2px 4px;
       min-height: 40px;
     }
 
     .summary-editable[contenteditable="true"] {
       background: #fff;
-      border: 1.5px solid #1a56db;
-      padding: 6px 8px;
+      border: 1.5px solid #0071e3;
+      outline: 3px solid rgba(0,113,227,0.2);
+      padding: 8px 10px;
     }
 
     .dissolve-btn {
       width: 100%;
       margin-top: 14px;
-      padding: 9px;
-      background: #fff;
-      border: 1.5px solid #fca5a5;
-      border-radius: 8px;
-      color: #ef4444;
+      padding: 10px;
+      background: transparent;
+      border: 1.5px solid rgba(255,59,48,0.3);
+      border-radius: 10px;
+      color: #ff3b30;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: all 0.2s ease;
+      font-family: inherit;
     }
 
-    .dissolve-btn:hover { background: #fef2f2; }
+    .dissolve-btn:hover { background: rgba(255,59,48,0.05); border-color: #ff3b30; }
 
     .si-remove {
       margin-left: auto;
-      padding: 3px 8px;
-      background: #fff;
-      border: 1px solid #fca5a5;
-      border-radius: 5px;
-      color: #ef4444;
+      padding: 3px 9px;
+      background: transparent;
+      border: 1px solid rgba(255,59,48,0.3);
+      border-radius: 980px;
+      color: #ff3b30;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       flex-shrink: 0;
       opacity: 0;
       transition: opacity 0.15s;
+      font-family: inherit;
     }
 
     .source-item:hover .si-remove { opacity: 1; }
@@ -673,30 +771,32 @@
       position: fixed;
       bottom: 28px;
       right: 28px;
-      background: #111827;
+      background: rgba(29,29,31,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       color: #fff;
-      padding: 10px 18px;
-      border-radius: 8px;
+      padding: 11px 20px;
+      border-radius: 980px;
       font-size: 13px;
       font-weight: 500;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       z-index: 300;
       opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.2s, transform 0.2s;
+      transform: translateY(10px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
       pointer-events: none;
     }
 
     .toast.show { opacity: 1; transform: translateY(0); }
 
-    /* ── Confirm dialog ── */
     /* ── AI Thinking overlay ── */
     .thinking-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
       z-index: 1000;
       flex-direction: column;
       align-items: center;
@@ -705,150 +805,188 @@
     }
     .thinking-overlay.show { display: flex; }
     .thinking-box {
-      background: #1e1b4b;
-      border-radius: 20px;
-      padding: 36px 48px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 40px 56px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 18px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+      backdrop-filter: blur(20px);
     }
     .thinking-spinner {
-      width: 48px; height: 48px;
-      border: 4px solid rgba(139,92,246,0.3);
-      border-top-color: #8b5cf6;
+      width: 44px; height: 44px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
       border-radius: 50%;
-      animation: spin 0.9s linear infinite;
+      animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .thinking-label {
       font-size: 17px;
-      font-weight: 700;
+      font-weight: 600;
       color: #fff;
-      letter-spacing: 0.3px;
+      letter-spacing: -0.02em;
     }
     .thinking-sub {
-      font-size: 12px;
-      color: #a78bfa;
-      margin-top: -10px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      margin-top: -8px;
     }
 
+    /* ── Confirm dialog ── */
     .confirm-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.3);
       z-index: 150;
       align-items: center;
       justify-content: center;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     .confirm-overlay.show { display: flex; }
 
     .confirm-box {
       background: #fff;
-      border-radius: 12px;
-      padding: 24px 28px;
+      border-radius: 20px;
+      padding: 28px 32px;
       max-width: 360px;
       width: 90%;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 0 1px rgba(0,0,0,0.04);
     }
 
-    .confirm-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-    .confirm-box p  { font-size: 13px; color: #6b7280; margin-bottom: 20px; line-height: 1.6; }
+    .confirm-box h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1d1d1f;
+      letter-spacing: -0.02em;
+    }
+    .confirm-box p  { font-size: 13px; color: #6e6e73; margin-bottom: 22px; line-height: 1.6; }
 
-    .confirm-btns { display: flex; gap: 10px; justify-content: flex-end; }
+    .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
     .confirm-btns .btn-cancel {
-      padding: 8px 16px;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      background: #fff;
+      padding: 8px 20px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 980px;
+      background: transparent;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
+      font-family: inherit;
+      color: #1d1d1f;
+      transition: all 0.2s ease;
     }
 
+    .confirm-btns .btn-cancel:hover { background: #f5f5f7; }
+
     .confirm-btns .btn-confirm-danger {
-      padding: 8px 16px;
+      padding: 8px 20px;
       border: none;
-      border-radius: 8px;
-      background: #ef4444;
+      border-radius: 980px;
+      background: #ff3b30;
       color: #fff;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
+
+    .confirm-btns .btn-confirm-danger:hover { background: #ff453a; }
 
     .drawer-footer {
       padding: 16px 24px;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid #f2f2f7;
       display: flex;
       gap: 10px;
     }
 
     .drawer-footer select {
       flex: 1;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 8px 12px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 10px;
+      padding: 9px 14px;
       font-size: 13px;
       outline: none;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
 
+    .drawer-footer select:focus { border-color: #0071e3; outline: 3px solid rgba(0,113,227,0.3); }
+
     .drawer-footer button {
-      padding: 8px 20px;
-      background: #1a56db;
+      padding: 9px 22px;
+      background: #0071e3;
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 980px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
+
+    .drawer-footer button:hover { background: #0077ed; }
 
     .lang-pick-btn {
       padding: 10px 8px;
-      border: 1.5px solid #e5e7eb;
+      border: 1.5px solid #d2d2d7;
       border-radius: 10px;
-      background: #fafafa;
+      background: #fff;
       font-size: 13px;
-      font-weight: 600;
-      color: #374151;
+      font-weight: 500;
+      color: #1d1d1f;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.2s ease;
+      font-family: inherit;
     }
-    .lang-pick-btn:hover { border-color: #1a56db; background: #eff6ff; color: #1a56db; }
+    .lang-pick-btn:hover { border-color: #0071e3; background: rgba(0,113,227,0.04); color: #0071e3; }
 
     /* ── Partner management ── */
     .pm-actions { display: flex; gap: 6px; }
     .pm-btn {
-      padding: 4px 10px;
-      border-radius: 6px;
+      padding: 5px 12px;
+      border-radius: 980px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       border: 1.5px solid;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
-    .pm-btn-edit   { border-color: #93c5fd; color: #1a56db; background: #eff6ff; }
-    .pm-btn-delete { border-color: #fca5a5; color: #ef4444; background: #fef2f2; }
-    .pm-btn-edit:hover   { background: #dbeafe; }
-    .pm-btn-delete:hover { background: #fee2e2; }
-    .pm-token { font-family: monospace; font-size: 11px; color: #9ca3af; }
+    .pm-btn-edit   { border-color: rgba(0,113,227,0.3); color: #0071e3; background: rgba(0,113,227,0.06); }
+    .pm-btn-delete { border-color: rgba(255,59,48,0.3); color: #ff3b30; background: rgba(255,59,48,0.06); }
+    .pm-btn-edit:hover   { background: rgba(0,113,227,0.12); }
+    .pm-btn-delete:hover { background: rgba(255,59,48,0.12); }
+    .pm-token { font-family: "SF Mono", "Menlo", monospace; font-size: 11px; color: #6e6e73; }
     .copy-btn {
-      border: 1.5px solid #e5e7eb; background: #fff; border-radius: 8px;
-      padding: 6px 12px; font-size: 12px; font-weight: 600; color: #374151;
-      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+      border: 1.5px solid #d2d2d7;
+      background: #fff;
+      border-radius: 980px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #1d1d1f;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      font-family: inherit;
     }
-    .copy-btn:hover { border-color: #1a56db; color: #1a56db; }
-    .copy-btn.copied { border-color: #10b981; color: #10b981; }
+    .copy-btn:hover { border-color: #0071e3; color: #0071e3; }
+    .copy-btn.copied { border-color: #34c759; color: #34c759; }
 
     /* ── Tab bar ── */
     .tab-bar {
       display: flex;
-      gap: 4px;
-      border-bottom: 2px solid #e5e7eb;
+      gap: 2px;
+      border-bottom: 1px solid #f2f2f7;
       margin-bottom: 20px;
     }
 
@@ -857,16 +995,17 @@
       border: none;
       background: none;
       font-size: 13px;
-      font-weight: 600;
-      color: #6b7280;
+      font-weight: 500;
+      color: #6e6e73;
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      transition: color 0.15s, border-color 0.15s;
+      margin-bottom: -1px;
+      transition: color 0.2s ease, border-color 0.2s ease;
+      font-family: inherit;
     }
 
-    .tab-btn:hover { color: #374151; }
-    .tab-btn.active { color: #1a56db; border-bottom-color: #1a56db; }
+    .tab-btn:hover { color: #1d1d1f; }
+    .tab-btn.active { color: #0071e3; border-bottom-color: #0071e3; font-weight: 600; }
 
     /* ── Pager ── */
     .pager {
@@ -874,55 +1013,58 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      padding: 16px 0 4px;
+      padding: 18px 0 4px;
     }
 
     .pager-btn {
       min-width: 32px;
       height: 32px;
-      padding: 0 8px;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 7px;
+      padding: 0 10px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 980px;
       background: #fff;
       font-size: 12px;
-      font-weight: 600;
-      color: #374151;
+      font-weight: 500;
+      color: #1d1d1f;
       cursor: pointer;
-      transition: all 0.12s;
+      transition: all 0.2s ease;
+      font-family: inherit;
     }
 
-    .pager-btn:hover:not(:disabled) { border-color: #1a56db; color: #1a56db; }
-    .pager-btn.active { background: #1a56db; border-color: #1a56db; color: #fff; }
-    .pager-btn:disabled { opacity: 0.35; cursor: default; }
+    .pager-btn:hover:not(:disabled) { border-color: #0071e3; color: #0071e3; }
+    .pager-btn.active { background: #0071e3; border-color: #0071e3; color: #fff; }
+    .pager-btn:disabled { opacity: 0.3; cursor: default; }
 
     /* ── Scoring panel ── */
     .scoring-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.3);
       z-index: 150;
       align-items: flex-start;
       justify-content: center;
       padding-top: 48px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     .scoring-overlay.show { display: flex; }
 
     .scoring-panel {
       background: #fff;
-      border-radius: 16px;
+      border-radius: 20px;
       width: 560px;
       max-height: 84vh;
       overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 0 1px rgba(0,0,0,0.04);
       display: flex;
       flex-direction: column;
     }
 
     .sp-head {
-      padding: 18px 24px;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 24px;
+      border-bottom: 1px solid #f2f2f7;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -930,27 +1072,33 @@
       top: 0;
       background: #fff;
       z-index: 2;
-      border-radius: 16px 16px 0 0;
+      border-radius: 20px 20px 0 0;
     }
 
-    .sp-head h2 { font-size: 15px; font-weight: 700; }
-    .sp-head p  { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+    .sp-head h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -0.02em;
+    }
+    .sp-head p  { font-size: 12px; color: #6e6e73; margin-top: 2px; }
 
-    .sp-body { padding: 20px 24px; }
+    .sp-body { padding: 22px 24px; }
 
-    .sp-section { margin-bottom: 24px; }
+    .sp-section { margin-bottom: 26px; }
     .sp-section:last-child { margin-bottom: 0; }
 
     .sp-section-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #374151;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d1d1f;
       margin-bottom: 4px;
+      letter-spacing: -0.01em;
     }
 
     .sp-section-hint {
-      font-size: 11px;
-      color: #9ca3af;
+      font-size: 12px;
+      color: #6e6e73;
       margin-bottom: 12px;
     }
 
@@ -962,23 +1110,23 @@
 
     .preset-opt {
       flex: 1;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 10px 8px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 14px;
+      padding: 12px 8px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.15s;
-      background: #fafafa;
+      transition: all 0.2s ease;
+      background: #fff;
       user-select: none;
     }
 
-    .preset-opt:hover { border-color: #93c5fd; background: #f0f9ff; }
-    .preset-opt.active { border-color: #1a56db; background: #eff6ff; }
+    .preset-opt:hover { border-color: rgba(0,113,227,0.4); background: rgba(0,113,227,0.03); }
+    .preset-opt.active { border-color: #0071e3; background: rgba(0,113,227,0.05); }
 
-    .preset-opt .po-icon { font-size: 20px; margin-bottom: 4px; }
-    .preset-opt .po-label { font-size: 12px; font-weight: 700; color: #374151; }
-    .preset-opt .po-hint  { font-size: 10px; color: #9ca3af; margin-top: 2px; line-height: 1.3; }
-    .preset-opt.active .po-label { color: #1a56db; }
+    .preset-opt .po-icon { font-size: 20px; margin-bottom: 6px; }
+    .preset-opt .po-label { font-size: 12px; font-weight: 600; color: #1d1d1f; }
+    .preset-opt .po-hint  { font-size: 10px; color: #6e6e73; margin-top: 3px; line-height: 1.3; }
+    .preset-opt.active .po-label { color: #0071e3; }
 
     /* Country ranking list */
     .country-list { display: flex; flex-direction: column; gap: 6px; }
@@ -987,25 +1135,25 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: #f9fafb;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 9px;
-      padding: 9px 12px;
+      background: #f5f5f7;
+      border: 1.5px solid transparent;
+      border-radius: 12px;
+      padding: 10px 12px;
       cursor: grab;
-      transition: box-shadow 0.15s, background 0.15s;
+      transition: all 0.2s ease;
       user-select: none;
     }
 
     .country-item:active { cursor: grabbing; }
-    .country-item.drag-over { border-color: #1a56db; background: #eff6ff; box-shadow: 0 0 0 2px #bfdbfe; }
+    .country-item.drag-over { border-color: #0071e3; background: rgba(0,113,227,0.05); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
     .country-item.dragging { opacity: 0.4; }
 
     .ci-rank {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      background: #e5e7eb;
-      color: #6b7280;
+      background: rgba(110,110,115,0.15);
+      color: #6e6e73;
       font-size: 11px;
       font-weight: 700;
       display: flex;
@@ -1014,31 +1162,31 @@
       flex-shrink: 0;
     }
 
-    .country-item.rank-1 .ci-rank { background: #fef3c7; color: #d97706; }
-    .country-item.rank-2 .ci-rank { background: #e2e8f0; color: #64748b; }
-    .country-item.rank-3 .ci-rank { background: #fef3c7; color: #92400e; opacity: 0.6; }
+    .country-item.rank-1 .ci-rank { background: rgba(255,149,0,0.15); color: #ff9500; }
+    .country-item.rank-2 .ci-rank { background: rgba(110,110,115,0.2); color: #6e6e73; }
+    .country-item.rank-3 .ci-rank { background: rgba(255,149,0,0.1); color: #ff9500; opacity: 0.7; }
 
     .ci-flag   { font-size: 20px; }
-    .ci-name   { flex: 1; font-size: 13px; font-weight: 600; color: #374151; }
-    .ci-weight { font-size: 11px; color: #9ca3af; margin-left: auto; }
+    .ci-name   { flex: 1; font-size: 13px; font-weight: 500; color: #1d1d1f; }
+    .ci-weight { font-size: 11px; color: #6e6e73; margin-left: auto; }
 
     .ci-arrows { display: flex; flex-direction: column; gap: 1px; }
 
     .ci-arrow {
-      width: 20px; height: 18px;
+      width: 22px; height: 20px;
       background: none;
       border: none;
       cursor: pointer;
       font-size: 10px;
-      color: #9ca3af;
-      border-radius: 4px;
+      color: #6e6e73;
+      border-radius: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.1s, color 0.1s;
+      transition: background 0.15s, color 0.15s;
     }
 
-    .ci-arrow:hover { background: #e5e7eb; color: #374151; }
+    .ci-arrow:hover { background: #e8e8ed; color: #1d1d1f; }
 
     /* Partner tier rows */
     .partner-tier-list { display: flex; flex-direction: column; gap: 8px; }
@@ -1050,35 +1198,37 @@
     }
 
     .pt-flag { font-size: 18px; flex-shrink: 0; }
-    .pt-name { flex: 1; font-size: 13px; color: #374151; }
+    .pt-name { flex: 1; font-size: 13px; color: #1d1d1f; }
 
     .tier-select {
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 5px 10px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 10px;
+      padding: 6px 12px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       outline: none;
-      background: #fafafa;
+      background: #fff;
       cursor: pointer;
-      min-width: 88px;
+      min-width: 92px;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
 
-    .tier-select:focus { border-color: #1a56db; }
-    .tier-select[data-tier="strategic"] { border-color: #7c3aed; color: #7c3aed; background: #f5f3ff; }
-    .tier-select[data-tier="important"] { border-color: #1a56db; color: #1a56db; background: #eff6ff; }
-    .tier-select[data-tier="normal"]    { border-color: #e5e7eb; color: #6b7280; background: #fafafa; }
+    .tier-select:focus { border-color: #0071e3; outline: 3px solid rgba(0,113,227,0.3); }
+    .tier-select[data-tier="strategic"] { border-color: #af52de; color: #af52de; background: rgba(175,82,222,0.05); }
+    .tier-select[data-tier="important"] { border-color: #0071e3; color: #0071e3; background: rgba(0,113,227,0.05); }
+    .tier-select[data-tier="normal"]    { border-color: #d2d2d7; color: #6e6e73; background: #fff; }
 
     .sp-footer {
-      padding: 14px 24px;
-      border-top: 1px solid #e5e7eb;
+      padding: 16px 24px;
+      border-top: 1px solid #f2f2f7;
       display: flex;
       justify-content: flex-end;
       gap: 10px;
       position: sticky;
       bottom: 0;
       background: #fff;
-      border-radius: 0 0 16px 16px;
+      border-radius: 0 0 20px 20px;
     }
   </style>
 </head>
@@ -1120,9 +1270,9 @@
         </select>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span id="mergeStatus" style="font-size:11px;color:#9ca3af"></span>
-        <button id="mergeBtn" class="btn-primary" onclick="runMerge()" style="background:#6d28d9">⚡ AI 归并</button>
-        <button class="btn-primary" style="background:#f0fdf4;color:#15803d;border:1.5px solid #86efac" onclick="openScoringPanel()">⚙ 评分规则</button>
+        <span id="mergeStatus" style="font-size:11px;color:#6e6e73"></span>
+        <button id="mergeBtn" class="btn-primary" onclick="runMerge()" style="background:#0071e3;font-weight:600;padding:8px 22px;letter-spacing:-0.01em">⚡ AI 归并</button>
+        <button class="btn-primary" style="background:transparent;color:#1d1d1f;border:1.5px solid #d2d2d7" onclick="openScoringPanel()">⚙ 评分规则</button>
       </div>
     </div>
   </div>
@@ -1187,7 +1337,7 @@
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
-      <div id="dashTableFooter" style="text-align:center;padding:14px 0 4px;font-size:12px;color:#9ca3af"></div>
+      <div id="dashTableFooter" style="text-align:center;padding:14px 0 4px;font-size:12px;color:#6e6e73"></div>
     </div>
   </div>
 
@@ -1239,7 +1389,7 @@
           </thead>
           <tbody id="allClustersBody"></tbody>
         </table>
-        <div id="allClustersEmpty" style="display:none;text-align:center;padding:40px;color:#9ca3af;font-size:14px">暂无匹配需求簇</div>
+        <div id="allClustersEmpty" style="display:none;text-align:center;padding:40px;color:#6e6e73;font-size:14px">暂无匹配需求簇</div>
         <div id="allClustersPager" class="pager"></div>
       </div>
     </div>
@@ -1250,9 +1400,9 @@
         <div class="table-header">
           <h3>所有原始需求工单</h3>
           <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn-primary" style="background:#f59e0b;border:none;white-space:nowrap" onclick="openManualForm()">＋ 人工录入</button>
-            <button class="btn-primary" style="background:#fff;color:#374151;border:1.5px solid #e5e7eb;white-space:nowrap" onclick="downloadTemplate()">⬇ 下载模板</button>
-            <label style="display:inline-flex;align-items:center;padding:7px 16px;background:#fff;color:#374151;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
+            <button class="btn-primary" style="background:#ff9500;border:none;white-space:nowrap" onclick="openManualForm()">＋ 人工录入</button>
+            <button class="btn-primary" style="background:transparent;color:#1d1d1f;border:1.5px solid #d2d2d7;white-space:nowrap" onclick="downloadTemplate()">⬇ 下载模板</button>
+            <label style="display:inline-flex;align-items:center;padding:8px 20px;background:transparent;color:#1d1d1f;border:1.5px solid #d2d2d7;border-radius:980px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.2s ease">
               ⬆ 批量导入
               <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(this)" />
             </label>
@@ -1296,7 +1446,7 @@
           </thead>
           <tbody id="allTableBody"></tbody>
         </table>
-        <div id="allTableEmpty" style="display:none;text-align:center;padding:40px;color:#9ca3af;font-size:14px">暂无匹配工单</div>
+        <div id="allTableEmpty" style="display:none;text-align:center;padding:40px;color:#6e6e73;font-size:14px">暂无匹配工单</div>
         <div id="allTicketsPager" class="pager"></div>
       </div>
     </div>
@@ -1433,7 +1583,7 @@
 
     </div>
     <div class="sp-footer">
-      <button style="padding:8px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#374151" onclick="closeScoringPanel()">取消</button>
+      <button style="padding:8px 20px;border:1.5px solid #d2d2d7;border-radius:980px;background:transparent;font-size:13px;font-weight:500;cursor:pointer;color:#1d1d1f;font-family:inherit;transition:all 0.2s ease" onclick="closeScoringPanel()">取消</button>
       <button class="btn-primary" onclick="applyScoringConfig()">✦ 重新计算得分</button>
     </div>
   </div>
@@ -1446,26 +1596,26 @@
     <div style="display:flex;flex-direction:column;gap:12px;margin:16px 0">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
-          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">国家 Flag（Emoji）</div>
-          <input id="pf_flag" placeholder="🇹🇭" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:18px;outline:none" />
+          <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">国家 Flag（Emoji）</div>
+          <input id="pf_flag" placeholder="🇹🇭" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:18px;outline:none;font-family:inherit;transition:all 0.2s ease" />
         </div>
         <div>
-          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">国家代码（如 TH）</div>
-          <input id="pf_countryId" placeholder="TH" maxlength="4" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" />
+          <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">国家代码（如 TH）</div>
+          <input id="pf_countryId" placeholder="TH" maxlength="4" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;text-transform:uppercase;font-family:inherit;transition:all 0.2s ease" oninput="this.value=this.value.toUpperCase()" />
         </div>
       </div>
       <div>
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">国家名称（中文，如 泰国）</div>
-        <input id="pf_countryName" placeholder="泰国" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none" />
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">国家名称（中文，如 泰国）</div>
+        <input id="pf_countryName" placeholder="泰国" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease" />
       </div>
       <div>
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">服务商名称（如 TH-Partner）</div>
-        <input id="pf_name" placeholder="TH-Partner" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none" />
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">服务商名称（如 TH-Partner）</div>
+        <input id="pf_name" placeholder="TH-Partner" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease" />
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
-          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">默认语言</div>
-          <select id="pf_lang" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none">
+          <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">默认语言</div>
+          <select id="pf_lang" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease">
             <option value="en">English</option>
             <option value="zh">中文</option>
             <option value="th">ภาษาไทย</option>
@@ -1476,8 +1626,8 @@
           </select>
         </div>
         <div>
-          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">重要度</div>
-          <select id="pf_tier" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none">
+          <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">重要度</div>
+          <select id="pf_tier" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease">
             <option value="strategic">⭐ 战略级</option>
             <option value="important">✦ 重要级</option>
             <option value="normal">· 普通级</option>
@@ -1485,8 +1635,8 @@
         </div>
       </div>
       <div id="pf_tokenRow" style="display:none">
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:4px">专属 Token（不可修改）</div>
-        <div id="pf_tokenDisplay" style="font-family:monospace;font-size:12px;color:#6b7280;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 10px"></div>
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">专属 Token（不可修改）</div>
+        <div id="pf_tokenDisplay" style="font-family:'SF Mono','Menlo',monospace;font-size:12px;color:#6e6e73;background:#f5f5f7;border:none;border-radius:10px;padding:8px 12px"></div>
       </div>
     </div>
     <div class="confirm-btns">
@@ -1500,7 +1650,7 @@
 <div class="confirm-overlay" id="templateLangOverlay" style="align-items:center">
   <div class="confirm-box" style="max-width:400px;width:92%">
     <h3 style="margin-bottom:6px">选择模板语言</h3>
-    <p style="font-size:12px;color:#9ca3af;margin-bottom:16px">模板表头和示例内容将以所选语言生成</p>
+    <p style="font-size:12px;color:#6e6e73;margin-bottom:16px">模板表头和示例内容将以所选语言生成</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
       <button class="lang-pick-btn" onclick="downloadTemplateInLang('zh')">🇨🇳 中文</button>
       <button class="lang-pick-btn" onclick="downloadTemplateInLang('en')">🇬🇧 English</button>
@@ -1520,7 +1670,7 @@
 <div class="confirm-overlay" id="importResultOverlay" style="align-items:center">
   <div class="confirm-box" style="max-width:420px;width:92%">
     <h3 id="importResultTitle">导入完成</h3>
-    <div id="importResultBody" style="margin:14px 0;font-size:13px;color:#374151;line-height:1.8"></div>
+    <div id="importResultBody" style="margin:14px 0;font-size:13px;color:#1d1d1f;line-height:1.8"></div>
     <div class="confirm-btns">
       <button class="btn-primary" onclick="document.getElementById('importResultOverlay').classList.remove('show')">确定</button>
     </div>
@@ -1531,38 +1681,38 @@
 <div class="confirm-overlay" id="manualFormOverlay" style="align-items:flex-start;padding-top:48px">
   <div class="confirm-box" style="max-width:480px;width:94%;max-height:82vh;overflow-y:auto">
     <h3 style="margin-bottom:4px">＋ 人工录入需求工单</h3>
-    <p style="font-size:12px;color:#9ca3af;margin-bottom:16px">代服务商录入，工单将标记为「人工」来源</p>
+    <p style="font-size:12px;color:#6e6e73;margin-bottom:16px">代服务商录入，工单将标记为「人工」来源</p>
 
     <div style="display:flex;flex-direction:column;gap:14px">
 
       <div>
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:5px">代录服务商 <span style="color:#ef4444">*</span></div>
-        <select id="mf_partner" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;outline:none">
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:5px">代录服务商 <span style="color:#ff3b30">*</span></div>
+        <select id="mf_partner" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:9px 14px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease">
           <option value="">请选择服务商...</option>
         </select>
       </div>
 
       <div>
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:5px">商户名称 <span style="color:#ef4444">*</span></div>
-        <input id="mf_merchant" placeholder="如：BangkokBistro" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;outline:none" />
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:5px">商户名称 <span style="color:#ff3b30">*</span></div>
+        <input id="mf_merchant" placeholder="如：BangkokBistro" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:9px 14px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease" />
       </div>
 
       <div>
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:5px">需求描述 <span style="color:#ef4444">*</span></div>
-        <textarea id="mf_text" rows="3" placeholder="请描述服务商反馈的具体需求（可用中文转述）..." style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;outline:none;resize:vertical;line-height:1.6"></textarea>
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:5px">需求描述 <span style="color:#ff3b30">*</span></div>
+        <textarea id="mf_text" rows="3" placeholder="请描述服务商反馈的具体需求（可用中文转述）..." style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:9px 14px;font-size:13px;outline:none;resize:vertical;line-height:1.6;font-family:inherit;transition:all 0.2s ease"></textarea>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div>
-          <div style="font-size:11px;color:#9ca3af;margin-bottom:8px">业务影响 <span style="color:#ef4444">*</span></div>
+          <div style="font-size:11px;color:#6e6e73;margin-bottom:8px">业务影响 <span style="color:#ff3b30">*</span></div>
           <div style="display:flex;flex-direction:column;gap:6px">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="mf_impact" value="high" /> <span style="color:#ef4444;font-weight:600">高</span> 影响</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="mf_impact" value="high" /> <span style="color:#ff3b30;font-weight:600">高</span> 影响</label>
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="mf_impact" value="mid" checked /> <span style="color:#d97706;font-weight:600">中</span> 影响</label>
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="mf_impact" value="low" /> <span style="color:#059669;font-weight:600">低</span> 影响</label>
           </div>
         </div>
         <div>
-          <div style="font-size:11px;color:#9ca3af;margin-bottom:8px">涉及场景</div>
+          <div style="font-size:11px;color:#6e6e73;margin-bottom:8px">涉及场景</div>
           <div style="display:flex;flex-direction:column;gap:6px">
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="收银" class="mf_scene" /> 收银</label>
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="报表" class="mf_scene" /> 报表</label>
@@ -1574,7 +1724,7 @@
         </div>
       </div>
 
-      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e">
+      <div style="background:rgba(255,149,0,0.06);border:1px solid rgba(255,149,0,0.2);border-radius:12px;padding:11px 14px;font-size:12px;color:#ff9500">
         ⚠ 该工单将标记为「人工录入」，与服务商在线提交的工单区分显示，但同样参与 AI 归并处理。
       </div>
 
@@ -1582,7 +1732,7 @@
 
     <div class="confirm-btns" style="margin-top:18px">
       <button class="btn-cancel" onclick="closeManualForm()">取消</button>
-      <button class="btn-primary" style="background:#f59e0b" onclick="submitManualTicket()">提交工单</button>
+      <button class="btn-primary" style="background:#ff9500" onclick="submitManualTicket()">提交工单</button>
     </div>
   </div>
 </div>
@@ -1789,7 +1939,7 @@ function renderTable() {
   if (footer) {
     const total = filtered.length;
     if (total > DASH_TOP) {
-      footer.innerHTML = `共 ${total} 个需求簇，仅展示 Top ${DASH_TOP} · <a href="#" style="color:#1a56db" onclick="event.preventDefault();switchPage('all')">前往「所有需求」查看全部</a>`;
+      footer.innerHTML = `共 ${total} 个需求簇，仅展示 Top ${DASH_TOP} · <a href="#" style="color:#0071e3" onclick="event.preventDefault();switchPage('all')">前往「所有需求」查看全部</a>`;
     } else {
       footer.innerHTML = `共 ${total} 个需求簇`;
     }
@@ -1808,17 +1958,17 @@ function openDrawer(i) {
     <div class="meta-row">
       <div class="meta-item">
         <div class="ml">优先级得分</div>
-        <div class="mv" style="color:#1a56db;font-size:20px;font-weight:800">${c.score}
-          <span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:4px;cursor:pointer" onclick="toggleScoreDetail()" title="查看得分明细">详情 ▾</span>
+        <div class="mv" style="color:#0071e3;font-size:22px;font-weight:700;letter-spacing:-0.03em">${c.score}
+          <span style="font-size:11px;font-weight:400;color:#6e6e73;margin-left:4px;cursor:pointer" onclick="toggleScoreDetail()" title="查看得分明细">详情 ▾</span>
         </div>
-        <div id="scoreDetail" style="display:none;margin-top:8px;background:#f8faff;border:1px solid #dbeafe;border-radius:8px;padding:10px 12px;font-size:12px;color:#374151;line-height:2">
+        <div id="scoreDetail" style="display:none;margin-top:8px;background:rgba(0,113,227,0.04);border:1px solid rgba(0,113,227,0.15);border-radius:12px;padding:12px 14px;font-size:12px;color:#1d1d1f;line-height:2">
           ${(() => { const b = scoreBreakdown(c);
             return `<div>提及频次：<b>${c.count}</b> 次 → 基础分 ${c.count}</div>
             <div>业务影响：${b.impactLbl[c.impact]}（×${b.impact.toFixed(1)}）</div>
             <div>来源国最优：${b.bestCountry}（×${b.countryW.toFixed(1)}）</div>
             <div>服务商：${b.tierLabel[scoringConfig.partnerTier[b.bestPartner] || 'normal']}（×${b.partnerW.toFixed(1)}）</div>
             <div>跨周期：${c.periods} 周期（×${b.coeff.toFixed(1)}）</div>
-            <div style="border-top:1px solid #bfdbfe;margin-top:4px;padding-top:4px">原始分：<b>${b.raw.toFixed(1)}</b> → 归一化：<b style="color:#1a56db">${c.score}</b></div>`;
+            <div style="border-top:1px solid rgba(0,113,227,0.15);margin-top:4px;padding-top:4px">原始分：<b>${b.raw.toFixed(1)}</b> → 归一化：<b style="color:#0071e3">${c.score}</b></div>`;
           })()}
         </div>
       </div>
@@ -1874,7 +2024,7 @@ function openDrawer(i) {
         </div>
         <div style="margin-bottom:8px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <span style="font-size:12px;color:#6b7280">AI 摘要</span>
+            <span style="font-size:12px;color:#6e6e73">AI 摘要</span>
             <button class="btn-sm btn-sm-primary" id="editSummaryBtn" onclick="toggleEditSummary()">编辑</button>
           </div>
           <div id="reviewSummary" class="summary-editable" contenteditable="false">${c.aiSummary}</div>
@@ -2045,19 +2195,19 @@ function renderAllTable() {
       <td>
         <span class="cluster-id">${t.id}</span>
         ${t.manual ? `<span style="display:inline-block;background:#fef3c7;color:#d97706;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:4px">人工</span>` : ''}
-        ${t.attachments && t.attachments.length ? `<span style="font-size:10px;color:#1a56db;margin-left:4px">📎${t.attachments.length}</span>` : ''}
+        ${t.attachments && t.attachments.length ? `<span style="font-size:10px;color:#0071e3;margin-left:4px">📎${t.attachments.length}</span>` : ''}
       </td>
       <td style="max-width:220px">
-        <div style="font-size:13px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px" title="${t.text}">${t.text}</div>
+        <div style="font-size:13px;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px" title="${t.text}">${t.text}</div>
       </td>
-      <td style="font-size:13px;color:#374151">${t.merchant}</td>
+      <td style="font-size:13px;color:#1d1d1f">${t.merchant}</td>
       <td style="font-size:13px">${t.flag} ${t.partner}</td>
       <td><span class="badge ${impactClass[t.impact]}">${impactLabel[t.impact]}</span></td>
-      <td style="font-size:12px;color:#6b7280">${t.scenes.join('、')}</td>
-      <td style="font-size:12px;color:#9ca3af;white-space:nowrap">${t.time}</td>
+      <td style="font-size:12px;color:#6e6e73">${t.scenes.join('、')}</td>
+      <td style="font-size:12px;color:#6e6e73;white-space:nowrap">${t.time}</td>
       <td>
         ${statusBadge[t.status]}
-        ${t.cluster ? `<span style="font-size:11px;color:#6b7280;margin-left:4px">→ ${t.cluster}</span>` : ''}
+        ${t.cluster ? `<span style="font-size:11px;color:#6e6e73;margin-left:4px">→ ${t.cluster}</span>` : ''}
       </td>
     </tr>
   `).join('');
@@ -2229,16 +2379,16 @@ function openTicketDrawer(id) {
   document.getElementById('tdTitle').textContent = t.id + (t.flag ? '  ' + t.flag : '');
 
   const impactLabels = { high:'高', mid:'中', low:'低' };
-  const impactColors = { high:'#ef4444', mid:'#d97706', low:'#059669' };
+  const impactColors = { high:'#ff3b30', mid:'#ff9500', low:'#34c759' };
 
   document.getElementById('tdBody').innerHTML = `
     <div class="td-section-title">基本信息</div>
     <div class="td-grid">
-      <div class="td-field"><div class="tf-label">工单 ID</div><div class="tf-value" style="font-family:monospace;color:#1a56db;font-weight:700">${t.id}</div></div>
+      <div class="td-field"><div class="tf-label">工单 ID</div><div class="tf-value" style="font-family:'SF Mono','Menlo',monospace;color:#0071e3;font-weight:600">${t.id}</div></div>
       <div class="td-field"><div class="tf-label">提交时间</div><div class="tf-value">${t.time}</div></div>
       <div class="td-field"><div class="tf-label">来源服务商</div><div class="tf-value">${t.flag || ''} ${t.partner || ''}</div></div>
       <div class="td-field"><div class="tf-label">商户</div><div class="tf-value">${t.merchant}</div></div>
-      <div class="td-field"><div class="tf-label">业务影响</div><div class="tf-value" style="color:${impactColors[t.impact] || '#374151'}">${impactLabels[t.impact] || '-'}</div></div>
+      <div class="td-field"><div class="tf-label">业务影响</div><div class="tf-value" style="color:${impactColors[t.impact] || '#1d1d1f'}">${impactLabels[t.impact] || '-'}</div></div>
       <div class="td-field"><div class="tf-label">涉及场景</div><div class="tf-value">${(t.scenes || []).join('、') || '-'}</div></div>
     </div>
 
@@ -2400,9 +2550,9 @@ function renderPartnerTierList() {
 function applyTierStyle(sel) {
   const t = sel.value;
   sel.dataset.tier = t;
-  if (t === 'strategic') { sel.style.borderColor='#7c3aed'; sel.style.color='#7c3aed'; sel.style.background='#f5f3ff'; }
-  else if (t === 'important') { sel.style.borderColor='#1a56db'; sel.style.color='#1a56db'; sel.style.background='#eff6ff'; }
-  else { sel.style.borderColor='#e5e7eb'; sel.style.color='#6b7280'; sel.style.background='#fafafa'; }
+  if (t === 'strategic') { sel.style.borderColor='#af52de'; sel.style.color='#af52de'; sel.style.background='rgba(175,82,222,0.05)'; }
+  else if (t === 'important') { sel.style.borderColor='#0071e3'; sel.style.color='#0071e3'; sel.style.background='rgba(0,113,227,0.05)'; }
+  else { sel.style.borderColor='#d2d2d7'; sel.style.color='#6e6e73'; sel.style.background='#fff'; }
 }
 
 function openScoringPanel() {
@@ -2507,7 +2657,7 @@ function rebuildCountryFilters() {
 
 function renderPartnersPage() {
   const tierLabel = { strategic: '⭐ 战略级', important: '✦ 重要级', normal: '· 普通级' };
-  const tierColor = { strategic: '#7c3aed', important: '#1a56db', normal: '#6b7280' };
+  const tierColor = { strategic: '#af52de', important: '#0071e3', normal: '#6e6e73' };
   const base = location.origin + location.pathname.replace('dashboard.html', '');
   const container = document.getElementById('partnersCardList');
   if (!container) return;
@@ -2515,13 +2665,13 @@ function renderPartnersPage() {
     const formUrl    = `${base}form.html?token=${p.token}`;
     const partnerUrl = `${base}partner.html?token=${p.token}`;
     return `
-    <div style="background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);padding:18px 20px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-size:26px">${p.flag}</span>
+    <div style="background:#fff;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.08),0 0 1px rgba(0,0,0,0.04);padding:20px 24px;transition:all 0.2s ease">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <span style="font-size:28px">${p.flag}</span>
           <div>
-            <div style="font-size:15px;font-weight:700;color:#111827">${p.name}</div>
-            <div style="font-size:12px;color:#9ca3af;margin-top:2px">
+            <div style="font-size:15px;font-weight:600;color:#1d1d1f;letter-spacing:-0.01em">${p.name}</div>
+            <div style="font-size:12px;color:#6e6e73;margin-top:3px">
               ${p.countryName} · <span style="color:${tierColor[p.tier]};font-weight:600">${tierLabel[p.tier]}</span> · 语言: ${p.lang}
             </div>
           </div>
@@ -2531,14 +2681,14 @@ function renderPartnersPage() {
           <button class="pm-btn pm-btn-delete" onclick="deletePartner('${p.token}')">删除</button>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <div style="width:72px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.4px;flex-shrink:0">提交表单</div>
-        <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 12px;font-size:12px;font-family:monospace;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${formUrl}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:68px;font-size:10px;font-weight:600;color:#6e6e73;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0">提交表单</div>
+        <div style="flex:1;background:#f5f5f7;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'SF Mono','Menlo',monospace;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${formUrl}</div>
         <button class="copy-btn" onclick="pmCopyLink(this,'${formUrl}')">复制</button>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:72px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.4px;flex-shrink:0">需求追踪</div>
-        <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 12px;font-size:12px;font-family:monospace;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${partnerUrl}</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:68px;font-size:10px;font-weight:600;color:#6e6e73;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0">需求追踪</div>
+        <div style="flex:1;background:#f5f5f7;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'SF Mono','Menlo',monospace;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${partnerUrl}</div>
         <button class="copy-btn" onclick="pmCopyLink(this,'${partnerUrl}')">复制</button>
       </div>
     </div>`;
@@ -2801,10 +2951,10 @@ function importExcel(input) {
 
       // Show result modal
       document.getElementById('importResultTitle').textContent = `导入完成：成功 ${imported} 条`;
-      let body = `<div style="color:#059669;margin-bottom:8px">✓ 成功录入 <b>${imported}</b> 条工单</div>`;
+      let body = `<div style="color:#34c759;margin-bottom:8px">✓ 成功录入 <b>${imported}</b> 条工单</div>`;
       if (skipped > 0) {
-        body += `<div style="color:#d97706;margin-bottom:8px">⚠ 跳过 <b>${skipped}</b> 条（缺少必填或服务商不匹配）</div>`;
-        body += `<div style="background:#f9fafb;border-radius:6px;padding:8px 10px;font-size:12px;color:#6b7280;max-height:120px;overflow-y:auto">${skipReasons.join('<br>')}</div>`;
+        body += `<div style="color:#ff9500;margin-bottom:8px">⚠ 跳过 <b>${skipped}</b> 条（缺少必填或服务商不匹配）</div>`;
+        body += `<div style="background:#f5f5f7;border-radius:10px;padding:10px 12px;font-size:12px;color:#6e6e73;max-height:120px;overflow-y:auto">${skipReasons.join('<br>')}</div>`;
       }
       document.getElementById('importResultBody').innerHTML = body;
       document.getElementById('importResultOverlay').classList.add('show');
@@ -2998,13 +3148,13 @@ function showOnboarding() {
 function renderOnboardStep() {
   const s = ONBOARD_STEPS[onboardStep];
   document.getElementById('onboardingStepContent').innerHTML =
-    `<div style="font-size:36px;margin-bottom:12px;text-align:center">${s.icon}</div>` +
-    `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#111827">${s.title}</h2>` +
-    `<p style="font-size:14px;color:#374151;line-height:1.8;text-align:center">${s.desc}</p>`;
+    `<div style="font-size:40px;margin-bottom:14px;text-align:center">${s.icon}</div>` +
+    `<h2 style="font-size:20px;font-weight:700;margin-bottom:10px;text-align:center;color:#1d1d1f;letter-spacing:-0.03em">${s.title}</h2>` +
+    `<p style="font-size:14px;color:#6e6e73;line-height:1.75;text-align:center">${s.desc}</p>`;
   document.getElementById('onboardPrevBtn').style.visibility = onboardStep === 0 ? 'hidden' : 'visible';
   document.getElementById('onboardNextBtn').textContent = onboardStep === ONBOARD_STEPS.length - 1 ? '完成 ✓' : '下一步 →';
   document.getElementById('onboardDots').innerHTML = ONBOARD_STEPS.map((_, i) =>
-    `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px;background:${i === onboardStep ? '#3b82f6' : '#d1d5db'};transition:background 0.2s"></span>`
+    `<span style="display:inline-block;width:${i === onboardStep ? '20px' : '7px'};height:7px;border-radius:980px;margin:0 3px;background:${i === onboardStep ? '#0071e3' : '#d2d2d7'};transition:all 0.3s ease"></span>`
   ).join('');
 }
 
@@ -3023,17 +3173,17 @@ if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentL
 </script>
 
 <!-- Onboarding Overlay -->
-<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:40px 44px;max-width:480px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:24px;padding:44px 48px;max-width:480px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,0.25),0 0 1px rgba(0,0,0,0.04);">
     <div id="onboardingStepContent"></div>
-    <div id="onboardDots" style="text-align:center;margin-top:20px;margin-bottom:20px;"></div>
+    <div id="onboardDots" style="text-align:center;margin-top:22px;margin-bottom:22px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;">
-      <label style="font-size:13px;color:#6b7280;cursor:pointer;display:flex;align-items:center;gap:6px;">
+      <label style="font-size:13px;color:#6e6e73;cursor:pointer;display:flex;align-items:center;gap:6px;">
         <input type="checkbox" id="onboardDontShow"> 不再提醒
       </label>
       <div style="display:flex;gap:8px;">
-        <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:13px;">← 上一步</button>
-        <button id="onboardNextBtn" onclick="onboardNav(1)" style="padding:8px 20px;border:none;border-radius:8px;background:#3b82f6;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">下一步 →</button>
+        <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 20px;border:1.5px solid #d2d2d7;border-radius:980px;background:transparent;cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;color:#1d1d1f;transition:all 0.2s ease">← 上一步</button>
+        <button id="onboardNextBtn" onclick="onboardNav(1)" style="padding:8px 22px;border:none;border-radius:980px;background:#0071e3;color:#fff;cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;transition:all 0.2s ease">下一步 →</button>
       </div>
     </div>
   </div>
