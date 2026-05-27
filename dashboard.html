@@ -1481,36 +1481,87 @@
   <div class="content" id="page-all-saas" style="display:none">
     <div class="tab-bar">
       <button class="tab-btn active" id="saasBtnClusters" onclick="switchSaasTab('clusters')">需求簇</button>
-      <button class="tab-btn" id="saasBtnTickets" onclick="switchSaasTab('tickets')">原始需求</button>
+      <button class="tab-btn" id="saasBtnTickets"  onclick="switchSaasTab('tickets')">原始需求</button>
     </div>
 
     <!-- SaaS Clusters tab -->
     <div id="saasTabClusters">
-      <div class="table-header" style="margin-bottom:16px">
-        <h3 style="font-size:15px;font-weight:700">SaaS需求簇</h3>
-        <button class="btn-primary" onclick="runSaasMerge()">⚡ AI归并</button>
+      <div class="table-card">
+        <div class="table-header">
+          <h3>SaaS需求簇</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="filter-select" id="scFilterVendor" onchange="saasClusterPage=1;renderSaasClusters()">
+              <option value="">全部厂商</option>
+            </select>
+            <select class="filter-select" id="scFilterStatus" onchange="saasClusterPage=1;renderSaasClusters()">
+              <option value="">全部状态</option>
+              <option value="pending">待处理</option>
+              <option value="scheduled">排期中</option>
+              <option value="dev">开发中</option>
+              <option value="live">已上线</option>
+            </select>
+            <button class="btn-primary" onclick="runSaasMerge()">⚡ AI归并</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>需求摘要</th>
+              <th>业务影响</th>
+              <th>涉及厂商</th>
+              <th>频次</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody id="saasClusterBody"></tbody>
+        </table>
+        <div id="saasClusterEmpty" style="display:none;text-align:center;padding:40px;color:#6e6e73;font-size:14px">暂无需求簇，点击「⚡ AI归并」开始归并</div>
+        <div id="saasClusterPager" class="pager"></div>
       </div>
-      <div id="saasClusterList"></div>
     </div>
 
     <!-- SaaS Tickets tab -->
     <div id="saasTabTickets" style="display:none">
-      <div class="table-header" style="margin-bottom:16px">
-        <h3 style="font-size:15px;font-weight:700">SaaS原始需求</h3>
-        <div style="display:flex;gap:10px;align-items:center">
-          <select class="filter-select" id="saasTicketFilter" onchange="renderSaasTickets()">
-            <option value="all">全部状态</option>
-            <option value="pending">待处理</option>
-            <option value="merged">已归并</option>
-            <option value="scheduled">排期中</option>
-            <option value="dev">开发中</option>
-            <option value="live">已上线</option>
-          </select>
-          <input type="text" id="saasTicketSearch" placeholder="搜索工单..." class="filter-select" style="width:180px" oninput="renderSaasTickets()" />
-          <button class="btn-primary" onclick="openSaasTicketForm()">＋ 手动录入</button>
+      <div class="table-card">
+        <div class="table-header">
+          <h3>SaaS原始需求工单</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-primary" style="background:#6c5ce7;border:none;white-space:nowrap" onclick="openSaasTicketForm()">＋ 手动录入</button>
+            <select class="filter-select" id="saasTicketFilter" onchange="saasTicketPage=1;renderSaasTickets()">
+              <option value="">全部状态</option>
+              <option value="pending">待处理</option>
+              <option value="merged">已归并</option>
+              <option value="scheduled">排期中</option>
+              <option value="dev">开发中</option>
+              <option value="live">已上线</option>
+            </select>
+            <select class="filter-select" id="saasTicketFilterImpact" onchange="saasTicketPage=1;renderSaasTickets()">
+              <option value="">全部影响</option>
+              <option value="high">高</option>
+              <option value="mid">中</option>
+              <option value="low">低</option>
+            </select>
+            <input class="search-input" id="saasTicketSearch" placeholder="🔍 搜索工单..." oninput="saasTicketPage=1;renderSaasTickets()" style="width:180px" />
+          </div>
         </div>
+        <table>
+          <thead>
+            <tr>
+              <th>工单 ID</th>
+              <th>需求描述</th>
+              <th>商户</th>
+              <th>来源厂商</th>
+              <th>业务影响</th>
+              <th>提交时间</th>
+              <th>归并状态</th>
+            </tr>
+          </thead>
+          <tbody id="saasTicketBody"></tbody>
+        </table>
+        <div id="saasTicketEmpty" style="display:none;text-align:center;padding:40px;color:#6e6e73;font-size:14px">暂无匹配工单</div>
+        <div id="saasTicketPager" class="pager"></div>
       </div>
-      <div id="saasTicketList"></div>
     </div>
   </div>
 </div>
@@ -1534,6 +1585,24 @@
       <option value="live">已上线</option>
     </select>
     <button onclick="saveStatus()">更新状态</button>
+  </div>
+</div>
+
+<!-- SaaS Cluster Drawer -->
+<div class="drawer" id="saasDrawer">
+  <div class="drawer-head">
+    <h2 id="saasDrawerTitle">SaaS需求簇详情</h2>
+    <button class="close-btn" onclick="closeSaasDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="saasDrawerBody"></div>
+  <div class="drawer-footer">
+    <select id="saasStatusSelect">
+      <option value="pending">待处理</option>
+      <option value="scheduled">排期中</option>
+      <option value="dev">开发中</option>
+      <option value="live">已上线</option>
+    </select>
+    <button onclick="saveSaasClusterStatus()">更新状态</button>
   </div>
 </div>
 
@@ -2016,7 +2085,9 @@ function closeDrawer() {
 function closeAllDrawers() {
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('ticketDrawer').classList.remove('open');
+  document.getElementById('saasDrawer').classList.remove('open');
   document.getElementById('drawerOverlay').classList.remove('show');
+  document.getElementById('drawerOverlay').style.display = 'none';
 }
 
 function saveStatus() {
@@ -3079,6 +3150,8 @@ function switchSaasTab(tab) {
   document.getElementById('saasTabTickets').style.display  = tab === 'tickets'  ? '' : 'none';
   document.getElementById('saasBtnClusters').classList.toggle('active', tab === 'clusters');
   document.getElementById('saasBtnTickets').classList.toggle('active',  tab === 'tickets');
+  if (tab === 'clusters') { saasClusterPage = 1; renderSaasClusters(); }
+  else                    { saasTicketPage  = 1; renderSaasTickets();  }
 }
 
 // ── API helpers ──
@@ -3123,6 +3196,9 @@ const SAAS_INDUSTRIES = ['餐饮','零售','酒吧','美业','SPA','酒店','诊
 let saasVendorsList = [];
 let saasTicketsList = [];
 let saasClustersList = [];
+let saasClusterPage = 1;
+let saasTicketPage  = 1;
+let currentSaasClusterIdx = 0;
 
 async function reloadSaasVendors() {
   saasVendorsList = await fetch(`${API_BASE}/api/saas-vendors`).then(r => r.json()).catch(() => []);
@@ -3236,50 +3312,48 @@ async function deleteSaasVendor(token, name) {
 // ── SaaS Tickets ──
 
 function renderSaasTickets() {
-  const list = document.getElementById('saasTicketList');
-  if (!list) return;
-  const statusFilter = document.getElementById('saasTicketFilter')?.value || 'all';
+  const tbody = document.getElementById('saasTicketBody');
+  const empty = document.getElementById('saasTicketEmpty');
+  if (!tbody) return;
+
+  const statusFilter = (document.getElementById('saasTicketFilter')?.value || '');
+  const impactFilter = (document.getElementById('saasTicketFilterImpact')?.value || '');
   const search = (document.getElementById('saasTicketSearch')?.value || '').toLowerCase();
+
   const filtered = saasTicketsList.filter(t =>
-    (statusFilter === 'all' || t.status === statusFilter) &&
-    (!search || t.text.toLowerCase().includes(search) || t.id.toLowerCase().includes(search) || (t.merchant || '').toLowerCase().includes(search))
+    (!statusFilter || t.status === statusFilter) &&
+    (!impactFilter || t.impact === impactFilter) &&
+    (!search || t.text.toLowerCase().includes(search) || t.id.toLowerCase().includes(search) || (t.merchant || '').toLowerCase().includes(search) || (t.vendor_name || '').toLowerCase().includes(search))
   );
-  const statusCfg = {
-    pending:   { cls: 's-pending',   label: '待处理' },
-    merged:    { cls: 's-merged',    label: '已归并' },
-    scheduled: { cls: 's-scheduled', label: '排期中' },
-    dev:       { cls: 's-dev',       label: '开发中' },
-    live:      { cls: 's-live',      label: '已上线' },
-  };
-  const impactCfg = { high: { cls: 'badge-high', label: '高' }, mid: { cls: 'badge-mid', label: '中' }, low: { cls: 'badge-low', label: '低' } };
+
   if (filtered.length === 0) {
-    list.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#8e8e93"><div style="font-size:36px;margin-bottom:12px">📭</div><p>暂无工单</p></div>`;
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    document.getElementById('saasTicketPager').innerHTML = '';
     return;
   }
-  list.innerHTML = `<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07)">
-    <table style="width:100%;border-collapse:collapse">
-      <thead><tr style="border-bottom:1px solid #f2f2f7">
-        <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em">工单ID</th>
-        <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em">厂商</th>
-        <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em">需求描述</th>
-        <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em">影响</th>
-        <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em">状态</th>
-        <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em">时间</th>
-      </tr></thead>
-      <tbody>${filtered.map(t => {
-        const sc = statusCfg[t.status] || statusCfg.pending;
-        const ic = impactCfg[t.impact] || impactCfg.mid;
-        return `<tr style="border-bottom:1px solid #f9f9f9">
-          <td style="padding:12px 16px;font-size:13px;font-weight:700;color:#0071e3">${t.id}${t.saas_cluster_id ? `<div style="font-size:10px;color:#8e8e93;font-weight:400">${t.saas_cluster_id}</div>` : ''}</td>
-          <td style="padding:12px 16px;font-size:13px;color:#1d1d1f">${t.vendor_name}<div style="font-size:11px;color:#8e8e93">${t.industry || ''}</div></td>
-          <td style="padding:12px 16px;font-size:13px;color:#1d1d1f;max-width:320px"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.text}</div>${t.merchant ? `<div style="font-size:11px;color:#8e8e93">${t.merchant}</div>` : ''}</td>
-          <td style="padding:12px 16px"><span class="badge ${ic.cls}">${ic.label}</span></td>
-          <td style="padding:12px 16px"><span class="status-chip ${sc.cls}"><span class="dot"></span>${sc.label}</span></td>
-          <td style="padding:12px 16px;font-size:12px;color:#8e8e93;white-space:nowrap">${t.time || ''}</td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table>
-  </div>`;
+  empty.style.display = 'none';
+
+  const page = filtered.slice((saasTicketPage - 1) * PAGE_SIZE, saasTicketPage * PAGE_SIZE);
+  tbody.innerHTML = page.map(t => `
+    <tr>
+      <td>
+        <span class="cluster-id" style="color:#6c5ce7">${t.id}</span>
+        ${t.manual ? `<span style="display:inline-block;background:#f0eeff;color:#6c5ce7;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:4px">人工</span>` : ''}
+      </td>
+      <td style="max-width:220px">
+        <div style="font-size:13px;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px" title="${t.text}">${t.text}</div>
+      </td>
+      <td style="font-size:13px;color:#1d1d1f">${t.merchant || '—'}</td>
+      <td style="font-size:13px;color:#1d1d1f">${t.vendor_name}<div style="font-size:11px;color:#8e8e93">${t.industry || ''}</div></td>
+      <td><span class="badge ${impactClass[t.impact] || 'badge-mid'}">${impactLabel[t.impact] || '中'}</span></td>
+      <td style="font-size:12px;color:#6e6e73;white-space:nowrap">${t.time || ''}</td>
+      <td>
+        ${statusMap[t.status] || statusMap['pending']}
+        ${t.saas_cluster_id ? `<span style="font-size:11px;color:#6e6e73;margin-left:4px">→ ${t.saas_cluster_id}</span>` : ''}
+      </td>
+    </tr>`).join('');
+  renderPager('saasTicketPager', filtered.length, saasTicketPage, 'function(p){saasTicketPage=p;renderSaasTickets()}');
 }
 
 function openSaasTicketForm() {
@@ -3329,67 +3403,113 @@ function openSaasTicketForm() {
 
 // ── SaaS Clusters ──
 
-function renderSaasClusters() {
-  const list = document.getElementById('saasClusterList');
-  if (!list) return;
-  if (saasClustersList.length === 0) {
-    list.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#8e8e93"><div style="font-size:36px;margin-bottom:12px">🔗</div><p>暂无需求簇，点击「⚡ AI归并」开始归并SaaS工单</p></div>`;
-    return;
-  }
-  const statusCfg = {
-    pending:   { cls: 's-pending',   label: '待处理' },
-    scheduled: { cls: 's-scheduled', label: '排期中' },
-    dev:       { cls: 's-dev',       label: '开发中' },
-    live:      { cls: 's-live',      label: '已上线' },
-  };
-  const impactCfg = { high: { cls: 'badge-high', label: '高' }, mid: { cls: 'badge-mid', label: '中' }, low: { cls: 'badge-low', label: '低' } };
-  list.innerHTML = saasClustersList.map(c => {
-    const sc = statusCfg[c.status] || statusCfg.pending;
-    const ic = impactCfg[c.impact] || impactCfg.mid;
-    const vendors = (c.vendor_names || []).join('、');
-    const ticketHtml = (c.items || []).map(t => `
-      <div style="padding:10px 14px;background:#f9f9f9;border-radius:8px;margin-bottom:6px;font-size:13px">
-        <div style="font-weight:600;color:#0071e3;margin-bottom:3px">${t.id} · ${t.vendor_name}</div>
-        <div style="color:#1d1d1f">${t.text}</div>
-        ${t.merchant ? `<div style="font-size:11px;color:#8e8e93;margin-top:2px">${t.merchant}</div>` : ''}
-      </div>`).join('');
-    return `
-    <div style="background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:12px;overflow:hidden">
-      <div style="padding:18px 22px;display:flex;align-items:flex-start;gap:16px">
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-            <span style="font-size:12px;font-weight:700;color:#6c5ce7;background:#f0eeff;border-radius:6px;padding:2px 8px">${c.id}</span>
-            <span class="badge ${ic.cls}">${ic.label}</span>
-            <span class="status-chip ${sc.cls}"><span class="dot"></span>${sc.label}</span>
-          </div>
-          <div style="font-size:15px;font-weight:700;color:#1d1d1f;margin-bottom:4px">${c.summary || '（无标题）'}</div>
-          <div style="font-size:12px;color:#8e8e93">涉及厂商：${vendors || '—'} · 工单数：${c.count}</div>
-          ${c.ai_summary ? `<div style="margin-top:10px;padding:12px 14px;background:#f0eeff;border-left:3px solid #6c5ce7;border-radius:0 8px 8px 0;font-size:13px;color:#1d1d1f;line-height:1.6">${c.ai_summary}</div>` : ''}
-        </div>
-        <div style="display:flex;gap:8px;flex-shrink:0">
-          <select onchange="updateSaasClusterStatus('${c.id}', this.value)" style="border:1.5px solid #d2d2d7;border-radius:8px;padding:6px 10px;font-size:12px;outline:none;font-family:inherit;background:#fff">
-            <option value="pending" ${c.status==='pending'?'selected':''}>待处理</option>
-            <option value="scheduled" ${c.status==='scheduled'?'selected':''}>排期中</option>
-            <option value="dev" ${c.status==='dev'?'selected':''}>开发中</option>
-            <option value="live" ${c.status==='live'?'selected':''}>已上线</option>
-          </select>
-        </div>
-      </div>
-      ${ticketHtml ? `<div style="padding:0 22px 16px">${ticketHtml}</div>` : ''}
-    </div>`;
-  }).join('');
+function rebuildSaasVendorFilter() {
+  const sel = document.getElementById('scFilterVendor');
+  if (!sel) return;
+  const current = sel.value;
+  const names = [...new Set(saasClustersList.flatMap(c => c.vendor_names || []))].sort();
+  sel.innerHTML = `<option value="">全部厂商</option>` + names.map(n => `<option value="${n}" ${n===current?'selected':''}>${n}</option>`).join('');
 }
 
-async function updateSaasClusterStatus(id, status) {
-  const r = await fetch(`${API_BASE}/api/saas-clusters/${encodeURIComponent(id)}`, {
+function renderSaasClusters() {
+  const tbody = document.getElementById('saasClusterBody');
+  const empty = document.getElementById('saasClusterEmpty');
+  if (!tbody) return;
+
+  rebuildSaasVendorFilter();
+
+  const vendor = (document.getElementById('scFilterVendor')?.value || '');
+  const status = (document.getElementById('scFilterStatus')?.value || '');
+
+  const filtered = saasClustersList.filter(c =>
+    (!vendor || (c.vendor_names || []).includes(vendor)) &&
+    (!status || c.status === status)
+  );
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    document.getElementById('saasClusterPager').innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const page = filtered.slice((saasClusterPage - 1) * PAGE_SIZE, saasClusterPage * PAGE_SIZE);
+  tbody.innerHTML = page.map(c => {
+    const origIdx = saasClustersList.indexOf(c);
+    const vendors = (c.vendor_names || []).join('、') || '—';
+    return `
+    <tr onclick="openSaasClusterDrawer(${origIdx})" style="cursor:pointer">
+      <td><span class="cluster-id" style="color:#6c5ce7">${c.id}</span></td>
+      <td style="max-width:200px">${c.summary || '（无标题）'}</td>
+      <td><span class="badge ${impactClass[c.impact] || 'badge-mid'}">${impactLabel[c.impact] || '中'}</span></td>
+      <td style="font-size:12px;color:#6e6e73">${vendors}</td>
+      <td>${c.count}次</td>
+      <td>${statusMap[c.status] || statusMap['pending']}</td>
+    </tr>`;
+  }).join('');
+  renderPager('saasClusterPager', filtered.length, saasClusterPage, 'function(p){saasClusterPage=p;renderSaasClusters()}');
+}
+
+function openSaasClusterDrawer(i) {
+  currentSaasClusterIdx = i;
+  const c = saasClustersList[i];
+  const overlay = document.getElementById('drawerOverlay');
+  const drawer  = document.getElementById('saasDrawer');
+  overlay.style.display = '';
+
+  document.getElementById('saasDrawerTitle').textContent = `SaaS需求簇 ${c.id}`;
+  document.getElementById('saasStatusSelect').value = c.status || 'pending';
+
+  const vendors = (c.vendor_names || []).join('、') || '—';
+  const ticketHtml = (c.items || []).map(t => `
+    <div style="padding:12px 14px;background:#f9f9f9;border-radius:10px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:700;color:#6c5ce7">${t.id}</span>
+        <span class="badge ${impactClass[t.impact] || 'badge-mid'}">${impactLabel[t.impact] || '中'}</span>
+      </div>
+      <div style="font-size:13px;color:#1d1d1f;line-height:1.5">${t.text}</div>
+      <div style="font-size:11px;color:#8e8e93;margin-top:4px">${t.vendor_name}${t.merchant ? ' · ' + t.merchant : ''}</div>
+    </div>`).join('');
+
+  document.getElementById('saasDrawerBody').innerHTML = `
+    <div class="meta-row">
+      <div class="meta-item"><div class="ml">业务影响</div><div class="mv"><span class="badge ${impactClass[c.impact] || 'badge-mid'}">${impactLabel[c.impact] || '中'}</span></div></div>
+      <div class="meta-item"><div class="ml">涉及厂商</div><div class="mv" style="font-size:13px">${vendors}</div></div>
+      <div class="meta-item"><div class="ml">工单数量</div><div class="mv">${c.count} 条</div></div>
+    </div>
+    ${c.ai_summary ? `
+    <div class="ai-summary">
+      <div class="ai-label" style="color:#6c5ce7">✦ AI 需求摘要</div>
+      <p id="saasReviewSummary">${c.ai_summary}</p>
+    </div>` : ''}
+    <div style="margin-top:18px">
+      <div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">归并工单（${(c.items||[]).length} 条）</div>
+      ${ticketHtml || '<div style="color:#8e8e93;font-size:13px">暂无工单</div>'}
+    </div>`;
+
+  drawer.classList.add('open');
+}
+
+function closeSaasDrawer() {
+  document.getElementById('saasDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').style.display = 'none';
+}
+
+async function saveSaasClusterStatus() {
+  const c = saasClustersList[currentSaasClusterIdx];
+  const status = document.getElementById('saasStatusSelect').value;
+  const r = await fetch(`${API_BASE}/api/saas-clusters/${encodeURIComponent(c.id)}`, {
     method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ status })
   });
   if (r.ok) {
     await reloadSaasClusters();
     renderSaasClusters();
+    closeSaasDrawer();
     showToast('状态已更新');
   } else showToast('更新失败', true);
 }
+
 
 async function runSaasMerge() {
   document.getElementById('thinkingOverlay').style.display = 'flex';
