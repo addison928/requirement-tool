@@ -3983,8 +3983,11 @@ function closeMobMenu() {
   document.querySelector('.sidebar').classList.remove('mob-open');
   document.getElementById('mobOverlay').classList.remove('show');
 }
+// Only close sidebar when actually navigating (not when toggling a group)
 document.querySelectorAll('.nav-item').forEach(el => {
-  el.addEventListener('click', () => { if (window.innerWidth <= 768) closeMobMenu(); });
+  if (el.getAttribute('onclick') && el.getAttribute('onclick').includes('switchPage')) {
+    el.addEventListener('click', () => { if (window.innerWidth <= 768) closeMobMenu(); });
+  }
 });
 
 // Show/hide mobile-only elements based on viewport
