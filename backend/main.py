@@ -39,10 +39,28 @@ app.add_middleware(
 def startup():
     try:
         init_db()
-        print('✅ Database initialized successfully')
+        print('✅ Database initialized successfully', flush=True)
     except Exception as e:
-        # Log but don't crash — static files still served; API calls will fail gracefully
         print(f'❌ Database init failed: {e}', flush=True)
+
+
+@app.get('/api/health')
+def health():
+    import os
+    db_url = os.environ.get('DATABASE_URL', '')
+    try:
+        with get_conn() as conn:
+            conn.execute('SELECT 1').fetchone()
+        db_status = 'ok'
+    except Exception as ex:
+        db_status = str(ex)[:200]
+    return {
+        'status': 'ok',
+        'db': db_status,
+        'db_url_set': bool(db_url),
+        'db_url_prefix': db_url[:30] if db_url else '',
+        'tz_now': datetime.now(_TZ_CST).strftime('%Y-%m-%d %H:%M %Z'),
+    }
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
