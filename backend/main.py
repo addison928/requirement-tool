@@ -41,8 +41,8 @@ def startup():
         init_db()
         print('✅ Database initialized successfully')
     except Exception as e:
-        print(f'❌ Database init failed: {e}')
-        raise
+        # Log but don't crash — static files still served; API calls will fail gracefully
+        print(f'❌ Database init failed: {e}', flush=True)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
