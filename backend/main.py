@@ -68,7 +68,7 @@ def cluster_row(row):
     d['urgent'] = bool(d.get('urgent', 0))
     # attach tickets
     with get_conn() as conn:
-        tids = [r[0] for r in conn.execute(
+        tids = [r['ticket_id'] for r in conn.execute(
             'SELECT ticket_id FROM cluster_tickets WHERE cluster_id=?', (d['id'],)
         ).fetchall()]
         items = []
@@ -456,9 +456,10 @@ def run_merge():
             count      = len(matched)
 
             conn.execute(
-                '''INSERT OR IGNORE INTO clusters
+                '''INSERT INTO clusters
                    (id, score, urgent, summary, layer, impact, source_ids, partners, count, periods, status, ai_summary)
-                   VALUES (?,0,0,?,?,?,?,?,?,1,'pending',?)''',
+                   VALUES (?,0,0,?,?,?,?,?,?,1,'pending',?)
+                   ON CONFLICT (id) DO NOTHING''',
                 (cid, summary, layer, impact,
                  json.dumps(source_ids, ensure_ascii=False),
                  json.dumps(partners,   ensure_ascii=False),
@@ -471,7 +472,7 @@ def run_merge():
                     (cid, tid)
                 )
                 conn.execute(
-                    'INSERT OR IGNORE INTO cluster_tickets VALUES (?,?)',
+                    'INSERT INTO cluster_tickets VALUES (?,?) ON CONFLICT DO NOTHING',
                     (cid, tid)
                 )
 

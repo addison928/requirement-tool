@@ -48,13 +48,14 @@ def seed():
     with get_conn() as conn:
         for p in PARTNERS:
             conn.execute(
-                'INSERT OR IGNORE INTO partners VALUES (?,?,?,?,?,?,?)',
+                'INSERT INTO partners VALUES (?,?,?,?,?,?,?) ON CONFLICT (token) DO NOTHING',
                 (p['token'], p['country_id'], p['flag'], p['country_name'], p['name'], p['lang'], p['tier'])
             )
 
         for t in TICKETS:
             conn.execute(
-                'INSERT OR IGNORE INTO tickets VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                '''INSERT INTO tickets VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                   ON CONFLICT (id) DO NOTHING''',
                 (t['id'], t['flag'], t['partner_name'], t['country_id'], t['text'],
                  t['merchant'], t['impact'], json.dumps(t['scenes'], ensure_ascii=False),
                  t.get('biz_type'), t['time'], t['status'], t['cluster_id'],
@@ -63,7 +64,8 @@ def seed():
 
         for c in CLUSTERS:
             conn.execute(
-                'INSERT OR IGNORE INTO clusters VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                '''INSERT INTO clusters VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                   ON CONFLICT (id) DO NOTHING''',
                 (c['id'], c['score'], c['urgent'], c['summary'], c['layer'], c['impact'],
                  json.dumps(c['source_ids'], ensure_ascii=False),
                  json.dumps(c['partners'], ensure_ascii=False),
@@ -71,7 +73,7 @@ def seed():
             )
             for tid in c.get('ticket_ids', []):
                 conn.execute(
-                    'INSERT OR IGNORE INTO cluster_tickets VALUES (?,?)',
+                    'INSERT INTO cluster_tickets VALUES (?,?) ON CONFLICT DO NOTHING',
                     (c['id'], tid)
                 )
 
