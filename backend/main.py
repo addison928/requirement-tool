@@ -381,7 +381,7 @@ def save_scoring_config(body: dict):
 # ── AI Merge ─────────────────────────────────────────────────────────────────
 
 def _next_cluster_ids(conn, count: int) -> list[str]:
-    rows = conn.execute("SELECT id FROM clusters WHERE id LIKE '#%'").fetchall()
+    rows = conn.execute("SELECT id FROM clusters WHERE id LIKE ?", ('#%',)).fetchall()
     nums = []
     for r in rows:
         tail = r['id'][1:]
@@ -774,7 +774,7 @@ def saas_cluster_row(row):
 
 
 def _next_saas_cluster_ids(conn, count: int) -> list[str]:
-    rows = conn.execute("SELECT id FROM saas_clusters WHERE id LIKE '$%'").fetchall()
+    rows = conn.execute("SELECT id FROM saas_clusters WHERE id LIKE ?", ('$%',)).fetchall()
     nums = []
     for r in rows:
         tail = r['id'][1:]
