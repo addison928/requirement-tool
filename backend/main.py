@@ -328,8 +328,36 @@ def list_clusters(
             f'SELECT * FROM clusters {where} ORDER BY score DESC LIMIT ? OFFSET ?',
             params + [page_size, offset]
         ).fetchall()
+        cluster_ids = [r['id'] for r in rows]
+        # Bulk-load all tickets for these clusters in two queries
+        tickets_by_cluster = {}
+        if cluster_ids:
+            ph = ','.join(['?'] * len(cluster_ids))
+            ct_rows = conn.execute(
+                f'SELECT cluster_id, ticket_id FROM cluster_tickets WHERE cluster_id IN ({ph})',
+                cluster_ids
+            ).fetchall()
+            all_tids = [r['ticket_id'] for r in ct_rows]
+            ticket_map = {}
+            if all_tids:
+                tph = ','.join(['?'] * len(all_tids))
+                for t in conn.execute(f'SELECT * FROM tickets WHERE id IN ({tph})', all_tids).fetchall():
+                    ticket_map[t['id']] = ticket_row(t)
+            for ct in ct_rows:
+                tickets_by_cluster.setdefault(ct['cluster_id'], [])
+                if ct['ticket_id'] in ticket_map:
+                    tickets_by_cluster[ct['cluster_id']].append(ticket_map[ct['ticket_id']])
 
-    return {'total': total, 'page': page, 'page_size': page_size, 'items': [cluster_row(r) for r in rows]}
+    items = []
+    for r in rows:
+        d = row_to_dict(r)
+        d['source_ids'] = parse_json_field(d.get('source_ids'), [])
+        d['partners'] = parse_json_field(d.get('partners'), [])
+        d['urgent'] = bool(d.get('urgent', 0))
+        d['items'] = tickets_by_cluster.get(d['id'], [])
+        items.append(d)
+
+    return {'total': total, 'page': page, 'page_size': page_size, 'items': items}
 
 
 @app.put('/api/clusters/{cluster_id}')
@@ -811,9 +839,34 @@ def list_saas_clusters(
             f'SELECT * FROM saas_clusters {where} ORDER BY score DESC LIMIT ? OFFSET ?',
             params + [page_size, offset]
         ).fetchall()
+        cluster_ids = [r['id'] for r in rows]
+        tickets_by_cluster = {}
+        if cluster_ids:
+            ph = ','.join(['?'] * len(cluster_ids))
+            ct_rows = conn.execute(
+                f'SELECT cluster_id, ticket_id FROM saas_cluster_tickets WHERE cluster_id IN ({ph})',
+                cluster_ids
+            ).fetchall()
+            all_tids = [r['ticket_id'] for r in ct_rows]
+            ticket_map = {}
+            if all_tids:
+                tph = ','.join(['?'] * len(all_tids))
+                for t in conn.execute(f'SELECT * FROM saas_tickets WHERE id IN ({tph})', all_tids).fetchall():
+                    ticket_map[t['id']] = saas_ticket_row(t)
+            for ct in ct_rows:
+                tickets_by_cluster.setdefault(ct['cluster_id'], [])
+                if ct['ticket_id'] in ticket_map:
+                    tickets_by_cluster[ct['cluster_id']].append(ticket_map[ct['ticket_id']])
 
-    return {'total': total, 'page': page, 'page_size': page_size,
-            'items': [saas_cluster_row(r) for r in rows]}
+    items = []
+    for r in rows:
+        d = row_to_dict(r)
+        d['vendor_names'] = parse_json_field(d.get('vendor_names'), [])
+        d['urgent'] = bool(d.get('urgent', 0))
+        d['items'] = tickets_by_cluster.get(d['id'], [])
+        items.append(d)
+
+    return {'total': total, 'page': page, 'page_size': page_size, 'items': items}
 
 
 @app.put('/api/saas-clusters/{cluster_id}')
