@@ -2448,6 +2448,43 @@ function closeTicketDrawer() {
   document.getElementById('drawerOverlay').classList.remove('show');
 }
 
+function openSaasTicketDrawer(id) {
+  const t = saasTicketsList.find(t => t.id === id);
+  if (!t) return;
+
+  const impactLabels = { high:'高', mid:'中', low:'低' };
+  const impactColors = { high:'#ff3b30', mid:'#ff9500', low:'#6c5ce7' };
+  const cluster = t.saas_cluster_id ? saasClustersList.find(c => c.id === t.saas_cluster_id) : null;
+
+  document.getElementById('tdTitle').textContent = t.id;
+  document.getElementById('tdBody').innerHTML = `
+    <div class="td-section-title">基本信息</div>
+    <div class="td-grid">
+      <div class="td-field"><div class="tf-label">工单 ID</div><div class="tf-value" style="font-family:'SF Mono','Menlo',monospace;color:#6c5ce7;font-weight:600">${t.id}</div></div>
+      <div class="td-field"><div class="tf-label">提交时间</div><div class="tf-value">${t.time || '—'}</div></div>
+      <div class="td-field"><div class="tf-label">来源厂商</div><div class="tf-value">${t.vendor_name || '—'}</div></div>
+      <div class="td-field"><div class="tf-label">行业</div><div class="tf-value">${t.industry || '—'}</div></div>
+      <div class="td-field"><div class="tf-label">商户</div><div class="tf-value">${t.merchant || '—'}</div></div>
+      <div class="td-field"><div class="tf-label">业务影响</div><div class="tf-value" style="color:${impactColors[t.impact] || '#1d1d1f'}">${impactLabels[t.impact] || '—'}</div></div>
+    </div>
+
+    <div class="td-section-title">需求描述</div>
+    <div class="td-original-box">${t.text}</div>
+
+    ${cluster ? `
+    <div class="td-section-title">归并信息</div>
+    <div class="td-grid">
+      <div class="td-field"><div class="tf-label">需求簇</div><div class="tf-value" style="color:#6c5ce7;font-weight:600">${cluster.id}</div></div>
+      <div class="td-field"><div class="tf-label">簇标题</div><div class="tf-value">${cluster.summary || '—'}</div></div>
+    </div>
+    ${cluster.ai_summary ? `<div style="margin-top:10px;padding:12px 14px;background:#f0eeff;border-left:3px solid #6c5ce7;border-radius:0 8px 8px 0;font-size:13px;color:#1d1d1f;line-height:1.6">${cluster.ai_summary}</div>` : ''}
+    ` : ''}
+  `;
+
+  document.getElementById('ticketDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('show');
+}
+
 // ── Lightbox ──
 function openLightbox(type, url) {
   const box = document.getElementById('lightbox');
@@ -3335,7 +3372,7 @@ function renderSaasTickets() {
 
   const page = filtered.slice((saasTicketPage - 1) * PAGE_SIZE, saasTicketPage * PAGE_SIZE);
   tbody.innerHTML = page.map(t => `
-    <tr>
+    <tr style="cursor:pointer" onclick="openSaasTicketDrawer('${t.id}')">
       <td>
         <span class="cluster-id" style="color:#6c5ce7">${t.id}</span>
         ${t.manual ? `<span style="display:inline-block;background:#f0eeff;color:#6c5ce7;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:4px">人工</span>` : ''}
