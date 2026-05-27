@@ -4,7 +4,9 @@ import random
 import re
 import string
 import sys
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+_TZ_CST = timezone(timedelta(hours=8))
 from typing import Optional
 
 # Force UTF-8 stdout/stderr so non-ASCII content doesn't break on macOS
@@ -243,7 +245,7 @@ def create_ticket(body: TicketIn):
     partner = row_to_dict(partner)
 
     tid = generate_ticket_id(partner['country_id'])
-    now = datetime.now().strftime('%Y-%m-%d %H:%M')
+    now = datetime.now(_TZ_CST).strftime('%Y-%m-%d %H:%M')
 
     with get_conn() as conn:
         conn.execute(
@@ -442,7 +444,7 @@ def run_merge():
     if not isinstance(clusters_data, list):
         raise HTTPException(500, 'LLM 返回格式错误，期望 JSON 数组')
 
-    now = datetime.now().strftime('%Y-%m-%d %H:%M')
+    now = datetime.now(_TZ_CST).strftime('%Y-%m-%d %H:%M')
 
     with get_conn() as conn:
         new_ids = _next_cluster_ids(conn, len(clusters_data))
