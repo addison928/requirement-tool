@@ -35,7 +35,12 @@ app.add_middleware(
 
 @app.on_event('startup')
 def startup():
-    init_db()
+    try:
+        init_db()
+        print('✅ Database initialized successfully')
+    except Exception as e:
+        print(f'❌ Database init failed: {e}')
+        raise
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
