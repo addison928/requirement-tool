@@ -2157,20 +2157,27 @@ function openDrawer(i) {
     </div>
   `;
 
-  document.getElementById('drawerOverlay').classList.add('show');
   document.getElementById('drawer').classList.add('open');
+  syncOverlay();
 }
 
 function closeDrawer() {
   document.getElementById('drawer').classList.remove('open');
-  document.getElementById('drawerOverlay').classList.remove('show');
+  syncOverlay();
+}
+
+function syncOverlay() {
+  const anyOpen = ['drawer','ticketDrawer','saasDrawer'].some(
+    id => document.getElementById(id).classList.contains('open')
+  );
+  document.getElementById('drawerOverlay').classList.toggle('show', anyOpen);
 }
 
 function closeAllDrawers() {
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('ticketDrawer').classList.remove('open');
   document.getElementById('saasDrawer').classList.remove('open');
-  document.getElementById('drawerOverlay').classList.remove('show');
+  syncOverlay();
 }
 
 function saveStatus() {
@@ -2561,12 +2568,12 @@ function openTicketDrawer(id) {
   `;
 
   document.getElementById('ticketDrawer').classList.add('open');
-  document.getElementById('drawerOverlay').classList.add('show');
+  syncOverlay();
 }
 
 function closeTicketDrawer() {
   document.getElementById('ticketDrawer').classList.remove('open');
-  document.getElementById('drawerOverlay').classList.remove('show');
+  syncOverlay();
 }
 
 function openSaasTicketDrawer(id) {
@@ -2603,7 +2610,7 @@ function openSaasTicketDrawer(id) {
   `;
 
   document.getElementById('ticketDrawer').classList.add('open');
-  document.getElementById('drawerOverlay').classList.add('show');
+  syncOverlay();
 }
 
 // ── Lightbox ──
@@ -3612,9 +3619,7 @@ function renderSaasClusters() {
 function openSaasClusterDrawer(i) {
   currentSaasClusterIdx = i;
   const c = saasClustersList[i];
-  const overlay = document.getElementById('drawerOverlay');
   const drawer  = document.getElementById('saasDrawer');
-  overlay.classList.add('show');
 
   document.getElementById('saasDrawerTitle').textContent = `SaaS需求簇 ${c.id}`;
   document.getElementById('saasStatusSelect').value = c.status || 'pending';
@@ -3647,11 +3652,12 @@ function openSaasClusterDrawer(i) {
     </div>`;
 
   drawer.classList.add('open');
+  syncOverlay();
 }
 
 function closeSaasDrawer() {
   document.getElementById('saasDrawer').classList.remove('open');
-  document.getElementById('drawerOverlay').classList.remove('show');
+  syncOverlay();
 }
 
 async function saveSaasClusterStatus() {
