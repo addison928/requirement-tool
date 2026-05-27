@@ -373,38 +373,50 @@ def _next_cluster_ids(conn, count: int) -> list[str]:
     return [f'#{start + i:03d}' for i in range(count)]
 
 
-def _call_deepseek(tickets: list[dict]) -> list[dict]:
+def _call_deepseek(tickets: list[dict], existing_clusters: list[dict]) -> list[dict]:
     api_key = os.environ.get('DEEPSEEK_API_KEY', '')
     if not api_key:
         raise ValueError('DEEPSEEK_API_KEY not set')
 
-    lines = []
+    ticket_lines = []
     for t in tickets:
         scenes = ', '.join(t['scenes']) if t['scenes'] else '-'
         text = (t['text'] or '').encode('utf-8', errors='replace').decode('utf-8')
-        lines.append(f"ID: {t['id']} | Country: {t['country_id']} | Impact: {t['impact']} | Scenes: {scenes} | Text: {text}")
-    ticket_list = '\n'.join(lines)
+        ticket_lines.append(f"ID: {t['id']} | Country: {t['country_id']} | Impact: {t['impact']} | Scenes: {scenes} | Text: {text}")
 
-    prompt = f"""你是一个 SaaS 产品需求分析师，服务的对象是海外代理商（泰国、印尼、意大利、法国、柬埔寨、马来西亚等）。
-以下是待归并的原始需求工单，每条工单的描述语言可能为泰语、印尼语、意大利语、法语、英语或中文。
+    cluster_lines = []
+    for c in existing_clusters:
+        cluster_lines.append(f"簇ID: {c['id']} | 标题: {c['summary']} | 摘要: {(c.get('ai_summary') or '')[:80]}")
 
-工单列表（格式：ID | 国家 | 影响 | 场景 | 描述原文）：
-{ticket_list}
+    existing_block = ''
+    if cluster_lines:
+        existing_block = f"""
+【已有需求簇（优先归入，不要重复建簇）】
+{chr(10).join(cluster_lines)}
+"""
+
+    prompt = f"""你是一个 SaaS 产品需求分析师，服务对象是海外代理商（泰国、印尼、意大利、法国、柬埔寨、马来西亚等）。
+工单描述语言可能为泰语、印尼语、意大利语、法语、英语或中文。
+{existing_block}
+【待归并的新工单】（格式：ID | 国家 | 影响 | 场景 | 描述原文）
+{chr(10).join(ticket_lines)}
 
 归并原则（非常重要）：
-- 【宁可多归并，不要拆散】：只要两条工单描述的是同一类产品功能，无论措辞差异多大、语言是否相同，都应归入同一个需求簇。
-- 对于描述模糊或极短的工单（如仅2-3个词），优先与语义最接近的工单合并，不要单独成簇。
+- 【优先归入已有需求簇】：如果新工单与已有需求簇描述的是同一类功能，必须归入已有簇，不要新建簇。
+- 【宁可多归并，不要拆散】：只要功能领域相同，无论措辞差异多大、语言是否相同，都应归为一簇。
+- 对于描述模糊或极短的工单，优先与语义最接近的簇合并，不要单独成簇。
 - 不同国家反馈同一功能缺失的工单，必须归为一簇。
 
 归并规则：
 1. 每条工单必须且只能属于一个需求簇
 2. 相似度判断要宽松：功能领域相同即可归并，不要求描述完全一致
-3. layer 分类：saas（商户端功能，如收银/报表/会员/库存/厨显）/ platform（平台API/开发者功能）/ cross（跨层或通用基础能力）
-4. impact 取簇内最高影响级别（high > mid > low）
-5. ai_summary：100-200字中文分析，说明涉及国家、商户具体诉求、对业务的影响
+3. 归入已有簇时，使用 existing_cluster_id 字段填写已有簇ID，不要填 summary/layer/impact/ai_summary
+4. 新建簇时：layer 分类 saas/platform/cross，impact 取最高级，ai_summary 100-200字中文分析
+5. 只对真正全新的需求才新建需求簇
 
-只返回合法 JSON 数组，不要 markdown 代码块标记，不要任何其他文字：
-[{{"ticket_ids":["ID-0001","TH-0002"],"summary":"15字以内中文需求标题","layer":"saas","impact":"high","ai_summary":"100-200字中文分析..."}}]"""
+只返回合法 JSON 数组，不要 markdown 代码块标记，不要任何其他文字。
+归入已有簇的格式：{{"ticket_ids":["ID-0001"],"existing_cluster_id":"#028"}}
+新建簇的格式：{{"ticket_ids":["ID-0002","TH-0003"],"summary":"15字以内中文需求标题","layer":"saas","impact":"high","ai_summary":"100-200字中文分析..."}}"""
 
     client = OpenAI(api_key=api_key, base_url='https://api.deepseek.com')
     response = client.chat.completions.create(
@@ -425,17 +437,21 @@ def run_merge():
         raise HTTPException(500, 'DEEPSEEK_API_KEY not set on the server')
 
     with get_conn() as conn:
-        rows = conn.execute(
+        pending_rows = conn.execute(
             "SELECT * FROM tickets WHERE cluster_id IS NULL AND status='pending'"
         ).fetchall()
+        existing_rows = conn.execute(
+            "SELECT id, summary, ai_summary FROM clusters WHERE status != 'live' ORDER BY score DESC"
+        ).fetchall()
 
-    if not rows:
+    if not pending_rows:
         return {'created': 0, 'ticket_count': 0, 'message': '没有待归并的工单'}
 
-    tickets = [ticket_row(r) for r in rows]
+    tickets = [ticket_row(r) for r in pending_rows]
+    existing_clusters = [dict(r) for r in existing_rows]
 
     try:
-        clusters_data = _call_deepseek(tickets)
+        clusters_data = _call_deepseek(tickets, existing_clusters)
     except json.JSONDecodeError as e:
         raise HTTPException(500, f'LLM 返回内容无法解析为 JSON: {e}')
     except Exception as e:
@@ -444,23 +460,65 @@ def run_merge():
     if not isinstance(clusters_data, list):
         raise HTTPException(500, 'LLM 返回格式错误，期望 JSON 数组')
 
-    now = datetime.now(_TZ_CST).strftime('%Y-%m-%d %H:%M')
+    # Separate into: merge into existing vs create new
+    merge_into_existing = [c for c in clusters_data if c.get('existing_cluster_id')]
+    create_new = [c for c in clusters_data if not c.get('existing_cluster_id')]
+
+    created_count = 0
 
     with get_conn() as conn:
-        new_ids = _next_cluster_ids(conn, len(clusters_data))
+        # ── 1. Merge new tickets into existing clusters ──────────────────────
+        for c in merge_into_existing:
+            existing_id = c['existing_cluster_id']
+            ticket_ids = c.get('ticket_ids', [])
+            matched = [t for t in tickets if t['id'] in ticket_ids]
+            if not matched:
+                continue
 
-        for cid, c in zip(new_ids, clusters_data):
+            for tid in ticket_ids:
+                conn.execute(
+                    'UPDATE tickets SET cluster_id=?, status=? WHERE id=? AND cluster_id IS NULL',
+                    (existing_id, 'merged', tid)
+                )
+                conn.execute(
+                    'INSERT INTO cluster_tickets VALUES (?,?) ON CONFLICT DO NOTHING',
+                    (existing_id, tid)
+                )
+
+            # Recalculate cluster metadata
+            all_ticket_rows = conn.execute(
+                '''SELECT t.country_id, t.partner_name, t.impact FROM tickets t
+                   JOIN cluster_tickets ct ON ct.ticket_id = t.id
+                   WHERE ct.cluster_id=?''',
+                (existing_id,)
+            ).fetchall()
+
+            source_ids = list({r['country_id'] for r in all_ticket_rows if r['country_id']})
+            partners   = list({r['partner_name'] for r in all_ticket_rows if r['partner_name']})
+            impact_rank = {'high': 3, 'mid': 2, 'low': 1}
+            top_impact = max((r['impact'] for r in all_ticket_rows), key=lambda x: impact_rank.get(x, 0), default='mid')
+
+            conn.execute(
+                '''UPDATE clusters SET count=?, source_ids=?, partners=?, impact=?
+                   WHERE id=?''',
+                (len(all_ticket_rows),
+                 json.dumps(source_ids, ensure_ascii=False),
+                 json.dumps(partners, ensure_ascii=False),
+                 top_impact, existing_id)
+            )
+
+        # ── 2. Create new clusters ───────────────────────────────────────────
+        new_ids = _next_cluster_ids(conn, len(create_new))
+        for cid, c in zip(new_ids, create_new):
             ticket_ids = c.get('ticket_ids', [])
             summary    = c.get('summary', '（无标题）')
             layer      = c.get('layer', 'saas')
             impact     = c.get('impact', 'mid')
             ai_summary = c.get('ai_summary', '')
 
-            # Derive source_ids and partners from tickets
             matched = [t for t in tickets if t['id'] in ticket_ids]
             source_ids = list({t['country_id'] for t in matched if t['country_id']})
             partners   = list({t['partner_name'] for t in matched if t['partner_name']})
-            count      = len(matched)
 
             conn.execute(
                 '''INSERT INTO clusters
@@ -470,20 +528,25 @@ def run_merge():
                 (cid, summary, layer, impact,
                  json.dumps(source_ids, ensure_ascii=False),
                  json.dumps(partners,   ensure_ascii=False),
-                 count, ai_summary)
+                 len(matched), ai_summary)
             )
+            created_count += 1
 
             for tid in ticket_ids:
                 conn.execute(
-                    'UPDATE tickets SET cluster_id=? WHERE id=? AND cluster_id IS NULL',
-                    (cid, tid)
+                    'UPDATE tickets SET cluster_id=?, status=? WHERE id=? AND cluster_id IS NULL',
+                    (cid, 'merged', tid)
                 )
                 conn.execute(
                     'INSERT INTO cluster_tickets VALUES (?,?) ON CONFLICT DO NOTHING',
                     (cid, tid)
                 )
 
-    return {'created': len(clusters_data), 'ticket_count': len(tickets)}
+    return {
+        'merged_into_existing': len(merge_into_existing),
+        'created_new': created_count,
+        'ticket_count': len(tickets),
+    }
 
 
 @app.get('/')
