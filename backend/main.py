@@ -445,7 +445,7 @@ def run_merge():
         ).fetchall()
 
     if not pending_rows:
-        return {'created': 0, 'ticket_count': 0, 'message': '没有待归并的工单'}
+        return {'merged_into_existing': 0, 'created_new': 0, 'ticket_count': 0, 'message': '没有待归并的工单'}
 
     tickets = [ticket_row(r) for r in pending_rows]
     existing_clusters = [dict(r) for r in existing_rows]
