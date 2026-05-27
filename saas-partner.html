@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SaaS需求追踪</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(180deg, #2d1f4e 0%, #3d2a6e 100%);
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+
+    .vendor-avatar {
+      width: 48px; height: 48px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    .vendor-info h1 {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .vendor-info p {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      margin-top: 3px;
+      letter-spacing: 0.1px;
+    }
+
+    .header-stats { display: flex; gap: 12px; }
+
+    .stat-pill {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 10px 20px;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .stat-pill .sv {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .stat-pill .sl {
+      color: rgba(255,255,255,0.45);
+      font-size: 11px;
+      margin-top: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    .header-right { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+
+    .btn-outline {
+      border: 1.5px solid rgba(255,255,255,0.6);
+      color: #fff;
+      background: transparent;
+      border-radius: 980px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.18s, border-color 0.18s;
+      letter-spacing: 0.1px;
+      white-space: nowrap;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.85);
+    }
+
+    /* ── Content ── */
+    .content {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 16px;
+    }
+
+    .section-head h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -0.1px;
+    }
+
+    /* ── Filter segmented control ── */
+    .filter-row {
+      display: flex;
+      gap: 0;
+      background: #e5e5ea;
+      border-radius: 980px;
+      padding: 3px;
+    }
+
+    .filter-btn {
+      border: none;
+      border-radius: 980px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6e6e73;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.18s;
+      letter-spacing: 0.1px;
+      white-space: nowrap;
+    }
+
+    .filter-btn.active {
+      background: #ffffff;
+      color: #1d1d1f;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      font-weight: 600;
+    }
+
+    .filter-btn:not(.active):hover { color: #1d1d1f; }
+
+    /* ── Ticket card ── */
+    .ticket {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 10px;
+      overflow: hidden;
+      border: 1.5px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .ticket::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 4px;
+      border-radius: 12px 0 0 12px;
+      background: #e5e5ea;
+      transition: background 0.2s;
+    }
+
+    .ticket.s-accent-pending::before   { background: #8e8e93; }
+    .ticket.s-accent-merged::before    { background: #6c5ce7; }
+    .ticket.s-accent-scheduled::before { background: #9b59b6; }
+    .ticket.s-accent-dev::before       { background: #ff9500; }
+    .ticket.s-accent-live::before      { background: #34c759; }
+
+    .ticket:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .ticket.expanded {
+      border-color: #6c5ce7;
+      box-shadow: 0 4px 16px rgba(108,92,231,0.14), 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .ticket-row {
+      display: grid;
+      grid-template-columns: 108px 1fr auto auto auto;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px 16px 22px;
+      cursor: pointer;
+    }
+
+    .ticket-id {
+      font-size: 13px;
+      font-weight: 700;
+      color: #6c5ce7;
+      letter-spacing: -0.1px;
+    }
+
+    .ticket-id .merchant {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: #6e6e73;
+      margin-top: 3px;
+      letter-spacing: 0.1px;
+    }
+
+    .ticket-desc .original {
+      font-size: 13.5px;
+      font-weight: 400;
+      color: #1d1d1f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 380px;
+      letter-spacing: -0.1px;
+    }
+
+    .ticket-desc .ai-hint {
+      font-size: 11px;
+      color: #6e6e73;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ticket-desc .ai-hint .ai-tag {
+      background: #f0eeff;
+      color: #6c5ce7;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .ticket-time {
+      font-size: 12px;
+      color: #6e6e73;
+      white-space: nowrap;
+      letter-spacing: 0.1px;
+    }
+
+    /* ── Impact badges ── */
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 980px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1px;
+    }
+
+    .badge-high { background: #fff0f0; color: #ff3b30; }
+    .badge-mid  { background: #fff8e6; color: #ff9500; }
+    .badge-low  { background: #f0eeff; color: #6c5ce7; }
+
+    /* ── Status chips ── */
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 980px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      letter-spacing: 0.1px;
+    }
+
+    .status-chip .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .s-pending   { background: #f2f2f7; color: #6e6e73; }
+    .s-pending .dot { background: #8e8e93; }
+
+    .s-merged    { background: #f0eeff; color: #6c5ce7; }
+    .s-merged .dot { background: #6c5ce7; }
+
+    .s-scheduled { background: #f5eeff; color: #9b59b6; }
+    .s-scheduled .dot { background: #9b59b6; }
+
+    .s-dev       { background: #fff4e6; color: #ff9500; }
+    .s-dev .dot  { background: #ff9500; }
+
+    .s-live      { background: #edfaf2; color: #34c759; }
+    .s-live .dot { background: #34c759; }
+
+    /* ── Chevron ── */
+    .chevron {
+      color: #c7c7cc;
+      font-size: 11px;
+      transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+      margin-left: 5px;
+    }
+
+    .ticket.expanded .chevron { transform: rotate(180deg); }
+
+    /* ── Expanded detail ── */
+    .ticket-detail {
+      display: none;
+      border-top: 1px solid #f2f2f7;
+      padding: 20px 22px 24px 22px;
+      background: #f9f9f9;
+      border-radius: 0 0 12px 12px;
+      animation: slideDown 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .ticket.expanded .ticket-detail { display: block; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    /* ── AI summary box ── */
+    .ai-box {
+      background: #f0eeff;
+      border-left: 3px solid #6c5ce7;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px;
+    }
+
+    .ai-box .ai-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6c5ce7;
+      margin-bottom: 7px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .ai-box p {
+      font-size: 13px;
+      color: #1d1d1f;
+      line-height: 1.65;
+    }
+
+    /* ── Cluster meta ── */
+    .cluster-meta {
+      background: #ffffff;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .cluster-meta .cm-label {
+      font-size: 10.5px;
+      color: #6e6e73;
+      margin-bottom: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .cm-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .cm-row:last-child { margin-bottom: 0; }
+    .cm-row .ck { color: #6e6e73; font-weight: 400; }
+    .cm-row .cv { font-weight: 600; color: #1d1d1f; }
+
+    /* ── Similar hint ── */
+    .similar-hint {
+      font-size: 12.5px;
+      color: #1d1d1f;
+      background: #f0eeff;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.5;
+    }
+
+    /* ── Timeline ── */
+    .timeline-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6e6e73;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+
+    .timeline {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      padding-bottom: 4px;
+    }
+
+    .tl-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+
+    .tl-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #e5e5ea;
+      z-index: 0;
+      transition: background 0.3s;
+    }
+
+    .tl-step.done:not(:last-child)::after { background: #6c5ce7; }
+
+    .tl-dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid #d1d1d6;
+      background: #f5f5f7;
+      z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: transparent;
+      transition: all 0.25s;
+      flex-shrink: 0;
+    }
+
+    .tl-step.done .tl-dot {
+      background: #6c5ce7;
+      border-color: #6c5ce7;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(108,92,231,0.35);
+    }
+
+    .tl-step.current .tl-dot {
+      background: #fff;
+      border-color: #6c5ce7;
+      border-width: 2.5px;
+      color: #6c5ce7;
+      box-shadow: 0 0 0 4px rgba(108,92,231,0.15), 0 2px 6px rgba(108,92,231,0.2);
+    }
+
+    .tl-label {
+      font-size: 10.5px;
+      color: #8e8e93;
+      margin-top: 7px;
+      text-align: center;
+      line-height: 1.35;
+      letter-spacing: 0.1px;
+    }
+
+    .tl-step.done .tl-label {
+      color: #6c5ce7;
+      font-weight: 600;
+    }
+
+    .tl-step.current .tl-label {
+      color: #1d1d1f;
+      font-weight: 700;
+    }
+
+    .tl-date {
+      font-size: 10px;
+      color: #8e8e93;
+      margin-top: 3px;
+      text-align: center;
+      letter-spacing: 0.1px;
+    }
+
+    .tl-step.done .tl-date, .tl-step.current .tl-date { color: #6e6e73; }
+
+    /* ── Invalid token page ── */
+    .invalid-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 40px;
+      background: #f5f5f7;
+    }
+
+    .invalid-page .inv-icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+    }
+
+    .invalid-page h2 {
+      font-size: 21px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+
+    .invalid-page p {
+      font-size: 14px;
+      color: #6e6e73;
+      line-height: 1.7;
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 64px 20px;
+      color: #8e8e93;
+    }
+
+    .empty .empty-icon {
+      font-size: 44px;
+      margin-bottom: 14px;
+      opacity: 0.7;
+    }
+
+    .empty p {
+      font-size: 14px;
+      color: #6e6e73;
+      letter-spacing: 0.1px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Invalid token fallback -->
+<div class="invalid-page" id="invalidPage" style="display:none">
+  <div class="inv-icon">🔒</div>
+  <h2>链接无效</h2>
+  <p>此链接已失效或不存在，请联系您的对接人获取专属链接。</p>
+</div>
+
+<!-- Main (hidden until token validated) -->
+<div id="mainWrap" style="display:none">
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="vendor-avatar" id="vendorCode">—</div>
+    <div class="vendor-info">
+      <h1 id="vendorName">—</h1>
+      <p id="vendorIndustry">需求追踪视图</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-pill">
+      <div class="sv" id="statTotal">—</div>
+      <div class="sl">累计提交</div>
+    </div>
+    <div class="stat-pill">
+      <div class="sv" id="statScheduled">—</div>
+      <div class="sl">已进入排期</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a id="submitLink" href="saas-form.html" class="btn-outline">＋ 提交新需求</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="section-head">
+    <h2>我提交的需求工单</h2>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterTickets('all', this)">全部</button>
+      <button class="filter-btn" onclick="filterTickets('pending', this)">待处理</button>
+      <button class="filter-btn" onclick="filterTickets('merged', this)">已归并</button>
+      <button class="filter-btn" onclick="filterTickets('progress', this)">进行中</button>
+      <button class="filter-btn" onclick="filterTickets('live', this)">已上线</button>
+    </div>
+  </div>
+
+  <div id="ticketList"></div>
+</div>
+</div><!-- /#mainWrap -->
+
+<script>
+const API_BASE = '';
+let tickets = [];
+let vendorToken = null;
+
+const statusConfig = {
+  pending:   { cls: 's-pending',   label: '待处理', filterGroup: 'pending' },
+  merged:    { cls: 's-merged',    label: '已归并', filterGroup: 'merged' },
+  scheduled: { cls: 's-scheduled', label: '排期中', filterGroup: 'progress' },
+  dev:       { cls: 's-dev',       label: '开发中', filterGroup: 'progress' },
+  live:      { cls: 's-live',      label: '已上线', filterGroup: 'live' },
+};
+
+const impactConfig = {
+  high: { cls: 'badge-high', label: '高影响' },
+  mid:  { cls: 'badge-mid',  label: '中影响' },
+  low:  { cls: 'badge-low',  label: '低影响' },
+};
+
+const tlSteps = ['已归并', '排期中', '开发中', '已上线', '关闭'];
+const tlKeys  = ['merged', 'scheduled', 'dev', 'live', 'closed'];
+
+let currentFilter = 'all';
+let expandedId = null;
+
+function filterTickets(group, btn) {
+  currentFilter = group;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function toggle(id) {
+  expandedId = expandedId === id ? null : id;
+  renderList();
+}
+
+function renderTimeline(ticket) {
+  const statusOrder = ['merged', 'scheduled', 'dev', 'live', 'closed'];
+  const currentIdx = statusOrder.indexOf(ticket.status);
+  const isPending = ticket.status === 'pending';
+
+  if (isPending) {
+    const pendingStep = `<div class="tl-step current">
+      <div class="tl-dot"></div>
+      <div class="tl-label">已提交</div>
+      ${ticket.timelineDates[0] ? `<div class="tl-date">${ticket.timelineDates[0]}</div>` : ''}
+    </div>`;
+    const restSteps = tlSteps.map(label => `
+      <div class="tl-step">
+        <div class="tl-dot"></div>
+        <div class="tl-label">${label}</div>
+      </div>`).join('');
+    return `<div class="timeline">${pendingStep}${restSteps}</div>`;
+  }
+
+  return `<div class="timeline">
+    ${tlSteps.map((label, i) => {
+      const key = tlKeys[i];
+      const isDone = i < currentIdx || (ticket.status === key);
+      const isCurrent = ticket.status === key;
+      return `<div class="tl-step ${isDone ? 'done' : ''} ${isCurrent ? 'current' : ''}">
+        <div class="tl-dot">${isDone ? '✓' : ''}</div>
+        <div class="tl-label">${label}</div>
+        ${ticket.timelineDates[i] ? `<div class="tl-date">${ticket.timelineDates[i]}</div>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderList() {
+  const list = document.getElementById('ticketList');
+  const filtered = tickets.filter(t => {
+    if (currentFilter === 'all') return true;
+    return (statusConfig[t.status] || statusConfig.pending).filterGroup === currentFilter;
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>暂无相关工单</p></div>`;
+    return;
+  }
+
+  const accentMap = {
+    pending: 's-accent-pending', merged: 's-accent-merged',
+    scheduled: 's-accent-scheduled', dev: 's-accent-dev', live: 's-accent-live'
+  };
+
+  list.innerHTML = filtered.map(t => {
+    const sc = statusConfig[t.status] || statusConfig.pending;
+    const ic = impactConfig[t.impact] || impactConfig.mid;
+    const isExpanded = expandedId === t.id;
+    const canExpand = !!t.cluster;
+    const accentCls = accentMap[t.status] || '';
+
+    const statusLabel = t.cluster && t.status !== 'pending'
+      ? `${sc.label} · 需求簇 ${t.cluster}`
+      : sc.label;
+
+    return `
+    <div class="ticket ${isExpanded ? 'expanded' : ''} ${accentCls}" id="ticket-${t.id}">
+      <div class="ticket-row" onclick="${canExpand ? `toggle('${t.id}')` : ''}">
+        <div class="ticket-id">
+          ${t.id}
+          <span class="merchant">${t.merchant || ''}</span>
+        </div>
+        <div class="ticket-desc">
+          <div class="original">${t.original}</div>
+          ${t.clusterSummary
+            ? `<div class="ai-hint"><span class="ai-tag">AI摘要</span>${t.clusterSummary.slice(0, 40)}…</div>`
+            : '<div class="ai-hint" style="color:#d1d1d6">等待 AI 处理…</div>'}
+        </div>
+        <div class="ticket-time">${t.time || ''}</div>
+        <div><span class="badge ${ic.cls}">${ic.label}</span></div>
+        <div style="display:flex;align-items:center">
+          <span class="status-chip ${sc.cls}"><span class="dot"></span>${statusLabel}</span>
+          ${canExpand ? `<span class="chevron">▼</span>` : ''}
+        </div>
+      </div>
+
+      ${canExpand ? `
+      <div class="ticket-detail">
+        <div class="detail-grid">
+          <div class="ai-box">
+            <div class="ai-label">✦ AI 需求摘要</div>
+            <p>${t.clusterSummary}</p>
+          </div>
+          <div class="cluster-meta">
+            <div class="cm-label">需求簇信息</div>
+            <div class="cm-row"><span class="ck">簇 ID</span><span class="cv">${t.cluster}</span></div>
+            <div class="cm-row"><span class="ck">优先级得分</span><span class="cv" style="color:#6c5ce7">${t.clusterScore ?? '—'}</span></div>
+            <div class="cm-row"><span class="ck">当前状态</span><span class="cv">${sc.label}</span></div>
+          </div>
+        </div>
+        ${t.similarCount > 0 ? `
+        <div class="similar-hint">
+          🏢 该需求簇还归并了来自 <strong>${t.similarCount} 条</strong>相似需求，共同推动优先级排序。
+        </div>` : ''}
+        <div class="timeline-title">进展时间线</div>
+        ${renderTimeline(t)}
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Token resolution ──
+function getToken() {
+  return new URLSearchParams(location.search).get('token') || '';
+}
+
+async function init() {
+  const token = getToken();
+  if (!token.startsWith('SV_')) {
+    document.getElementById('invalidPage').style.display = 'flex';
+    return;
+  }
+  vendorToken = token;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/saas-vendors`);
+    const data = await res.json();
+    const vendor = (data.vendors || []).find(v => v.token === token);
+    if (!vendor) {
+      document.getElementById('invalidPage').style.display = 'flex';
+      return;
+    }
+
+    document.getElementById('mainWrap').style.display = '';
+    document.getElementById('vendorCode').textContent = vendor.code || vendor.name.slice(0, 3).toUpperCase();
+    document.getElementById('vendorName').textContent = vendor.name;
+    document.getElementById('vendorIndustry').textContent = `${vendor.industry} · 需求追踪视图`;
+    document.getElementById('submitLink').href = `saas-form.html?token=${token}`;
+
+    await loadTickets(token);
+  } catch (e) {
+    document.getElementById('invalidPage').style.display = 'flex';
+  }
+}
+
+async function loadTickets(token) {
+  try {
+    const res = await fetch(`${API_BASE}/api/saas-tickets?token=${token}&page_size=200`);
+    const data = await res.json();
+    const rawTickets = data.items || [];
+
+    // Fetch cluster info for merged tickets
+    const clusterIds = [...new Set(rawTickets.filter(t => t.saas_cluster_id).map(t => t.saas_cluster_id))];
+    const clusterMap = {};
+    if (clusterIds.length > 0) {
+      try {
+        const cr = await fetch(`${API_BASE}/api/saas-clusters?token=${token}&page_size=200`);
+        const cd = await cr.json();
+        (cd.clusters || []).forEach(c => { clusterMap[c.id] = c; });
+      } catch (_) {}
+    }
+
+    tickets = rawTickets.map(t => {
+      const cluster = t.saas_cluster_id ? clusterMap[t.saas_cluster_id] : null;
+      return {
+        id: t.id,
+        merchant: t.merchant || '',
+        original: t.text,
+        time: t.time || '',
+        impact: t.impact || 'mid',
+        status: t.status || 'pending',
+        cluster: t.saas_cluster_id || null,
+        clusterScore: cluster ? cluster.score : null,
+        clusterSummary: cluster ? (cluster.ai_summary || cluster.summary || null) : null,
+        similarCount: cluster ? (cluster.count - 1) : 0,
+        timelineDates: ['', '', '', '', ''],
+      };
+    });
+
+    document.getElementById('statTotal').textContent = tickets.length;
+    document.getElementById('statScheduled').textContent =
+      tickets.filter(t => ['scheduled', 'dev', 'live'].includes(t.status)).length;
+
+    renderList();
+  } catch (e) {
+    renderList();
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && vendorToken) loadTickets(vendorToken);
+});
+
+init();
+</script>
+</body>
+</html>

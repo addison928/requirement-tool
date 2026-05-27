@@ -3,135 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SaaS厂商需求追踪</title>
+  <title>SaaS厂商需求提交</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-      background: #f5f5f7;
-      color: #1d1d1f;
-      min-height: 100vh;
+      background: #f5f5f7; min-height: 100vh;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 48px 16px 80px;
       -webkit-font-smoothing: antialiased;
     }
+    .card { background: #fff; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); width: 100%; max-width: 640px; overflow: hidden; }
 
-    .header {
-      background: linear-gradient(180deg, #2d1b69 0%, #3d2b7f 100%);
-      padding: 24px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
+    .header { background: linear-gradient(180deg, #2d1b69 0%, #3d2b7f 100%); padding: 32px 36px 28px; color: #fff; }
+    .header .badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15); border-radius: 980px; padding: 4px 14px; font-size: 11px; font-weight: 500; letter-spacing: 0.02em; margin-bottom: 14px; text-transform: uppercase; }
+    .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px; line-height: 1.2; }
+    .header p { font-size: 13px; color: rgba(255,255,255,0.6); }
+    .source-tag { margin-top: 20px; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 11px 16px; font-size: 13px; color: rgba(255,255,255,0.85); }
+    .source-tag .dot { width: 7px; height: 7px; border-radius: 50%; background: #30d158; flex-shrink: 0; box-shadow: 0 0 0 2px rgba(48,209,88,0.3); }
 
-    .header-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-
-    .vendor-avatar {
-      width: 48px; height: 48px;
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 800; color: #fff;
-      flex-shrink: 0; letter-spacing: -0.5px;
-    }
-
-    .vendor-info h1 { color: #fff; font-size: 17px; font-weight: 700; }
-    .vendor-info p { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 3px; }
-
-    .header-stats { display: flex; gap: 12px; }
-
-    .stat-pill {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-      padding: 10px 20px;
-      text-align: center;
-      min-width: 90px;
-    }
-
-    .stat-pill .sv { color: #fff; font-size: 24px; font-weight: 700; line-height: 1; }
-    .stat-pill .sl { color: rgba(255,255,255,0.45); font-size: 11px; margin-top: 4px; }
-
-    .header-right { flex-shrink: 0; }
-
-    .btn-outline {
-      border: 1.5px solid rgba(255,255,255,0.6);
-      color: #fff; background: transparent;
-      border-radius: 980px; padding: 8px 18px;
-      font-size: 13px; font-weight: 500;
-      cursor: pointer; text-decoration: none; display: inline-block;
-      transition: background 0.18s;
-    }
-    .btn-outline:hover { background: rgba(255,255,255,0.12); }
-
-    .content { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; }
-
-    /* ── Tabs ── */
-    .tabs {
-      display: flex; gap: 0; margin-bottom: 24px;
-      border-bottom: 1px solid #e5e5ea;
-    }
-
-    .tab-btn {
-      padding: 10px 20px; font-size: 14px; font-weight: 600;
-      color: #8e8e93; background: none; border: none;
-      border-bottom: 2.5px solid transparent;
-      cursor: pointer; transition: all 0.18s;
-    }
-    .tab-btn.active { color: #6c5ce7; border-bottom-color: #6c5ce7; }
-
-    /* ── Form card ── */
-    .form-card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      padding: 28px 32px;
-      margin-bottom: 24px;
-    }
-
-    .form-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 20px; color: #1d1d1f; }
-
-    .field { margin-bottom: 20px; }
+    .body { padding: 32px 36px 40px; }
+    .field { margin-bottom: 24px; }
     label { display: block; font-size: 13px; font-weight: 600; color: #1d1d1f; margin-bottom: 7px; }
     label .req { color: #ff3b30; margin-left: 2px; }
-
+    label .hint { font-weight: 400; color: #6e6e73; font-size: 12px; margin-left: 6px; }
     textarea, input[type="text"], select {
       width: 100%; border: 1.5px solid #d2d2d7; border-radius: 10px;
-      padding: 11px 14px; font-size: 14px; color: #1d1d1f;
+      padding: 12px 16px; font-size: 15px; color: #1d1d1f;
       outline: none; transition: border-color 0.15s, box-shadow 0.15s;
       background: #fff; font-family: inherit;
     }
-
     textarea:focus, input[type="text"]:focus, select:focus {
-      border-color: #6c5ce7;
-      box-shadow: 0 0 0 3px rgba(108,92,231,0.2);
+      border-color: #6c5ce7; box-shadow: 0 0 0 3px rgba(108,92,231,0.2);
     }
-
-    textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+    textarea { resize: vertical; min-height: 108px; line-height: 1.6; }
 
     .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    .radio-group label {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border: 1.5px solid #d2d2d7;
-      border-radius: 10px; cursor: pointer; font-size: 14px;
-      font-weight: 500; color: #1d1d1f;
-      transition: border-color 0.15s, background 0.15s;
-      background: #fff; margin-bottom: 0; user-select: none;
-    }
+    .radio-group label { display: flex; align-items: center; gap: 6px; padding: 9px 16px; border: 1.5px solid #d2d2d7; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; color: #1d1d1f; transition: all 0.15s; user-select: none; background: #fff; margin-bottom: 0; }
     .radio-group input { display: none; }
-    .radio-group label:has(input:checked) {
-      border-color: #6c5ce7; background: #f0eeff; color: #6c5ce7;
-    }
+    .radio-group label:has(input:checked) { border-color: #6c5ce7; background: #f0eeff; color: #6c5ce7; }
 
     .impact-group { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-    .impact-group label {
-      display: flex; flex-direction: column; align-items: center;
-      padding: 12px 8px; border: 1.5px solid #d2d2d7; border-radius: 12px;
-      cursor: pointer; font-size: 13px; font-weight: 500; text-align: center;
-      background: #fff; margin-bottom: 0; user-select: none;
-      transition: border-color 0.15s, background 0.15s;
-    }
+    .impact-group label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px 8px; border: 1.5px solid #d2d2d7; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 500; color: #1d1d1f; transition: all 0.15s; user-select: none; background: #fff; text-align: center; margin-bottom: 0; }
     .impact-group input { display: none; }
     .impact-indicator { font-size: 18px; line-height: 1; }
     .impact-sub { font-size: 11px; font-weight: 400; color: #6e6e73; }
@@ -140,285 +53,139 @@
     .impact-low:has(input:checked)  { border-color: #30d158 !important; background: #f0fff5 !important; color: #1d8a3c !important; }
 
     .check-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    .check-group label {
-      display: flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border: 1.5px solid #d2d2d7;
-      border-radius: 980px; cursor: pointer; font-size: 13px;
-      font-weight: 500; background: #fff; margin-bottom: 0; user-select: none;
-    }
+    .check-group label { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1.5px solid #d2d2d7; border-radius: 980px; cursor: pointer; font-size: 13px; font-weight: 500; color: #1d1d1f; transition: all 0.15s; user-select: none; background: #fff; margin-bottom: 0; }
     .check-group input { display: none; }
-    .check-group label:has(input:checked) {
-      border-color: #6c5ce7; background: #f0eeff; color: #6c5ce7;
-    }
+    .check-group label:has(input:checked) { border-color: #6c5ce7; background: #f0eeff; color: #6c5ce7; }
 
-    .auto-fields {
-      background: #f5f5f7; border-radius: 12px;
-      padding: 14px 18px; display: flex; gap: 0; margin-bottom: 20px;
-    }
+    .divider { border: none; border-top: 1px solid #f2f2f7; margin: 28px 0; }
+
+    .auto-fields { background: #f5f5f7; border-radius: 12px; padding: 16px 20px; display: flex; gap: 0; }
     .auto-field { flex: 1; padding: 0 8px; }
     .auto-field:not(:last-child) { border-right: 1px solid #e5e5ea; margin-right: 8px; }
     .auto-field .af-label { font-size: 11px; color: #6e6e73; margin-bottom: 4px; font-weight: 500; text-transform: uppercase; }
     .auto-field .af-value { font-size: 13px; font-weight: 600; color: #6c5ce7; }
 
-    .submit-btn {
-      width: 100%; height: 50px; background: #6c5ce7; color: #fff;
-      border: none; border-radius: 980px; font-size: 16px; font-weight: 600;
-      cursor: pointer; transition: background 0.15s; font-family: inherit;
-    }
-    .submit-btn:hover { background: #5a4dcc; }
-
-    /* ── Ticket card ── */
-    .ticket {
-      background: #fff; border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      margin-bottom: 10px; overflow: hidden;
-      border: 1.5px solid transparent;
-      transition: border-color 0.2s; position: relative;
-    }
-    .ticket::before {
-      content: ''; position: absolute; top: 0; left: 0; bottom: 0;
-      width: 4px; border-radius: 12px 0 0 12px;
-    }
-    .ticket.s-accent-pending::before   { background: #8e8e93; }
-    .ticket.s-accent-merged::before    { background: #6c5ce7; }
-    .ticket.s-accent-scheduled::before { background: #9b59b6; }
-    .ticket.s-accent-dev::before       { background: #ff9500; }
-    .ticket.s-accent-live::before      { background: #34c759; }
-
-    .ticket-row {
-      display: grid; grid-template-columns: 120px 1fr auto auto;
-      align-items: center; gap: 16px; padding: 14px 20px 14px 22px;
-      cursor: pointer;
-    }
-
-    .ticket-id { font-size: 13px; font-weight: 700; color: #6c5ce7; }
-    .ticket-id .merchant { display: block; font-size: 11px; font-weight: 400; color: #6e6e73; margin-top: 3px; }
-    .ticket-desc .original { font-size: 13.5px; color: #1d1d1f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
-    .ticket-desc .ai-hint { font-size: 11px; color: #6e6e73; margin-top: 4px; display: flex; align-items: center; gap: 5px; }
-    .ticket-desc .ai-tag { background: #f0eeff; color: #6c5ce7; border-radius: 4px; padding: 1px 5px; font-size: 10px; font-weight: 700; }
-
-    .badge { display: inline-block; padding: 3px 9px; border-radius: 980px; font-size: 11px; font-weight: 600; }
-    .badge-high { background: #fff0f0; color: #ff3b30; }
-    .badge-mid  { background: #fff8e6; color: #ff9500; }
-    .badge-low  { background: #f0f9ff; color: #0071e3; }
-
-    .status-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 980px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
-    .status-chip .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-    .s-pending   { background: #f2f2f7; color: #6e6e73; }
-    .s-pending .dot { background: #8e8e93; }
-    .s-merged    { background: #f0eeff; color: #6c5ce7; }
-    .s-merged .dot { background: #6c5ce7; }
-    .s-scheduled { background: #f5eeff; color: #9b59b6; }
-    .s-scheduled .dot { background: #9b59b6; }
-    .s-dev       { background: #fff4e6; color: #ff9500; }
-    .s-dev .dot  { background: #ff9500; }
-    .s-live      { background: #edfaf2; color: #34c759; }
-    .s-live .dot { background: #34c759; }
-
-    .ticket-detail {
-      display: none; border-top: 1px solid #f2f2f7;
-      padding: 18px 22px 22px 22px; background: #f9f9f9;
-      border-radius: 0 0 12px 12px;
-    }
-    .ticket.expanded .ticket-detail { display: block; }
-    .ticket.expanded { border-color: #6c5ce7; }
-
-    .chevron { color: #c7c7cc; font-size: 11px; transition: transform 0.22s; margin-left: 5px; }
-    .ticket.expanded .chevron { transform: rotate(180deg); }
-
-    /* ── Cluster card in ticket detail ── */
-    .cluster-meta { background: #fff; border: 1px solid #e5e5ea; border-radius: 10px; padding: 14px 16px; }
-    .cluster-meta .cm-label { font-size: 10.5px; color: #6e6e73; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; }
-    .cm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-    .cm-row:last-child { margin-bottom: 0; }
-    .cm-row .ck { color: #6e6e73; }
-    .cm-row .cv { font-weight: 600; color: #1d1d1f; }
-
-    .ai-box { background: #f0eeff; border-left: 3px solid #6c5ce7; border-radius: 0 8px 8px 0; padding: 13px 15px; }
-    .ai-box .ai-label { font-size: 11px; font-weight: 700; color: #6c5ce7; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.3px; }
-    .ai-box p { font-size: 13px; color: #1d1d1f; line-height: 1.65; }
-
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-
-    /* ── Timeline ── */
-    .timeline-title { font-size: 11px; font-weight: 700; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
-    .timeline { display: flex; align-items: flex-start; }
-    .tl-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
-    .tl-step:not(:last-child)::after { content: ''; position: absolute; top: 11px; left: 50%; width: 100%; height: 2px; background: #e5e5ea; z-index: 0; }
-    .tl-step.done:not(:last-child)::after { background: #6c5ce7; }
-    .tl-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d1d1d6; background: #f5f5f7; z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: transparent; flex-shrink: 0; }
-    .tl-step.done .tl-dot { background: #6c5ce7; border-color: #6c5ce7; color: #fff; box-shadow: 0 2px 6px rgba(108,92,231,0.35); }
-    .tl-step.current .tl-dot { background: #fff; border-color: #6c5ce7; border-width: 2.5px; color: #6c5ce7; box-shadow: 0 0 0 4px rgba(108,92,231,0.15); }
-    .tl-label { font-size: 10.5px; color: #8e8e93; margin-top: 7px; text-align: center; }
-    .tl-step.done .tl-label { color: #6c5ce7; font-weight: 600; }
-    .tl-step.current .tl-label { color: #1d1d1f; font-weight: 700; }
-
-    /* ── Invalid ── */
-    .invalid-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 40px; background: #f5f5f7; }
-    .invalid-page .inv-icon { font-size: 52px; margin-bottom: 20px; }
-    .invalid-page h2 { font-size: 21px; font-weight: 700; color: #1d1d1f; margin-bottom: 10px; }
-    .invalid-page p { font-size: 14px; color: #6e6e73; line-height: 1.7; }
-
-    .empty { text-align: center; padding: 60px 20px; color: #8e8e93; }
-    .empty .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .submit-btn { width: 100%; height: 52px; background: #6c5ce7; color: #fff; border: none; border-radius: 980px; font-size: 17px; font-weight: 600; cursor: pointer; margin-top: 28px; transition: background 0.15s; font-family: inherit; }
+    .submit-btn:hover { background: #5a4dcc; box-shadow: 0 4px 16px rgba(108,92,231,0.35); }
 
     .success-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); }
     .success-overlay.show { display: flex; }
-    .success-box { background: #fff; border-radius: 20px; padding: 40px; text-align: center; max-width: 360px; width: 90%; box-shadow: 0 32px 80px rgba(0,0,0,0.18); }
-    .success-icon { width: 70px; height: 70px; background: #f0eeff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 30px; }
-    .success-box h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #1d1d1f; }
-    .success-box p { font-size: 14px; color: #6e6e73; line-height: 1.5; }
+    .success-box { background: #fff; border-radius: 20px; padding: 44px 40px 40px; text-align: center; max-width: 360px; width: 90%; box-shadow: 0 32px 80px rgba(0,0,0,0.18); }
+    .success-icon { width: 72px; height: 72px; background: #f0eeff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; }
+    .success-box h2 { font-size: 22px; font-weight: 700; color: #1d1d1f; margin-bottom: 8px; }
+    .success-box p { font-size: 14px; color: #6e6e73; margin-bottom: 6px; line-height: 1.5; }
     .id-badge { display: inline-block; background: #f0eeff; color: #6c5ce7; border-radius: 8px; padding: 5px 16px; font-size: 13px; font-weight: 700; margin: 14px 0 20px; letter-spacing: 1px; }
-    .success-box button { padding: 0 28px; height: 42px; background: #6c5ce7; color: #fff; border: none; border-radius: 980px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .success-box button { padding: 0 32px; height: 44px; background: #6c5ce7; color: #fff; border: none; border-radius: 980px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .success-box button:hover { background: #5a4dcc; }
+
+    .invalid-page { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 40px; }
+    .invalid-page .inv-icon { font-size: 52px; margin-bottom: 20px; }
+    .invalid-page h2 { font-size: 22px; font-weight: 700; color: #1d1d1f; margin-bottom: 10px; }
+    .invalid-page p { font-size: 14px; color: #6e6e73; line-height: 1.6; }
   </style>
 </head>
 <body>
 
-<div class="invalid-page" id="invalidPage" style="display:none">
+<div class="invalid-page" id="invalidPage">
   <div class="inv-icon">🔒</div>
   <h2>链接无效</h2>
   <p>此链接已失效或不存在，请联系您的对接人获取专属链接。</p>
 </div>
 
-<div id="mainWrap" style="display:none">
+<div class="card" id="mainCard" style="display:none">
+  <div class="header">
+    <div class="badge"><span>🏢</span> SaaS厂商需求采集</div>
+    <h1>提交产品需求</h1>
+    <p>请详细描述您的功能需求，我们会统一归并处理</p>
+    <div class="source-tag">
+      <div class="dot"></div>
+      <div><strong>厂商：</strong><span id="vendorName">—</span> &nbsp;|&nbsp; <strong>行业：</strong><span id="vendorIndustry">—</span></div>
+    </div>
+  </div>
 
-<div class="header">
-  <div class="header-left">
-    <div class="vendor-avatar" id="vendorCode">—</div>
-    <div class="vendor-info">
-      <h1 id="vendorName">—</h1>
-      <p id="vendorIndustry">需求追踪视图</p>
-    </div>
-  </div>
-  <div class="header-stats">
-    <div class="stat-pill">
-      <div class="sv" id="statTotal">—</div>
-      <div class="sl">已提交</div>
-    </div>
-    <div class="stat-pill">
-      <div class="sv" id="statScheduled">—</div>
-      <div class="sl">已排期</div>
-    </div>
-  </div>
-  <div class="header-right">
-    <button onclick="switchTab('submit')" class="btn-outline">＋ 提交新需求</button>
+  <div class="body">
+    <form id="reqForm">
+      <div class="field">
+        <label>需求描述 <span class="req">*</span><span class="hint">请详细描述业务场景和功能点</span></label>
+        <textarea id="desc" placeholder="例：希望在结账时支持扫码核销会员积分，目前只能手动输入，影响收银效率..." required></textarea>
+      </div>
+
+      <div class="field">
+        <label>来源商户<span class="hint">商户名称或编号（选填）</span></label>
+        <input type="text" id="merchant" placeholder="例：北京XX门店 / M-00123" />
+      </div>
+
+      <div class="field">
+        <label>商户类型 <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="bizType" value="restaurant" required> 🍜 餐厅</label>
+          <label><input type="radio" name="bizType" value="retail"> 🛒 零售</label>
+          <label><input type="radio" name="bizType" value="bar"> 🍸 酒吧</label>
+          <label><input type="radio" name="bizType" value="beauty"> 💅 美业</label>
+          <label><input type="radio" name="bizType" value="spa"> 🧖 SPA</label>
+          <label><input type="radio" name="bizType" value="hotel"> 🏨 酒店</label>
+          <label><input type="radio" name="bizType" value="clinic"> 🏥 诊所</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>业务影响 <span class="req">*</span><span class="hint">此需求对业务的影响程度</span></label>
+        <div class="impact-group radio-group">
+          <label class="impact-high">
+            <input type="radio" name="impact" value="high" required>
+            <span class="impact-indicator">🔴</span>
+            <span style="font-size:12px;font-weight:600">高影响</span>
+            <span class="impact-sub">影响核心流程</span>
+          </label>
+          <label class="impact-mid">
+            <input type="radio" name="impact" value="mid">
+            <span class="impact-indicator">🟡</span>
+            <span style="font-size:12px;font-weight:600">中影响</span>
+            <span class="impact-sub">影响部分功能</span>
+          </label>
+          <label class="impact-low">
+            <input type="radio" name="impact" value="low">
+            <span class="impact-indicator">🟢</span>
+            <span style="font-size:12px;font-weight:600">低影响</span>
+            <span class="impact-sub">体验改善</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>涉及场景 <span class="req">*</span><span class="hint">可多选</span></label>
+        <div class="check-group">
+          <label><input type="checkbox" name="scene" value="pos"> 🖥️ 收银</label>
+          <label><input type="checkbox" name="scene" value="report"> 📊 报表</label>
+          <label><input type="checkbox" name="scene" value="member"> 👤 会员</label>
+          <label><input type="checkbox" name="scene" value="kitchen"> 📟 厨显</label>
+          <label><input type="checkbox" name="scene" value="payment"> 💳 支付</label>
+          <label><input type="checkbox" name="scene" value="inventory"> 📦 库存</label>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="auto-fields">
+        <div class="auto-field">
+          <div class="af-label">来源厂商</div>
+          <div class="af-value" id="autoVendorVal">—</div>
+        </div>
+        <div class="auto-field">
+          <div class="af-label">提交时间</div>
+          <div class="af-value" id="nowTime">—</div>
+        </div>
+        <div class="auto-field">
+          <div class="af-label">记录ID预览</div>
+          <div class="af-value" id="previewId">—</div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">提交需求</button>
+    </form>
   </div>
 </div>
 
-<div class="content">
-  <div class="tabs">
-    <button class="tab-btn active" id="tabSubmit" onclick="switchTab('submit')">提交需求</button>
-    <button class="tab-btn" id="tabHistory" onclick="switchTab('history')">我的工单</button>
-    <button class="tab-btn" id="tabClusters" onclick="switchTab('clusters')">需求簇</button>
-  </div>
-
-  <!-- ── Submit form ── -->
-  <div id="panelSubmit">
-    <div class="form-card">
-      <h3>提交功能需求</h3>
-      <form id="reqForm">
-        <div class="field">
-          <label>需求描述 <span class="req">*</span></label>
-          <textarea id="desc" placeholder="请详细描述需要的功能，例如：在结账时希望能支持……" required></textarea>
-        </div>
-        <div class="field">
-          <label>来源商户</label>
-          <input type="text" id="merchant" placeholder="商户名称或编号（选填）" />
-        </div>
-        <div class="field">
-          <label>商户类型 <span class="req">*</span></label>
-          <div class="radio-group">
-            <label><input type="radio" name="bizType" value="restaurant" required> 🍜 餐厅</label>
-            <label><input type="radio" name="bizType" value="retail"> 🛒 零售</label>
-            <label><input type="radio" name="bizType" value="bar"> 🍸 酒吧</label>
-            <label><input type="radio" name="bizType" value="beauty"> 💅 美业</label>
-            <label><input type="radio" name="bizType" value="spa"> 🧖 SPA</label>
-            <label><input type="radio" name="bizType" value="hotel"> 🏨 酒店</label>
-            <label><input type="radio" name="bizType" value="clinic"> 🏥 诊所</label>
-          </div>
-        </div>
-        <div class="field">
-          <label>业务影响 <span class="req">*</span></label>
-          <div class="impact-group radio-group">
-            <label class="impact-high">
-              <input type="radio" name="impact" value="high" required>
-              <span class="impact-indicator">🔴</span>
-              <span style="font-size:12px;font-weight:600">高影响</span>
-              <span class="impact-sub">影响核心流程</span>
-            </label>
-            <label class="impact-mid">
-              <input type="radio" name="impact" value="mid">
-              <span class="impact-indicator">🟡</span>
-              <span style="font-size:12px;font-weight:600">中影响</span>
-              <span class="impact-sub">影响部分功能</span>
-            </label>
-            <label class="impact-low">
-              <input type="radio" name="impact" value="low">
-              <span class="impact-indicator">🟢</span>
-              <span style="font-size:12px;font-weight:600">低影响</span>
-              <span class="impact-sub">体验改善</span>
-            </label>
-          </div>
-        </div>
-        <div class="field">
-          <label>涉及场景 <span class="req">*</span></label>
-          <div class="check-group">
-            <label><input type="checkbox" name="scene" value="pos"> 🖥️ 收银</label>
-            <label><input type="checkbox" name="scene" value="report"> 📊 报表</label>
-            <label><input type="checkbox" name="scene" value="member"> 👤 会员</label>
-            <label><input type="checkbox" name="scene" value="kitchen"> 📟 厨显</label>
-            <label><input type="checkbox" name="scene" value="payment"> 💳 支付</label>
-            <label><input type="checkbox" name="scene" value="inventory"> 📦 库存</label>
-          </div>
-        </div>
-        <div class="auto-fields">
-          <div class="auto-field">
-            <div class="af-label">厂商</div>
-            <div class="af-value" id="autoVendorVal">—</div>
-          </div>
-          <div class="auto-field">
-            <div class="af-label">提交时间</div>
-            <div class="af-value" id="nowTime">—</div>
-          </div>
-          <div class="auto-field">
-            <div class="af-label">记录ID预览</div>
-            <div class="af-value" id="previewId">—</div>
-          </div>
-        </div>
-        <button type="submit" class="submit-btn">提交需求</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ── History ── -->
-  <div id="panelHistory" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <span style="font-size:15px;font-weight:700">我提交的工单</span>
-      <div style="display:flex;gap:0;background:#e5e5ea;border-radius:980px;padding:3px">
-        <button class="filter-btn active" onclick="filterTickets('all',this)">全部</button>
-        <button class="filter-btn" onclick="filterTickets('pending',this)">待处理</button>
-        <button class="filter-btn" onclick="filterTickets('merged',this)">已归并</button>
-        <button class="filter-btn" onclick="filterTickets('progress',this)">进行中</button>
-        <button class="filter-btn" onclick="filterTickets('live',this)">已上线</button>
-      </div>
-    </div>
-    <div id="ticketList"></div>
-  </div>
-
-  <!-- ── Clusters ── -->
-  <div id="panelClusters" style="display:none">
-    <div style="margin-bottom:16px;font-size:15px;font-weight:700">我的需求簇</div>
-    <div id="clusterList"></div>
-  </div>
-</div><!-- /.content -->
-</div><!-- /#mainWrap -->
-
-<style>
-  .filter-btn { border:none; border-radius:980px; padding:5px 13px; font-size:12px; font-weight:500; color:#6e6e73; background:transparent; cursor:pointer; transition:all 0.18s; white-space:nowrap; }
-  .filter-btn.active { background:#fff; color:#1d1d1f; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-weight:600; }
-</style>
-
-<!-- Success modal -->
 <div class="success-overlay" id="successOverlay">
   <div class="success-box">
     <div class="success-icon">✅</div>
@@ -433,22 +200,6 @@
 <script>
 const API_BASE = '';
 let vendor = null;
-let allTickets = [];
-let currentFilter = 'all';
-let expandedId = null;
-
-const statusConfig = {
-  pending:   { cls: 's-pending',   label: '待处理', filterGroup: 'pending' },
-  merged:    { cls: 's-merged',    label: '已归并', filterGroup: 'merged' },
-  scheduled: { cls: 's-scheduled', label: '排期中', filterGroup: 'progress' },
-  dev:       { cls: 's-dev',       label: '开发中', filterGroup: 'progress' },
-  live:      { cls: 's-live',      label: '已上线', filterGroup: 'live' },
-};
-const impactConfig = {
-  high: { cls: 'badge-high', label: '高' },
-  mid:  { cls: 'badge-mid',  label: '中' },
-  low:  { cls: 'badge-low',  label: '低' },
-};
 
 async function init() {
   const token = new URLSearchParams(location.search).get('token') || '';
@@ -462,158 +213,19 @@ async function init() {
     document.getElementById('invalidPage').style.display = 'flex';
     return;
   }
-  document.getElementById('mainWrap').style.display = '';
-  document.getElementById('vendorCode').textContent = vendor.code;
+  document.getElementById('mainCard').style.display = '';
   document.getElementById('vendorName').textContent = vendor.name;
-  document.getElementById('vendorIndustry').textContent = `${vendor.industry} · 需求追踪视图`;
+  document.getElementById('vendorIndustry').textContent = vendor.industry;
   document.getElementById('autoVendorVal').textContent = vendor.name;
   document.getElementById('previewId').textContent = `${vendor.code}-****`;
   updateTime();
   setInterval(updateTime, 30000);
-  loadTickets();
 }
 
 function updateTime() {
   const now = new Date();
   document.getElementById('nowTime').textContent =
-    now.toLocaleDateString('zh-CN') + ' ' + now.toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' });
-}
-
-function switchTab(tab) {
-  ['submit','history','clusters'].forEach(t => {
-    document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t === tab ? '' : 'none';
-    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
-  });
-  if (tab === 'history') renderTickets();
-  if (tab === 'clusters') loadClusters();
-}
-
-function filterTickets(group, btn) {
-  currentFilter = group;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTickets();
-}
-
-function toggle(id) {
-  expandedId = expandedId === id ? null : id;
-  renderTickets();
-}
-
-async function loadTickets() {
-  const data = await fetch(`${API_BASE}/api/saas-tickets?token=${vendor.token}&page_size=200`).then(r => r.json()).catch(() => ({ items: [] }));
-  allTickets = data.items || [];
-  document.getElementById('statTotal').textContent = allTickets.length;
-  document.getElementById('statScheduled').textContent = allTickets.filter(t => ['scheduled','dev','live'].includes(t.status)).length;
-}
-
-function renderTickets() {
-  const list = document.getElementById('ticketList');
-  if (!list) return;
-  const filtered = allTickets.filter(t => {
-    if (currentFilter === 'all') return true;
-    return (statusConfig[t.status] || {}).filterGroup === currentFilter;
-  });
-  if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>暂无相关工单</p></div>`;
-    return;
-  }
-  const accentMap = { pending:'s-accent-pending', merged:'s-accent-merged', scheduled:'s-accent-scheduled', dev:'s-accent-dev', live:'s-accent-live' };
-  list.innerHTML = filtered.map(t => {
-    const sc = statusConfig[t.status] || statusConfig.pending;
-    const ic = impactConfig[t.impact] || impactConfig.mid;
-    const isExpanded = expandedId === t.id;
-    const canExpand = !!t.saas_cluster_id;
-    return `
-    <div class="ticket ${isExpanded ? 'expanded' : ''} ${accentMap[t.status] || ''}" id="ticket-${t.id}">
-      <div class="ticket-row" onclick="${canExpand ? `toggle('${t.id}')` : ''}">
-        <div class="ticket-id">${t.id}<span class="merchant">${t.merchant || ''}</span></div>
-        <div class="ticket-desc">
-          <div class="original">${t.text}</div>
-          ${t.saas_cluster_id
-            ? `<div class="ai-hint"><span class="ai-tag">已归并</span>需求簇 ${t.saas_cluster_id}</div>`
-            : `<div class="ai-hint" style="color:#d1d1d6">等待 AI 归并…</div>`}
-        </div>
-        <div><span class="badge ${ic.cls}">${ic.label}</span></div>
-        <div style="display:flex;align-items:center">
-          <span class="status-chip ${sc.cls}"><span class="dot"></span>${sc.label}</span>
-          ${canExpand ? `<span class="chevron">▼</span>` : ''}
-        </div>
-      </div>
-      ${canExpand ? `<div class="ticket-detail" id="detail-${t.id}"></div>` : ''}
-    </div>`;
-  }).join('');
-
-  // Load cluster details for expanded ticket
-  if (expandedId) {
-    const t = allTickets.find(t => t.id === expandedId);
-    if (t && t.saas_cluster_id) loadClusterDetail(t.saas_cluster_id, expandedId);
-  }
-}
-
-async function loadClusterDetail(clusterId, ticketId) {
-  const el = document.getElementById(`detail-${ticketId}`);
-  if (!el) return;
-  const data = await fetch(`${API_BASE}/api/saas-clusters?page_size=200`).then(r => r.json()).catch(() => ({ items: [] }));
-  const c = (data.items || []).find(x => x.id === clusterId);
-  if (!c) { el.innerHTML = `<p style="color:#8e8e93;font-size:13px">无法加载需求簇详情</p>`; return; }
-  const sc = statusConfig[c.status] || statusConfig.pending;
-  const tlSteps = ['已归并','排期中','开发中','已上线'];
-  const tlKeys  = ['merged','scheduled','dev','live'];
-  const statusOrder = ['merged','scheduled','dev','live'];
-  const curIdx = statusOrder.indexOf(c.status);
-  const tlHtml = `<div style="display:flex;align-items:flex-start">${tlSteps.map((label, i) => {
-    const isDone = i <= curIdx;
-    const isCurrent = i === curIdx;
-    return `<div class="tl-step ${isDone?'done':''} ${isCurrent?'current':''}" style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative">
-      ${i < tlSteps.length-1 ? `<style>.tl-step:not(:last-child)::after{content:'';position:absolute;top:11px;left:50%;width:100%;height:2px;background:#e5e5ea;z-index:0}.tl-step.done:not(:last-child)::after{background:#6c5ce7}</style>` : ''}
-      <div class="tl-dot" style="z-index:1">${isDone ? '✓' : ''}</div>
-      <div class="tl-label">${label}</div>
-    </div>`;
-  }).join('')}</div>`;
-
-  el.innerHTML = `
-    <div class="detail-grid">
-      ${c.ai_summary ? `<div class="ai-box"><div class="ai-label">✦ AI 需求摘要</div><p>${c.ai_summary}</p></div>` : '<div></div>'}
-      <div class="cluster-meta">
-        <div class="cm-label">需求簇信息</div>
-        <div class="cm-row"><span class="ck">簇 ID</span><span class="cv">${c.id}</span></div>
-        <div class="cm-row"><span class="ck">标题</span><span class="cv">${c.summary || '—'}</span></div>
-        <div class="cm-row"><span class="ck">涉及厂商数</span><span class="cv">${(c.vendor_names || []).length}</span></div>
-        <div class="cm-row"><span class="ck">当前状态</span><span class="cv">${sc.label}</span></div>
-      </div>
-    </div>
-    <div class="timeline-title">进展时间线</div>
-    ${tlHtml}`;
-}
-
-async function loadClusters() {
-  const data = await fetch(`${API_BASE}/api/saas-clusters?token=${vendor.token}&page_size=200`).then(r => r.json()).catch(() => ({ items: [] }));
-  const clusters = data.items || [];
-  const list = document.getElementById('clusterList');
-  if (!list) return;
-  if (clusters.length === 0) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">🔗</div><p>暂无需求簇，等待AI归并处理</p></div>`;
-    return;
-  }
-  const sc_map = { pending:'s-pending', scheduled:'s-scheduled', dev:'s-dev', live:'s-live' };
-  const ic_map = { high:{cls:'badge-high',label:'高'}, mid:{cls:'badge-mid',label:'中'}, low:{cls:'badge-low',label:'低'} };
-  list.innerHTML = clusters.map(c => {
-    const scCls = sc_map[c.status] || 's-pending';
-    const sc = statusConfig[c.status] || statusConfig.pending;
-    const ic = ic_map[c.impact] || ic_map.mid;
-    return `
-    <div style="background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;padding:18px 20px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <span style="font-size:12px;font-weight:700;color:#6c5ce7;background:#f0eeff;border-radius:6px;padding:2px 8px">${c.id}</span>
-        <span class="badge ${ic.cls}">${ic.label}</span>
-        <span class="status-chip ${scCls}"><span class="dot"></span>${sc.label}</span>
-      </div>
-      <div style="font-size:15px;font-weight:700;color:#1d1d1f;margin-bottom:6px">${c.summary || '（无标题）'}</div>
-      ${c.ai_summary ? `<div style="font-size:13px;color:#1d1d1f;line-height:1.6;padding:10px 14px;background:#f0eeff;border-left:3px solid #6c5ce7;border-radius:0 8px 8px 0;margin-top:8px">${c.ai_summary}</div>` : ''}
-      <div style="font-size:12px;color:#8e8e93;margin-top:8px">涉及厂商：${(c.vendor_names||[]).join('、')||'—'} · 工单数：${c.count}</div>
-    </div>`;
-  }).join('');
+    now.toLocaleDateString('zh-CN') + ' ' + now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 }
 
 document.getElementById('reqForm').addEventListener('submit', async function(e) {
@@ -632,7 +244,6 @@ document.getElementById('reqForm').addEventListener('submit', async function(e) 
     const data = await r.json();
     document.getElementById('submittedId').textContent = data.id || '—';
     document.getElementById('successOverlay').classList.add('show');
-    await loadTickets();
   } else {
     alert('提交失败，请联系管理员');
   }
@@ -643,10 +254,6 @@ function resetForm() {
   document.getElementById('successOverlay').classList.remove('show');
   updateTime();
 }
-
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') loadTickets();
-});
 
 init();
 </script>
