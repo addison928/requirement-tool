@@ -2171,7 +2171,6 @@ function closeAllDrawers() {
   document.getElementById('ticketDrawer').classList.remove('open');
   document.getElementById('saasDrawer').classList.remove('open');
   document.getElementById('drawerOverlay').classList.remove('show');
-  document.getElementById('drawerOverlay').style.display = 'none';
 }
 
 function saveStatus() {
@@ -3615,7 +3614,7 @@ function openSaasClusterDrawer(i) {
   const c = saasClustersList[i];
   const overlay = document.getElementById('drawerOverlay');
   const drawer  = document.getElementById('saasDrawer');
-  overlay.style.display = '';
+  overlay.classList.add('show');
 
   document.getElementById('saasDrawerTitle').textContent = `SaaS需求簇 ${c.id}`;
   document.getElementById('saasStatusSelect').value = c.status || 'pending';
@@ -3652,7 +3651,7 @@ function openSaasClusterDrawer(i) {
 
 function closeSaasDrawer() {
   document.getElementById('saasDrawer').classList.remove('open');
-  document.getElementById('drawerOverlay').style.display = 'none';
+  document.getElementById('drawerOverlay').classList.remove('show');
 }
 
 async function saveSaasClusterStatus() {
@@ -3744,6 +3743,10 @@ init().catch(err => {
 });
 
 // ── Tab visibility: refresh data when user switches back ──────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAllDrawers();
+});
+
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     Promise.all([reloadPartners(), reloadClusters(), reloadTickets(), reloadSaasTickets(), reloadSaasClusters()])
