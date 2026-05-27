@@ -146,7 +146,7 @@
     /* ── Stat cards ── */
     .stats {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 16px;
       margin-bottom: 24px;
     }
@@ -1289,14 +1289,24 @@
     <!-- Stats -->
     <div class="stats">
       <div class="stat-card">
-        <div class="label">本周期提交总量</div>
-        <div class="value">134</div>
-        <div class="sub">↑ 23 vs 上周期</div>
+        <div class="label">服务商工单总量</div>
+        <div class="value" id="statTotalTickets">—</div>
+        <div class="sub" id="statTotalTicketsSub"></div>
       </div>
       <div class="stat-card">
-        <div class="label">聚合后需求簇</div>
-        <div class="value">38</div>
-        <div class="sub">压缩率 72%</div>
+        <div class="label">服务商需求簇</div>
+        <div class="value" id="statTotalClusters">—</div>
+        <div class="sub" id="statCompress"></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">SaaS工单总量</div>
+        <div class="value" id="statSaasTickets">—</div>
+        <div class="sub" id="statSaasTicketsSub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">SaaS需求簇</div>
+        <div class="value" id="statSaasClusters">—</div>
+        <div class="sub" id="statSaasCompress"></div>
       </div>
     </div>
 
@@ -2102,35 +2112,70 @@ function saveStatus() {
 }
 
 // ── Charts ──
-new Chart(document.getElementById('pieChart'), {
-  type: 'doughnut',
-  data: {
-    labels: ['🇹🇭 泰国', '🇮🇩 印尼', '🇮🇹 意大利', '🇰🇭 柬埔寨', '🇲🇾 马来西亚'],
-    datasets: [{ data: [52, 31, 24, 16, 11], backgroundColor: ['#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6'], borderWidth: 2, borderColor: '#fff' }]
-  },
-  options: { plugins: { legend: { position: 'right', labels: { font: { size: 12 }, boxWidth: 14, padding: 10 } } }, cutout: '55%' }
-});
+let pieChartInst = null;
+let layerChartInst = null;
 
-new Chart(document.getElementById('layerChart'), {
-  type: 'bar',
-  data: {
-    labels: ['平台层', 'SaaS层', '跨层'],
-    datasets: [{ data: [14, 19, 5], backgroundColor: ['#7c3aed','#1a56db','#d97706'], borderRadius: 6, borderWidth: 0 }]
-  },
-  options: {
-    plugins: { legend: { display: false } },
-    scales: { y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } }
-  }
-});
+function updateDashboardStats() {
+  // Stat cards
+  const totalT = allTickets.length;
+  const totalC = clusters.length;
+  document.getElementById('statTotalTickets').textContent = totalT;
+  document.getElementById('statTotalClusters').textContent = totalC;
+  const compress = totalT > 0 ? Math.round((1 - totalC / totalT) * 100) : 0;
+  document.getElementById('statCompress').textContent = totalT > 0 ? `压缩率 ${compress}%` : '';
 
+  const saasT = saasTicketsList.length;
+  const saasC = saasClustersList.length;
+  document.getElementById('statSaasTickets').textContent = saasT;
+  document.getElementById('statSaasClusters').textContent = saasC;
+  const saasCompress = saasT > 0 ? Math.round((1 - saasC / saasT) * 100) : 0;
+  document.getElementById('statSaasCompress').textContent = saasT > 0 ? `压缩率 ${saasCompress}%` : '';
+
+  // Pie chart: tickets by country
+  const countryCount = {};
+  allTickets.forEach(t => {
+    const key = (t.flag || '') + ' ' + (t.partner || '');
+    // group by flag
+    const f = t.flag || '其他';
+    countryCount[f] = (countryCount[f] || 0) + 1;
+  });
+  const flagColors = { '🇹🇭': '#f59e0b', '🇮🇩': '#10b981', '🇮🇹': '#3b82f6', '🇰🇭': '#ef4444', '🇲🇾': '#8b5cf6' };
+  const pieLabels = Object.keys(countryCount);
+  const pieData   = pieLabels.map(f => countryCount[f]);
+  const pieColors = pieLabels.map(f => flagColors[f] || '#aaa');
+
+  if (pieChartInst) pieChartInst.destroy();
+  pieChartInst = new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: pieColors, borderWidth: 2, borderColor: '#fff' }] },
+    options: { plugins: { legend: { position: 'right', labels: { font: { size: 12 }, boxWidth: 14, padding: 10 } } }, cutout: '55%' }
+  });
+
+  // Layer chart: clusters by layer
+  const layerCount = { platform: 0, saas: 0, cross: 0 };
+  clusters.forEach(c => { if (c.layer in layerCount) layerCount[c.layer]++; else layerCount.cross++; });
+  if (layerChartInst) layerChartInst.destroy();
+  layerChartInst = new Chart(document.getElementById('layerChart'), {
+    type: 'bar',
+    data: {
+      labels: ['平台层', 'SaaS层', '跨层'],
+      datasets: [{ data: [layerCount.platform, layerCount.saas, layerCount.cross], backgroundColor: ['#7c3aed','#1a56db','#d97706'], borderRadius: 6, borderWidth: 0 }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } }
+    }
+  });
+}
+
+// Trend chart stays static (no historical data in DB) — rendered once
 new Chart(document.getElementById('trendChart'), {
   type: 'line',
   data: {
     labels: ['W18','W19','W20','W21','W22'],
     datasets: [
-      { label: '泰国', data: [38, 42, 45, 49, 52], borderColor: '#1a56db', backgroundColor: 'rgba(26,86,219,0.08)', tension: 0.4, fill: true, pointRadius: 3 },
-      { label: '印尼', data: [20, 22, 25, 28, 31], borderColor: '#3b82f6', tension: 0.4, fill: false, pointRadius: 3 },
-      { label: '意大利', data: [18, 19, 21, 23, 24], borderColor: '#60a5fa', tension: 0.4, fill: false, pointRadius: 3 },
+      { label: '服务商', data: [0, 0, 0, 0, 0], borderColor: '#1a56db', backgroundColor: 'rgba(26,86,219,0.08)', tension: 0.4, fill: true, pointRadius: 3 },
+      { label: 'SaaS', data: [0, 0, 0, 0, 0], borderColor: '#6c5ce7', tension: 0.4, fill: false, pointRadius: 3 },
     ]
   },
   options: {
@@ -3114,7 +3159,7 @@ async function runMerge() {
       showToast(`✦ AI 归并完成：处理 ${res.ticket_count} 条工单，新增 ${res.created} 个需求簇`);
       statusEl.textContent = `上次归并：刚刚 · 新增 ${res.created} 簇`;
       await Promise.all([reloadClusters(), reloadTickets()]);
-      renderTable(); renderAllClusters(); renderAllTable();
+      renderTable(); renderAllClusters(); renderAllTable(); updateDashboardStats();
     }
   } catch(e) {
     showToast('归并失败：' + (e.message || '请检查后端服务和 DEEPSEEK_API_KEY'));
@@ -3555,7 +3600,7 @@ async function runSaasMerge() {
     const data = await r.json();
     if (!r.ok) { showToast(data.detail || 'AI归并失败', true); return; }
     await Promise.all([reloadSaasClusters(), reloadSaasTickets()]);
-    renderSaasClusters(); renderSaasTickets();
+    renderSaasClusters(); renderSaasTickets(); updateDashboardStats();
     showToast(`归并完成：新建 ${data.created_new} 簇，归入已有 ${data.merged_into_existing} 簇`);
   } catch(e) {
     showToast('归并请求失败', true);
@@ -3602,30 +3647,29 @@ async function init() {
     Object.assign(scoringConfig, cfg);
   } catch(e) {}
 
-  // Load partners and SaaS vendors
+  // Load all data in parallel
   await Promise.all([reloadPartners(), reloadSaasVendors()]);
-
-  // Load clusters and tickets in parallel
-  await Promise.all([reloadClusters(), reloadTickets()]);
+  await Promise.all([reloadClusters(), reloadTickets(), reloadSaasTickets(), reloadSaasClusters()]);
 
   rebuildCountryFilters();
   renderTable();
   renderAllTable();
+  updateDashboardStats();
 }
 
 init().catch(err => {
   console.error('API init failed:', err);
-  // Fallback: run with empty data so the UI doesn't break
   syncScoringConfig();
   rebuildCountryFilters();
   renderTable();
+  updateDashboardStats();
 });
 
 // ── Tab visibility: refresh data when user switches back ──────────────────────
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
-    Promise.all([reloadPartners(), reloadClusters(), reloadTickets()])
-      .then(() => { rebuildCountryFilters(); renderTable(); renderAllTable(); })
+    Promise.all([reloadPartners(), reloadClusters(), reloadTickets(), reloadSaasTickets(), reloadSaasClusters()])
+      .then(() => { rebuildCountryFilters(); renderTable(); renderAllTable(); updateDashboardStats(); })
       .catch(() => {});
   }
 });
