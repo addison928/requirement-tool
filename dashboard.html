@@ -1335,10 +1335,10 @@
       </div>
     </div>
 
-    <!-- Table -->
+    <!-- Partner clusters table -->
     <div class="table-card">
       <div class="table-header">
-        <h3>需求簇 · Top 10 优先级</h3>
+        <h3>服务商需求簇 · Top 10 优先级</h3>
         <input class="search-input" id="dashSearch" placeholder="🔍 搜索需求..." oninput="renderTable()" />
       </div>
       <table>
@@ -1357,6 +1357,28 @@
         <tbody id="tableBody"></tbody>
       </table>
       <div id="dashTableFooter" style="text-align:center;padding:14px 0 4px;font-size:12px;color:#6e6e73"></div>
+    </div>
+
+    <!-- SaaS clusters table -->
+    <div class="table-card" style="margin-top:16px">
+      <div class="table-header">
+        <h3>SaaS需求簇 · Top 10</h3>
+        <input class="search-input" id="dashSaasSearch" placeholder="🔍 搜索SaaS需求..." oninput="renderSaasDashTable()" />
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>需求摘要</th>
+            <th>业务影响</th>
+            <th>涉及厂商</th>
+            <th>频次</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody id="saasDashBody"></tbody>
+      </table>
+      <div id="saasDashFooter" style="text-align:center;padding:14px 0 4px;font-size:12px;color:#6e6e73"></div>
     </div>
   </div>
 
@@ -1997,6 +2019,45 @@ function renderTable() {
   }
 }
 
+function renderSaasDashTable() {
+  const tbody  = document.getElementById('saasDashBody');
+  const footer = document.getElementById('saasDashFooter');
+  if (!tbody) return;
+
+  const q = ((document.getElementById('dashSaasSearch') || {}).value || '').toLowerCase();
+  const filtered = saasClustersList.filter(c =>
+    !q || (c.summary || '').toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
+  );
+
+  const top = filtered.slice(0, DASH_TOP);
+  if (top.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:#8e8e93">暂无SaaS需求簇</td></tr>`;
+    if (footer) footer.innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = top.map(c => {
+    const origIdx = saasClustersList.indexOf(c);
+    const vendors = (c.vendor_names || []).join(' ') || '—';
+    return `
+    <tr onclick="openSaasClusterDrawer(${origIdx})" style="cursor:pointer">
+      <td><span class="cluster-id" style="color:#6c5ce7">${c.id}</span></td>
+      <td style="max-width:200px">${c.summary || '（无标题）'}</td>
+      <td><span class="badge ${impactClass[c.impact] || 'badge-mid'}">${impactLabel[c.impact] || '中'}</span></td>
+      <td style="font-size:12px;color:#6e6e73">${vendors}</td>
+      <td>${c.count}次</td>
+      <td>${statusMap[c.status] || statusMap['pending']}</td>
+    </tr>`;
+  }).join('');
+
+  if (footer) {
+    const total = filtered.length;
+    footer.innerHTML = total > DASH_TOP
+      ? `共 ${total} 个需求簇，仅展示 Top ${DASH_TOP} · <a href="#" style="color:#6c5ce7" onclick="event.preventDefault();switchPage('all-saas')">前往「SaaS厂商需求」查看全部</a>`
+      : `共 ${total} 个需求簇`;
+  }
+}
+
 let currentIdx = 0;
 
 function openDrawer(i) {
@@ -2169,6 +2230,8 @@ function updateDashboardStats() {
       scales: { y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } }
     }
   });
+
+  renderSaasDashTable();
 }
 
 // Trend chart stays static (no historical data in DB) — rendered once
