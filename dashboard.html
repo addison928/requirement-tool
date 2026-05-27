@@ -1234,6 +1234,97 @@
       background: #fff;
       border-radius: 0 0 20px 20px;
     }
+
+    /* Hide hamburger on desktop */
+    #mobMenuBtn { display: none; }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: -220px;
+        top: 0; bottom: 0;
+        transition: left 0.28s cubic-bezier(0.4,0,0.2,1);
+        z-index: 200;
+      }
+      .sidebar.mob-open { left: 0; }
+
+      /* Hamburger button */
+      #mobMenuBtn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px; height: 36px;
+        border: none; background: none;
+        cursor: pointer; border-radius: 8px;
+        font-size: 20px; color: #1d1d1f;
+        transition: background 0.15s;
+      }
+      #mobMenuBtn:hover { background: #f2f2f7; }
+      #mobOverlay {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 199;
+      }
+      #mobOverlay.show { display: block; }
+
+      .main { margin-left: 0; }
+      .topbar { padding: 0 16px; }
+      .content { padding: 16px; }
+
+      .stats { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+      .stat-card { padding: 16px 18px; }
+      .stat-card .value { font-size: 28px; }
+
+      .charts-row { grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px; }
+
+      .table-header { flex-wrap: wrap; gap: 8px; }
+      .table-header h3 { flex: 1 0 100%; }
+      .search-input { width: 100%; }
+
+      /* Hide less-critical table columns on mobile */
+      table th:nth-child(3), table td:nth-child(3),
+      table th:nth-child(4), table td:nth-child(4) { display: none; }
+
+      /* Filter bar wrapping */
+      .filter-bar { flex-wrap: wrap; gap: 6px; }
+      .filter-bar .filter-select, .filter-bar .search-input { flex: 1 1 calc(50% - 6px); min-width: 120px; }
+
+      /* Drawers slide up from bottom on mobile */
+      .drawer, .ticket-drawer, #saasDrawer {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 20px 20px 0 0;
+        top: auto !important;
+        bottom: 0;
+        right: 0 !important;
+        height: 92vh;
+        transform: translateY(100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+        box-shadow: 0 -4px 32px rgba(0,0,0,0.18) !important;
+      }
+      .drawer.open, .ticket-drawer.open, #saasDrawer.open {
+        transform: translateY(0) !important;
+      }
+
+      .meta-row { flex-direction: column; gap: 10px; }
+      .td-grid { grid-template-columns: 1fr; }
+
+      /* Topbar actions */
+      .topbar-right { gap: 6px; flex-wrap: wrap; }
+      #dashFilters { flex-wrap: wrap; gap: 6px; }
+      #dashFilters .filter-select { flex: 1 1 calc(50% - 6px); min-width: 100px; }
+
+      /* Tab bar scrollable */
+      .tab-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; padding-bottom: 2px; }
+
+      /* Pagination compact */
+      .pager { gap: 4px; }
+      .pager button { min-width: 28px; height: 28px; font-size: 11px; }
+
+      .table-card { padding: 14px 12px; margin-bottom: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -1257,9 +1348,13 @@
   <div class="sidebar-bottom">周期：2026-W22 · 批次 #14 <span onclick="showOnboarding()" title="使用引导" style="cursor:pointer;margin-left:8px;opacity:0.6;font-size:13px">❓</span></div>
 </div>
 
+<!-- Mobile overlay -->
+<div id="mobOverlay" onclick="closeMobMenu()"></div>
+
 <!-- Main -->
 <div class="main">
   <div class="topbar">
+    <button id="mobMenuBtn" onclick="openMobMenu()" aria-label="菜单">☰</button>
     <h1 id="topbarTitle">需求看板 · Requirement Dashboard</h1>
     <div class="topbar-right">
       <div id="dashFilters" style="display:flex;gap:12px;align-items:center">
@@ -3804,6 +3899,19 @@ function closeOnboarding() {
 }
 
 if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentLoaded', showOnboarding); }
+
+function openMobMenu() {
+  document.querySelector('.sidebar').classList.add('mob-open');
+  document.getElementById('mobOverlay').classList.add('show');
+}
+function closeMobMenu() {
+  document.querySelector('.sidebar').classList.remove('mob-open');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
+// Close sidebar when nav item clicked on mobile
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => { if (window.innerWidth <= 768) closeMobMenu(); });
+});
 </script>
 
 <!-- Onboarding Overlay -->

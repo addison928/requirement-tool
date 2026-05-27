@@ -551,6 +551,44 @@
       color: #6e6e73;
       letter-spacing: 0.1px;
     }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .header {
+        padding: 18px 16px;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+      .header-left { gap: 12px; }
+      .partner-avatar { width: 40px; height: 40px; font-size: 20px; }
+      .partner-info h1 { font-size: 15px; }
+      .header-stats { gap: 8px; flex-wrap: wrap; }
+      .stat-pill { padding: 8px 14px; min-width: 76px; }
+      .stat-pill .sv { font-size: 20px; }
+      .header-right { width: 100%; justify-content: flex-end; }
+
+      .content { padding: 16px 12px 60px; }
+
+      .tabs { padding: 0 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+      .tab-btn { padding: 10px 16px; font-size: 13px; }
+
+      .cluster-card { padding: 14px 14px; }
+      .ticket-row { padding: 12px 14px; }
+
+      .filter-bar { flex-wrap: wrap; gap: 6px; }
+      .filter-bar select, .filter-bar input { flex: 1 1 calc(50% - 6px); min-width: 100px; }
+
+      /* Cluster detail modal full-screen */
+      #clusterModal > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 20px 20px 0 0 !important;
+        padding: 20px 16px !important;
+        max-height: 92vh !important;
+        margin: auto auto 0 !important;
+        overflow-y: auto;
+      }
+    }
   </style>
 </head>
 <body>

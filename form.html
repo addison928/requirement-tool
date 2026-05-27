@@ -620,6 +620,22 @@
     }
 
     .section-label:first-child { margin-top: 0; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      body { padding: 0 0 60px; align-items: stretch; }
+
+      .card { border-radius: 0; box-shadow: none; max-width: 100%; }
+
+      .header { padding: 24px 20px 20px; }
+      .header h1 { font-size: 18px; }
+      .header p { font-size: 13px; }
+
+      .body { padding: 20px 16px 32px; }
+
+      .upload-area { padding: 20px 14px; }
+      .success-box { padding: 32px 20px 28px; }
+    }
   </style>
 </head>
 <body>
