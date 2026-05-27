@@ -102,3 +102,53 @@ def init_db():
                 config_json TEXT NOT NULL
             )
         ''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS saas_vendors (
+                token       TEXT PRIMARY KEY,
+                name        TEXT NOT NULL,
+                industry    TEXT NOT NULL,
+                code        TEXT NOT NULL,
+                contact     TEXT DEFAULT '',
+                created_at  TEXT NOT NULL
+            )
+        ''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS saas_tickets (
+                id               TEXT PRIMARY KEY,
+                vendor_token     TEXT NOT NULL,
+                vendor_name      TEXT NOT NULL,
+                industry         TEXT,
+                text             TEXT NOT NULL,
+                merchant         TEXT DEFAULT '',
+                impact           TEXT DEFAULT 'mid',
+                scenes           TEXT DEFAULT '[]',
+                biz_type         TEXT,
+                time             TEXT,
+                status           TEXT DEFAULT 'pending',
+                saas_cluster_id  TEXT,
+                attachments      TEXT DEFAULT '[]',
+                manual           INTEGER DEFAULT 0
+            )
+        ''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS saas_clusters (
+                id           TEXT PRIMARY KEY,
+                score        INTEGER DEFAULT 0,
+                urgent       INTEGER DEFAULT 0,
+                summary      TEXT,
+                layer        TEXT DEFAULT 'saas',
+                impact       TEXT DEFAULT 'mid',
+                vendor_names TEXT DEFAULT '[]',
+                count        INTEGER DEFAULT 1,
+                periods      INTEGER DEFAULT 1,
+                status       TEXT DEFAULT 'pending',
+                ai_summary   TEXT
+            )
+        ''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS saas_cluster_tickets (
+                cluster_id  TEXT NOT NULL,
+                ticket_id   TEXT NOT NULL,
+                PRIMARY KEY (cluster_id, ticket_id)
+            )
+        ''')

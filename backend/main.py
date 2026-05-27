@@ -577,6 +577,427 @@ def run_merge():
     }
 
 
+# ── SaaS Vendors ─────────────────────────────────────────────────────────────
+
+SAAS_INDUSTRIES = ['餐饮', '零售', '酒吧', '美业', 'SPA', '酒店', '诊所']
+
+class SaasVendorIn(BaseModel):
+    name: str
+    industry: str
+    code: str
+    contact: Optional[str] = ''
+
+
+@app.get('/api/saas-vendors')
+def list_saas_vendors():
+    with get_conn() as conn:
+        rows = conn.execute('SELECT * FROM saas_vendors ORDER BY created_at DESC').fetchall()
+    return [row_to_dict(r) for r in rows]
+
+
+@app.post('/api/saas-vendors', status_code=201)
+def create_saas_vendor(body: SaasVendorIn):
+    code = body.code.upper()
+    import random, string as _string
+    suffix = ''.join(random.choices(_string.ascii_lowercase + _string.digits, k=8))
+    token = f'SV_{suffix}'
+    now = datetime.now(_TZ_CST).strftime('%Y-%m-%d %H:%M')
+    with get_conn() as conn:
+        conn.execute(
+            'INSERT INTO saas_vendors (token, name, industry, code, contact, created_at) VALUES (?,?,?,?,?,?)',
+            (token, body.name, body.industry, code, body.contact or '', now)
+        )
+    return {'token': token, 'name': body.name, 'industry': body.industry,
+            'code': code, 'contact': body.contact or '', 'created_at': now}
+
+
+@app.put('/api/saas-vendors/{token}')
+def update_saas_vendor(token: str, body: SaasVendorIn):
+    with get_conn() as conn:
+        cur = conn.execute(
+            'UPDATE saas_vendors SET name=?, industry=?, code=?, contact=? WHERE token=?',
+            (body.name, body.industry, body.code.upper(), body.contact or '', token)
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(404, 'SaaS vendor not found')
+    return {'ok': True}
+
+
+@app.delete('/api/saas-vendors/{token}', status_code=204)
+def delete_saas_vendor(token: str):
+    with get_conn() as conn:
+        cur = conn.execute('DELETE FROM saas_vendors WHERE token=?', (token,))
+        if cur.rowcount == 0:
+            raise HTTPException(404, 'SaaS vendor not found')
+
+
+# ── SaaS Tickets ──────────────────────────────────────────────────────────────
+
+class SaasTicketIn(BaseModel):
+    token: str
+    text: str
+    merchant: Optional[str] = ''
+    impact: str = 'mid'
+    scenes: list[str] = []
+    biz_type: Optional[str] = None
+    manual: bool = False
+
+
+class SaasTicketUpdate(BaseModel):
+    status: Optional[str] = None
+    saas_cluster_id: Optional[str] = None
+
+
+def saas_ticket_row(row):
+    d = row_to_dict(row)
+    d['scenes'] = parse_json_field(d.get('scenes'), [])
+    d['attachments'] = parse_json_field(d.get('attachments'), [])
+    d['manual'] = bool(d.get('manual', 0))
+    return d
+
+
+def generate_saas_ticket_id(code: str) -> str:
+    with get_conn() as conn:
+        for _ in range(20):
+            tid = f'{code}-{random.randint(1000, 9999)}'
+            exists = conn.execute('SELECT 1 FROM saas_tickets WHERE id=?', (tid,)).fetchone()
+            if not exists:
+                return tid
+    raise RuntimeError('Could not generate unique SaaS ticket ID')
+
+
+@app.get('/api/saas-tickets')
+def list_saas_tickets(
+    token: Optional[str] = None,
+    status: Optional[str] = None,
+    impact: Optional[str] = None,
+    search: Optional[str] = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(200, ge=1, le=200),
+):
+    clauses, params = [], []
+    if token:
+        with get_conn() as conn:
+            v = conn.execute('SELECT * FROM saas_vendors WHERE token=?', (token,)).fetchone()
+        if v:
+            clauses.append('vendor_token=?')
+            params.append(token)
+    if status and status != 'all':
+        clauses.append('status=?')
+        params.append(status)
+    if impact and impact != 'all':
+        clauses.append('impact=?')
+        params.append(impact)
+    if search:
+        clauses.append('(text LIKE ? OR merchant LIKE ? OR id LIKE ?)')
+        params += [f'%{search}%', f'%{search}%', f'%{search}%']
+
+    where = ('WHERE ' + ' AND '.join(clauses)) if clauses else ''
+    offset = (page - 1) * page_size
+
+    with get_conn() as conn:
+        total = conn.execute(f'SELECT COUNT(*) FROM saas_tickets {where}', params).fetchone()[0]
+        rows = conn.execute(
+            f'SELECT * FROM saas_tickets {where} ORDER BY time DESC LIMIT ? OFFSET ?',
+            params + [page_size, offset]
+        ).fetchall()
+
+    return {'total': total, 'page': page, 'page_size': page_size,
+            'items': [saas_ticket_row(r) for r in rows]}
+
+
+@app.post('/api/saas-tickets', status_code=201)
+def create_saas_ticket(body: SaasTicketIn):
+    with get_conn() as conn:
+        vendor = conn.execute('SELECT * FROM saas_vendors WHERE token=?', (body.token,)).fetchone()
+    if not vendor:
+        raise HTTPException(400, 'Invalid token')
+    vendor = row_to_dict(vendor)
+
+    tid = generate_saas_ticket_id(vendor['code'])
+    now = datetime.now(_TZ_CST).strftime('%Y-%m-%d %H:%M')
+
+    with get_conn() as conn:
+        conn.execute(
+            'INSERT INTO saas_tickets VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            (tid, vendor['token'], vendor['name'], vendor['industry'],
+             body.text, body.merchant, body.impact,
+             json.dumps(body.scenes, ensure_ascii=False),
+             body.biz_type, now, 'pending', None, '[]',
+             1 if body.manual else 0)
+        )
+    return {'id': tid, 'time': now, 'status': 'pending'}
+
+
+@app.put('/api/saas-tickets/{ticket_id}')
+def update_saas_ticket(ticket_id: str, body: SaasTicketUpdate):
+    sets, params = [], []
+    if body.status is not None:
+        sets.append('status=?')
+        params.append(body.status)
+    if body.saas_cluster_id is not None:
+        sets.append('saas_cluster_id=?')
+        params.append(body.saas_cluster_id)
+    if not sets:
+        raise HTTPException(400, 'Nothing to update')
+    params.append(ticket_id)
+    with get_conn() as conn:
+        cur = conn.execute(f'UPDATE saas_tickets SET {", ".join(sets)} WHERE id=?', params)
+        if cur.rowcount == 0:
+            raise HTTPException(404, 'SaaS ticket not found')
+    return {'ok': True}
+
+
+# ── SaaS Clusters ─────────────────────────────────────────────────────────────
+
+class SaasClusterUpdate(BaseModel):
+    status: Optional[str] = None
+    layer: Optional[str] = None
+    ai_summary: Optional[str] = None
+
+
+def saas_cluster_row(row):
+    d = row_to_dict(row)
+    d['vendor_names'] = parse_json_field(d.get('vendor_names'), [])
+    d['urgent'] = bool(d.get('urgent', 0))
+    with get_conn() as conn:
+        tids = [r['ticket_id'] for r in conn.execute(
+            'SELECT ticket_id FROM saas_cluster_tickets WHERE cluster_id=?', (d['id'],)
+        ).fetchall()]
+        items = []
+        for tid in tids:
+            t = conn.execute('SELECT * FROM saas_tickets WHERE id=?', (tid,)).fetchone()
+            if t:
+                items.append(saas_ticket_row(t))
+    d['items'] = items
+    return d
+
+
+def _next_saas_cluster_ids(conn, count: int) -> list[str]:
+    rows = conn.execute("SELECT id FROM saas_clusters WHERE id LIKE '$%'").fetchall()
+    nums = []
+    for r in rows:
+        tail = r['id'][1:]
+        if tail.isdigit():
+            nums.append(int(tail))
+    start = max(nums, default=0) + 1
+    return [f'${start + i:03d}' for i in range(count)]
+
+
+@app.get('/api/saas-clusters')
+def list_saas_clusters(
+    token: Optional[str] = None,
+    status: Optional[str] = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(200, ge=1, le=200),
+):
+    clauses, params = [], []
+    if token:
+        with get_conn() as conn:
+            v = conn.execute('SELECT name FROM saas_vendors WHERE token=?', (token,)).fetchone()
+        if v:
+            clauses.append("vendor_names LIKE ?")
+            params.append(f'%"{v["name"]}"%')
+    if status and status != 'all':
+        clauses.append('status=?')
+        params.append(status)
+
+    where = ('WHERE ' + ' AND '.join(clauses)) if clauses else ''
+    offset = (page - 1) * page_size
+
+    with get_conn() as conn:
+        total = conn.execute(f'SELECT COUNT(*) FROM saas_clusters {where}', params).fetchone()[0]
+        rows = conn.execute(
+            f'SELECT * FROM saas_clusters {where} ORDER BY score DESC LIMIT ? OFFSET ?',
+            params + [page_size, offset]
+        ).fetchall()
+
+    return {'total': total, 'page': page, 'page_size': page_size,
+            'items': [saas_cluster_row(r) for r in rows]}
+
+
+@app.put('/api/saas-clusters/{cluster_id}')
+def update_saas_cluster(cluster_id: str, body: SaasClusterUpdate):
+    sets, params = [], []
+    if body.status is not None:
+        sets.append('status=?')
+        params.append(body.status)
+    if body.layer is not None:
+        sets.append('layer=?')
+        params.append(body.layer)
+    if body.ai_summary is not None:
+        sets.append('ai_summary=?')
+        params.append(body.ai_summary)
+    if not sets:
+        raise HTTPException(400, 'Nothing to update')
+    params.append(cluster_id)
+    with get_conn() as conn:
+        cur = conn.execute(f'UPDATE saas_clusters SET {", ".join(sets)} WHERE id=?', params)
+        if cur.rowcount == 0:
+            raise HTTPException(404, 'SaaS cluster not found')
+    return {'ok': True}
+
+
+# ── SaaS AI Merge ─────────────────────────────────────────────────────────────
+
+def _call_deepseek_saas(tickets: list[dict], existing_clusters: list[dict]) -> list[dict]:
+    api_key = os.environ.get('DEEPSEEK_API_KEY', '')
+    if not api_key:
+        raise ValueError('DEEPSEEK_API_KEY not set')
+
+    ticket_lines = []
+    for t in tickets:
+        scenes = ', '.join(t['scenes']) if t['scenes'] else '-'
+        ticket_lines.append(
+            f"ID: {t['id']} | 厂商: {t['vendor_name']} | 行业: {t['industry']} "
+            f"| 影响: {t['impact']} | 场景: {scenes} | 需求: {t['text']}"
+        )
+
+    cluster_lines = []
+    for c in existing_clusters:
+        cluster_lines.append(f"簇ID: {c['id']} | 标题: {c['summary']} | 摘要: {(c.get('ai_summary') or '')[:80]}")
+
+    existing_block = ''
+    if cluster_lines:
+        existing_block = f"""
+【已有需求簇（优先归入，不要重复建簇）】
+{chr(10).join(cluster_lines)}
+"""
+
+    prompt = f"""你是一个 SaaS 产品需求分析师，服务对象是国内 SaaS 厂商（餐饮、零售、酒吧、美业、SPA、酒店、诊所等行业）。
+工单描述均为中文。
+{existing_block}
+【待归并的新工单】（格式：ID | 厂商 | 行业 | 影响 | 场景 | 需求描述）
+{chr(10).join(ticket_lines)}
+
+归并原则（非常重要）：
+- 【优先归入已有需求簇】：如果新工单与已有需求簇描述的是同一类功能，必须归入已有簇，不要新建簇。
+- 【宁可多归并，不要拆散】：只要功能领域相同，无论措辞差异多大，都应归为一簇。
+- 不同厂商反馈同一功能缺失的工单，必须归为一簇。
+
+归并规则：
+1. 每条工单必须且只能属于一个需求簇
+2. 相似度判断要宽松：功能领域相同即可归并
+3. 归入已有簇时，使用 existing_cluster_id 字段填写已有簇ID，不要填 summary/layer/impact/ai_summary
+4. 新建簇时：layer 分类 saas/platform/cross，impact 取最高级，ai_summary 100-200字中文分析
+5. 只对真正全新的需求才新建需求簇
+
+只返回合法 JSON 数组，不要 markdown 代码块标记，不要任何其他文字。
+归入已有簇的格式：{{"ticket_ids":["MT-0001"],"existing_cluster_id":"$028"}}
+新建簇的格式：{{"ticket_ids":["MT-0002","ELE-0003"],"summary":"15字以内中文需求标题","layer":"saas","impact":"high","ai_summary":"100-200字中文分析..."}}"""
+
+    client = OpenAI(api_key=api_key, base_url='https://api.deepseek.com')
+    response = client.chat.completions.create(
+        model='deepseek-chat',
+        messages=[{'role': 'user', 'content': prompt}],
+        max_tokens=4096,
+    )
+    raw = response.choices[0].message.content.strip()
+    raw = _strip_markdown_json(raw)
+    return json.loads(raw)
+
+
+@app.post('/api/saas-merge')
+def run_saas_merge():
+    api_key = os.environ.get('DEEPSEEK_API_KEY', '')
+    if not api_key:
+        raise HTTPException(500, 'DEEPSEEK_API_KEY not set on the server')
+
+    with get_conn() as conn:
+        pending_rows = conn.execute(
+            "SELECT * FROM saas_tickets WHERE saas_cluster_id IS NULL AND status='pending'"
+        ).fetchall()
+        existing_rows = conn.execute(
+            "SELECT id, summary, ai_summary FROM saas_clusters WHERE status != 'live' ORDER BY score DESC"
+        ).fetchall()
+
+    if not pending_rows:
+        return {'merged_into_existing': 0, 'created_new': 0, 'ticket_count': 0, 'message': '没有待归并的SaaS工单'}
+
+    tickets = [saas_ticket_row(r) for r in pending_rows]
+    existing_clusters = [dict(r) for r in existing_rows]
+
+    try:
+        clusters_data = _call_deepseek_saas(tickets, existing_clusters)
+    except json.JSONDecodeError as e:
+        raise HTTPException(500, f'LLM 返回内容无法解析为 JSON: {e}')
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+    if not isinstance(clusters_data, list):
+        raise HTTPException(500, 'LLM 返回格式错误，期望 JSON 数组')
+
+    merge_into_existing = [c for c in clusters_data if c.get('existing_cluster_id')]
+    create_new = [c for c in clusters_data if not c.get('existing_cluster_id')]
+    created_count = 0
+
+    with get_conn() as conn:
+        for c in merge_into_existing:
+            existing_id = c['existing_cluster_id']
+            ticket_ids = c.get('ticket_ids', [])
+            matched = [t for t in tickets if t['id'] in ticket_ids]
+            if not matched:
+                continue
+            exists = conn.execute('SELECT 1 FROM saas_clusters WHERE id=?', (existing_id,)).fetchone()
+            if not exists:
+                continue
+            for tid in ticket_ids:
+                conn.execute(
+                    'UPDATE saas_tickets SET saas_cluster_id=?, status=? WHERE id=? AND saas_cluster_id IS NULL',
+                    (existing_id, 'merged', tid)
+                )
+                conn.execute(
+                    'INSERT INTO saas_cluster_tickets VALUES (?,?) ON CONFLICT DO NOTHING',
+                    (existing_id, tid)
+                )
+            all_ticket_rows = conn.execute(
+                '''SELECT t.vendor_name, t.impact FROM saas_tickets t
+                   JOIN saas_cluster_tickets ct ON ct.ticket_id = t.id
+                   WHERE ct.cluster_id=?''', (existing_id,)
+            ).fetchall()
+            vendor_names = list({r['vendor_name'] for r in all_ticket_rows if r['vendor_name']})
+            impact_rank = {'high': 3, 'mid': 2, 'low': 1}
+            top_impact = max((r['impact'] for r in all_ticket_rows), key=lambda x: impact_rank.get(x, 0), default='mid')
+            conn.execute(
+                'UPDATE saas_clusters SET count=?, vendor_names=?, impact=? WHERE id=?',
+                (len(all_ticket_rows), json.dumps(vendor_names, ensure_ascii=False), top_impact, existing_id)
+            )
+
+        new_ids = _next_saas_cluster_ids(conn, len(create_new))
+        for cid, c in zip(new_ids, create_new):
+            ticket_ids = c.get('ticket_ids', [])
+            summary    = c.get('summary', '（无标题）')
+            layer      = c.get('layer', 'saas')
+            impact     = c.get('impact', 'mid')
+            ai_summary = c.get('ai_summary', '')
+            matched = [t for t in tickets if t['id'] in ticket_ids]
+            vendor_names = list({t['vendor_name'] for t in matched if t['vendor_name']})
+            conn.execute(
+                '''INSERT INTO saas_clusters
+                   (id, score, urgent, summary, layer, impact, vendor_names, count, periods, status, ai_summary)
+                   VALUES (?,0,0,?,?,?,?,?,1,'pending',?)
+                   ON CONFLICT (id) DO NOTHING''',
+                (cid, summary, layer, impact,
+                 json.dumps(vendor_names, ensure_ascii=False), len(matched), ai_summary)
+            )
+            created_count += 1
+            for tid in ticket_ids:
+                conn.execute(
+                    'UPDATE saas_tickets SET saas_cluster_id=?, status=? WHERE id=? AND saas_cluster_id IS NULL',
+                    (cid, 'merged', tid)
+                )
+                conn.execute(
+                    'INSERT INTO saas_cluster_tickets VALUES (?,?) ON CONFLICT DO NOTHING',
+                    (cid, tid)
+                )
+
+    return {
+        'merged_into_existing': len(merge_into_existing),
+        'created_new': created_count,
+        'ticket_count': len(tickets),
+    }
+
+
 @app.get('/')
 def root():
     return RedirectResponse(url='/dashboard.html')
