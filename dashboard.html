@@ -1978,7 +1978,10 @@ function renderClusterRows(list) {
     <tr onclick="openDrawer(${origIdx})">
       <td><span class="cluster-id">${c.id}</span>${c.urgent ? '<span class="urgent-tag">紧急</span>' : ''}</td>
       <td style="max-width:200px">${c.summary}</td>
-      <td><span class="badge ${layerClass[c.layer]}">${layerLabel[c.layer]}</span></td>
+      <td>
+        <span class="badge ${layerClass[c.layer]}">${layerLabel[c.layer]}</span>
+        ${c.relatedSaas && c.relatedSaas.length ? `<div style="font-size:10px;color:#6c5ce7;margin-top:3px">${c.relatedSaas.join('/')}</div>` : ''}
+      </td>
       <td><span class="badge ${impactClass[c.impact]}">${impactLabel[c.impact]}</span></td>
       <td>${c.sources.join(' ')}</td>
       <td>${c.count}次 / ${c.periods}周期</td>
@@ -2097,6 +2100,14 @@ function openDrawer(i) {
         <div class="mv">${c.count}次（跨 ${c.periods} 个周期）</div>
       </div>
     </div>
+
+    ${c.relatedSaas && c.relatedSaas.length ? `
+    <div style="margin-bottom:16px;padding:12px 16px;background:#f0eeff;border-left:3px solid #6c5ce7;border-radius:0 10px 10px 0">
+      <div style="font-size:11px;font-weight:700;color:#6c5ce7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏢 归属SaaS厂商</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${c.relatedSaas.map(v => `<span style="background:#6c5ce7;color:#fff;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600">${v}</span>`).join('')}
+      </div>
+    </div>` : ''}
 
     <div class="ai-summary">
       <div class="ai-label">✦ AI 生成摘要</div>
@@ -3324,6 +3335,7 @@ async function reloadClusters() {
     partners: c.partners || [],
     count: c.count, periods: c.periods, status: c.status,
     aiSummary: c.ai_summary,
+    relatedSaas: c.related_saas || [],
     items: (c.items || []).map(t => ({
       id: t.id, flag: t.flag, lang: t.lang, text: t.text, merchant: t.merchant,
       time: t.time, partner: t.partner_name, impact: t.impact,

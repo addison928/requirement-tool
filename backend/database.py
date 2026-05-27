@@ -75,20 +75,26 @@ def init_db():
         ''')
         conn.execute('''
             CREATE TABLE IF NOT EXISTS clusters (
-                id          TEXT PRIMARY KEY,
-                score       INTEGER DEFAULT 0,
-                urgent      INTEGER DEFAULT 0,
-                summary     TEXT,
-                layer       TEXT DEFAULT 'saas',
-                impact      TEXT DEFAULT 'mid',
-                source_ids  TEXT DEFAULT '[]',
-                partners    TEXT DEFAULT '[]',
-                count       INTEGER DEFAULT 1,
-                periods     INTEGER DEFAULT 1,
-                status      TEXT DEFAULT 'pending',
-                ai_summary  TEXT
+                id           TEXT PRIMARY KEY,
+                score        INTEGER DEFAULT 0,
+                urgent       INTEGER DEFAULT 0,
+                summary      TEXT,
+                layer        TEXT DEFAULT 'saas',
+                impact       TEXT DEFAULT 'mid',
+                source_ids   TEXT DEFAULT '[]',
+                partners     TEXT DEFAULT '[]',
+                count        INTEGER DEFAULT 1,
+                periods      INTEGER DEFAULT 1,
+                status       TEXT DEFAULT 'pending',
+                ai_summary   TEXT,
+                related_saas TEXT DEFAULT '[]'
             )
         ''')
+        # migrate: add related_saas if missing
+        try:
+            conn.execute("ALTER TABLE clusters ADD COLUMN related_saas TEXT DEFAULT '[]'")
+        except Exception:
+            pass
         conn.execute('''
             CREATE TABLE IF NOT EXISTS cluster_tickets (
                 cluster_id  TEXT NOT NULL,

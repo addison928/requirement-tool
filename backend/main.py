@@ -90,6 +90,7 @@ def cluster_row(row):
     d = row_to_dict(row)
     d['source_ids'] = parse_json_field(d.get('source_ids'), [])
     d['partners'] = parse_json_field(d.get('partners'), [])
+    d['related_saas'] = parse_json_field(d.get('related_saas'), [])
     d['urgent'] = bool(d.get('urgent', 0))
     # attach tickets
     with get_conn() as conn:
@@ -302,6 +303,7 @@ class ClusterUpdate(BaseModel):
     status: Optional[str] = None
     layer: Optional[str] = None
     ai_summary: Optional[str] = None
+    related_saas: Optional[list] = None
 
 
 @app.get('/api/clusters')
@@ -353,6 +355,7 @@ def list_clusters(
         d = row_to_dict(r)
         d['source_ids'] = parse_json_field(d.get('source_ids'), [])
         d['partners'] = parse_json_field(d.get('partners'), [])
+        d['related_saas'] = parse_json_field(d.get('related_saas'), [])
         d['urgent'] = bool(d.get('urgent', 0))
         d['items'] = tickets_by_cluster.get(d['id'], [])
         items.append(d)
@@ -372,6 +375,9 @@ def update_cluster(cluster_id: str, body: ClusterUpdate):
     if body.ai_summary is not None:
         sets.append('ai_summary=?')
         params.append(body.ai_summary)
+    if body.related_saas is not None:
+        sets.append('related_saas=?')
+        params.append(json.dumps(body.related_saas, ensure_ascii=False))
     if not sets:
         raise HTTPException(400, 'Nothing to update')
     params.append(cluster_id)
@@ -426,7 +432,7 @@ def _strip_markdown_json(raw: str) -> str:
     return raw.strip()
 
 
-def _call_deepseek(tickets: list[dict], existing_clusters: list[dict]) -> list[dict]:
+def _call_deepseek(tickets: list[dict], existing_clusters: list[dict], saas_vendors: list[dict] = None) -> list[dict]:
     api_key = os.environ.get('DEEPSEEK_API_KEY', '')
     if not api_key:
         raise ValueError('DEEPSEEK_API_KEY not set')
@@ -439,7 +445,10 @@ def _call_deepseek(tickets: list[dict], existing_clusters: list[dict]) -> list[d
 
     cluster_lines = []
     for c in existing_clusters:
-        cluster_lines.append(f"簇ID: {c['id']} | 标题: {c['summary']} | 摘要: {(c.get('ai_summary') or '')[:80]}")
+        rs = c.get('related_saas') or '[]'
+        if isinstance(rs, str):
+            rs = rs
+        cluster_lines.append(f"簇ID: {c['id']} | 标题: {c['summary']} | 归属SaaS: {rs} | 摘要: {(c.get('ai_summary') or '')[:60]}")
 
     existing_block = ''
     if cluster_lines:
@@ -448,9 +457,17 @@ def _call_deepseek(tickets: list[dict], existing_clusters: list[dict]) -> list[d
 {chr(10).join(cluster_lines)}
 """
 
+    vendor_block = ''
+    if saas_vendors:
+        vlines = [f"- {v['name']}（{v['industry']}）" for v in saas_vendors]
+        vendor_block = f"""
+【当前平台已接入的SaaS厂商列表】
+{chr(10).join(vlines)}
+"""
+
     prompt = f"""你是一个 SaaS 产品需求分析师，服务对象是海外代理商（泰国、印尼、意大利、法国、柬埔寨、马来西亚等）。
 工单描述语言可能为泰语、印尼语、意大利语、法语、英语或中文。
-{existing_block}
+{existing_block}{vendor_block}
 【待归并的新工单】（格式：ID | 国家 | 影响 | 场景 | 描述原文）
 {chr(10).join(ticket_lines)}
 
@@ -463,13 +480,17 @@ def _call_deepseek(tickets: list[dict], existing_clusters: list[dict]) -> list[d
 归并规则：
 1. 每条工单必须且只能属于一个需求簇
 2. 相似度判断要宽松：功能领域相同即可归并，不要求描述完全一致
-3. 归入已有簇时，使用 existing_cluster_id 字段填写已有簇ID，不要填 summary/layer/impact/ai_summary
-4. 新建簇时：layer 分类 saas/platform/cross，impact 取最高级，ai_summary 100-200字中文分析
+3. 归入已有簇时，使用 existing_cluster_id 字段，不要填 summary/layer/impact/ai_summary/related_saas
+4. 新建簇时：
+   - layer 分类：saas（功能由特定SaaS厂商提供）/ platform（我方平台自建）/ cross（跨层通用）
+   - impact 取最高级
+   - ai_summary：100-200字中文分析，说明需求场景、业务价值
+   - related_saas：若 layer=saas，从【SaaS厂商列表】中选出最匹配的厂商名称数组；若多个行业SaaS都涉及（通用能力）则填 ["通用"]；若 layer!=saas 则填 []
 5. 只对真正全新的需求才新建需求簇
 
 只返回合法 JSON 数组，不要 markdown 代码块标记，不要任何其他文字。
 归入已有簇的格式：{{"ticket_ids":["ID-0001"],"existing_cluster_id":"#028"}}
-新建簇的格式：{{"ticket_ids":["ID-0002","TH-0003"],"summary":"15字以内中文需求标题","layer":"saas","impact":"high","ai_summary":"100-200字中文分析..."}}"""
+新建簇的格式：{{"ticket_ids":["ID-0002","TH-0003"],"summary":"15字以内中文需求标题","layer":"saas","impact":"high","ai_summary":"100-200字中文分析...","related_saas":["厂商名称"]}}"""
 
     client = OpenAI(api_key=api_key, base_url='https://api.deepseek.com')
     response = client.chat.completions.create(
@@ -493,7 +514,10 @@ def run_merge():
             "SELECT * FROM tickets WHERE cluster_id IS NULL AND status='pending'"
         ).fetchall()
         existing_rows = conn.execute(
-            "SELECT id, summary, ai_summary FROM clusters WHERE status != 'live' ORDER BY score DESC"
+            "SELECT id, summary, ai_summary, related_saas FROM clusters WHERE status != 'live' ORDER BY score DESC"
+        ).fetchall()
+        saas_vendor_rows = conn.execute(
+            "SELECT name, industry FROM saas_vendors ORDER BY name"
         ).fetchall()
 
     if not pending_rows:
@@ -501,9 +525,10 @@ def run_merge():
 
     tickets = [ticket_row(r) for r in pending_rows]
     existing_clusters = [dict(r) for r in existing_rows]
+    saas_vendors = [dict(r) for r in saas_vendor_rows]
 
     try:
-        clusters_data = _call_deepseek(tickets, existing_clusters)
+        clusters_data = _call_deepseek(tickets, existing_clusters, saas_vendors)
     except json.JSONDecodeError as e:
         raise HTTPException(500, f'LLM 返回内容无法解析为 JSON: {e}')
     except Exception as e:
@@ -573,18 +598,22 @@ def run_merge():
             ai_summary = c.get('ai_summary', '')
 
             matched = [t for t in tickets if t['id'] in ticket_ids]
-            source_ids = list({t['country_id'] for t in matched if t['country_id']})
-            partners   = list({t['partner_name'] for t in matched if t['partner_name']})
+            source_ids   = list({t['country_id'] for t in matched if t['country_id']})
+            partners     = list({t['partner_name'] for t in matched if t['partner_name']})
+            related_saas = c.get('related_saas', [])
+            if not isinstance(related_saas, list):
+                related_saas = []
 
             conn.execute(
                 '''INSERT INTO clusters
-                   (id, score, urgent, summary, layer, impact, source_ids, partners, count, periods, status, ai_summary)
-                   VALUES (?,0,0,?,?,?,?,?,?,1,'pending',?)
+                   (id, score, urgent, summary, layer, impact, source_ids, partners, count, periods, status, ai_summary, related_saas)
+                   VALUES (?,0,0,?,?,?,?,?,?,1,'pending',?,?)
                    ON CONFLICT (id) DO NOTHING''',
                 (cid, summary, layer, impact,
                  json.dumps(source_ids, ensure_ascii=False),
                  json.dumps(partners,   ensure_ascii=False),
-                 len(matched), ai_summary)
+                 len(matched), ai_summary,
+                 json.dumps(related_saas, ensure_ascii=False))
             )
             created_count += 1
 
