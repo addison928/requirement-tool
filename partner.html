@@ -761,6 +761,11 @@ if (!partner) {
   document.getElementById('partnerName').textContent = partner.name;
   document.getElementById('submitLink').href = 'form.html?token=' + partner.token;
 
+  loadTickets();
+}
+
+function loadTickets() {
+  if (!partner) return;
   fetch(`${API_BASE}/api/tickets?token=${partner.token}&page_size=200`)
     .then(r => r.json())
     .then(data => {
@@ -778,8 +783,13 @@ if (!partner) {
         tickets.filter(t => ['scheduled','dev','live'].includes(t.status)).length;
       renderList(partner.id);
     })
-    .catch(() => renderList(partner.id));
+    .catch(() => renderList(partner ? partner.id : null));
 }
+
+// ── Tab visibility: refresh when user switches back ───────────────────────────
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') loadTickets();
+});
 
 // ── Onboarding Guide ──────────────────────────────────────────────────────────
 const ONBOARD_KEY = 'rm_onboarded_partner';

@@ -3127,6 +3127,15 @@ init().catch(err => {
   renderTable();
 });
 
+// ── Tab visibility: refresh data when user switches back ──────────────────────
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    Promise.all([reloadPartners(), reloadClusters(), reloadTickets()])
+      .then(() => { rebuildCountryFilters(); renderTable(); renderAllTable(); })
+      .catch(() => {});
+  }
+});
+
 // ── Onboarding Guide ──────────────────────────────────────────────────────────
 const ONBOARD_KEY = 'rm_onboarded_dashboard';
 const ONBOARD_STEPS = [
