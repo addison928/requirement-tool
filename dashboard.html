@@ -1235,8 +1235,8 @@
       border-radius: 0 0 20px 20px;
     }
 
-    /* Hide hamburger on desktop */
-    #mobMenuBtn { display: none; }
+    /* Hide mobile-only elements on desktop */
+    #mobMenuBtn, #mobMergeBtn, #mobFilterStrip { display: none; }
 
     /* ── Mobile ── */
     @media (max-width: 768px) {
@@ -1325,14 +1325,12 @@
       .meta-row { flex-direction: column; gap: 10px; }
       .td-grid { grid-template-columns: 1fr; }
 
-      /* Topbar: wrap to multiple rows on mobile */
+      /* Topbar: single row — hamburger | title | merge btn */
       .topbar {
-        height: auto;
-        min-height: 52px;
-        flex-wrap: wrap;
-        padding: 10px 12px;
+        height: 52px;
+        flex-wrap: nowrap;
+        padding: 0 12px;
         gap: 8px;
-        align-items: center;
       }
       #topbarTitle {
         flex: 1;
@@ -1342,34 +1340,37 @@
         text-overflow: ellipsis;
         min-width: 0;
       }
-      .topbar-right {
-        width: 100%;
+      /* Hide the full topbar-right; show only merge button */
+      .topbar-right { display: none !important; }
+      /* Inline merge button shown directly in topbar on mobile */
+      #mobMergeBtn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: #0071e3;
+        color: #fff;
+        border: none;
+        border-radius: 980px;
+        padding: 7px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        font-family: inherit;
+      }
+      /* Mobile filter strip: shown below topbar inside content */
+      .mob-filter-strip {
+        display: flex;
         flex-wrap: wrap;
         gap: 6px;
-        align-items: center;
+        margin-bottom: 14px;
       }
-      /* Override inline style on dashFilters */
-      .dash-filters {
-        flex-wrap: wrap !important;
-        gap: 6px !important;
-        width: 100%;
-        align-items: center !important;
-      }
-      .dash-filters .filter-select {
+      .mob-filter-strip .filter-select {
         flex: 1 1 calc(50% - 6px);
         min-width: 100px;
         font-size: 12px;
       }
-      #topbarActions {
-        width: 100%;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      #mergeStatus { display: none; }
-      /* Compact buttons */
-      #mergeBtn { padding: 7px 14px !important; font-size: 12px; }
-      #topbarActions .btn-primary { padding: 7px 14px; font-size: 12px; }
 
       /* Tab bar scrollable */
       .tab-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; padding-bottom: 2px; }
@@ -1411,6 +1412,7 @@
   <div class="topbar">
     <button id="mobMenuBtn" onclick="openMobMenu()" aria-label="菜单">☰</button>
     <h1 id="topbarTitle">需求看板 · Requirement Dashboard</h1>
+    <button id="mobMergeBtn" onclick="runMerge()" style="display:none">⚡ 归并</button>
     <div class="topbar-right">
       <div id="dashFilters" class="dash-filters" style="display:flex;gap:12px;align-items:center">
         <select class="filter-select" id="dashFilterCountry" onchange="renderTable()">
@@ -1434,6 +1436,24 @@
         <button class="btn-primary" style="background:transparent;color:#1d1d1f;border:1.5px solid #d2d2d7" onclick="openScoringPanel()">⚙ 评分规则</button>
       </div>
     </div>
+  </div>
+
+  <!-- Mobile filter strip (visible only on mobile) -->
+  <div class="mob-filter-strip" id="mobFilterStrip" style="display:none;padding:10px 12px 0">
+    <select class="filter-select" onchange="document.getElementById('dashFilterCountry').value=this.value;renderTable()">
+      <option value="">全部国家</option>
+      <option value="TH">🇹🇭 泰国</option>
+      <option value="ID">🇮🇩 印尼</option>
+      <option value="IT">🇮🇹 意大利</option>
+      <option value="KH">🇰🇭 柬埔寨</option>
+      <option value="MY">🇲🇾 马来西亚</option>
+    </select>
+    <select class="filter-select" onchange="document.getElementById('dashFilterPeriod').value=this.value;renderTable()">
+      <option value="">全部周期</option>
+      <option value="2026-W22">2026-W22（当前）</option>
+      <option value="2026-W21">2026-W21</option>
+      <option value="2026-W20">2026-W20</option>
+    </select>
   </div>
 
   <!-- Page: Dashboard -->
@@ -3963,10 +3983,18 @@ function closeMobMenu() {
   document.querySelector('.sidebar').classList.remove('mob-open');
   document.getElementById('mobOverlay').classList.remove('show');
 }
-// Close sidebar when nav item clicked on mobile
 document.querySelectorAll('.nav-item').forEach(el => {
   el.addEventListener('click', () => { if (window.innerWidth <= 768) closeMobMenu(); });
 });
+
+// Show/hide mobile-only elements based on viewport
+function applyMobLayout() {
+  const mob = window.innerWidth <= 768;
+  document.getElementById('mobMergeBtn').style.display = mob ? 'flex' : 'none';
+  document.getElementById('mobFilterStrip').style.display = mob ? 'flex' : 'none';
+}
+applyMobLayout();
+window.addEventListener('resize', applyMobLayout);
 </script>
 
 <!-- Onboarding Overlay -->
