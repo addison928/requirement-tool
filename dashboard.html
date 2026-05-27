@@ -2027,7 +2027,7 @@ function saveStatus() {
     method: 'PUT', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status: val }),
   });
-  renderTable();
+  renderTable(); renderAllClusters(); renderAllTable();
   closeDrawer();
 }
 
@@ -2227,7 +2227,7 @@ function saveLayer() {
     method: 'PUT', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ layer: newLayer }),
   });
-  renderTable();
+  renderTable(); renderAllClusters();
   showToast(`归属层已更新为「${layerLabel[newLayer]}」`);
 }
 
@@ -3007,6 +3007,7 @@ async function runMerge() {
       showToast(`✦ AI 归并完成：处理 ${res.ticket_count} 条工单，新增 ${res.created} 个需求簇`);
       statusEl.textContent = `上次归并：刚刚 · 新增 ${res.created} 簇`;
       await Promise.all([reloadClusters(), reloadTickets()]);
+      renderTable(); renderAllClusters(); renderAllTable();
     }
   } catch(e) {
     showToast('归并失败：' + (e.message || '请检查后端服务和 DEEPSEEK_API_KEY'));
@@ -3397,8 +3398,8 @@ async function runSaasMerge() {
     const r = await fetch(`${API_BASE}/api/saas-merge`, { method: 'POST' });
     const data = await r.json();
     if (!r.ok) { showToast(data.detail || 'AI归并失败', true); return; }
-    await reloadSaasClusters();
-    renderSaasClusters();
+    await Promise.all([reloadSaasClusters(), reloadSaasTickets()]);
+    renderSaasClusters(); renderSaasTickets();
     showToast(`归并完成：新建 ${data.created_new} 簇，归入已有 ${data.merged_into_existing} 簇`);
   } catch(e) {
     showToast('归并请求失败', true);
