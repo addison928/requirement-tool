@@ -555,17 +555,20 @@
     /* ── Mobile ── */
     @media (max-width: 640px) {
       .header {
-        padding: 18px 16px;
+        padding: 16px;
         flex-wrap: wrap;
-        gap: 14px;
+        gap: 12px;
+        align-items: flex-start;
       }
-      .header-left { gap: 12px; }
-      .partner-avatar { width: 40px; height: 40px; font-size: 20px; }
+      .header-left { gap: 10px; flex: 1 1 100%; }
+      .partner-avatar { width: 38px; height: 38px; font-size: 18px; border-radius: 10px; }
       .partner-info h1 { font-size: 15px; }
-      .header-stats { gap: 8px; flex-wrap: wrap; }
-      .stat-pill { padding: 8px 14px; min-width: 76px; }
-      .stat-pill .sv { font-size: 20px; }
-      .header-right { width: 100%; justify-content: flex-end; }
+      .partner-info p { font-size: 11px; }
+      .header-stats { gap: 8px; flex: 1 1 auto; }
+      .stat-pill { padding: 8px 14px; min-width: 72px; }
+      .stat-pill .sv { font-size: 18px; }
+      .stat-pill .sl { font-size: 10px; }
+      .header-right { flex: 0 0 auto; align-self: center; }
 
       .content { padding: 16px 12px 60px; }
 
@@ -577,6 +580,19 @@
 
       .filter-bar { flex-wrap: wrap; gap: 6px; }
       .filter-bar select, .filter-bar input { flex: 1 1 calc(50% - 6px); min-width: 100px; }
+
+      /* Section head wraps */
+      .section-head { flex-wrap: wrap; gap: 10px; }
+      .section-head h2 { flex: 1 0 100%; }
+
+      /* Filter segmented control: scrollable */
+      .filter-row { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-shrink: 0; max-width: 100%; }
+
+      /* Tabs scrollable */
+      .tabs-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+      /* Cluster card content */
+      .cluster-meta { flex-wrap: wrap; gap: 6px; }
 
       /* Cluster detail modal full-screen */
       #clusterModal > div {
