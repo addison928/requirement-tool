@@ -384,11 +384,18 @@ def _next_cluster_ids(conn, count: int) -> list[str]:
     rows = conn.execute("SELECT id FROM clusters WHERE id LIKE '#%'").fetchall()
     nums = []
     for r in rows:
-        tail = r[0][1:]
+        tail = r['id'][1:]
         if tail.isdigit():
             nums.append(int(tail))
     start = max(nums, default=0) + 1
     return [f'#{start + i:03d}' for i in range(count)]
+
+
+def _strip_markdown_json(raw: str) -> str:
+    """Remove markdown code fences regardless of placement (multiline or inline)."""
+    raw = re.sub(r'```[a-z]*', '', raw)
+    raw = re.sub(r'```', '', raw)
+    return raw.strip()
 
 
 def _call_deepseek(tickets: list[dict], existing_clusters: list[dict]) -> list[dict]:
@@ -443,8 +450,7 @@ def _call_deepseek(tickets: list[dict], existing_clusters: list[dict]) -> list[d
         max_tokens=4096,
     )
     raw = response.choices[0].message.content.strip()
-    raw = re.sub(r'^```[a-z]*\n?', '', raw, flags=re.MULTILINE)
-    raw = re.sub(r'\n?```$', '', raw, flags=re.MULTILINE)
+    raw = _strip_markdown_json(raw)
     return json.loads(raw)
 
 
@@ -491,6 +497,10 @@ def run_merge():
             ticket_ids = c.get('ticket_ids', [])
             matched = [t for t in tickets if t['id'] in ticket_ids]
             if not matched:
+                continue
+            # Validate cluster actually exists — guard against LLM hallucinated IDs
+            exists = conn.execute('SELECT 1 FROM clusters WHERE id=?', (existing_id,)).fetchone()
+            if not exists:
                 continue
 
             for tid in ticket_ids:
