@@ -1149,7 +1149,7 @@ def run_saas_merge():
 
 @app.get('/')
 def root():
-    return RedirectResponse(url='/dashboard.html')
+    return RedirectResponse(url='/需求看板.html')
 
 
 # ── Serve frontend static files (must be last) ───────────────────────────────
