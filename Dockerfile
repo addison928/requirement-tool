@@ -9,8 +9,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/ backend/
 
-# Copy frontend HTML files
+# Copy frontend HTML and JS files
 COPY *.html .
+COPY *.js .
 
 EXPOSE 8000
 
