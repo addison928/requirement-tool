@@ -1152,6 +1152,21 @@ def root():
     return RedirectResponse(url='/需求看板.html')
 
 
+@app.get('/dashboard')
+def dashboard():
+    return RedirectResponse(url='/需求看板.html')
+
+
+@app.get('/submit')
+def submit():
+    return RedirectResponse(url='/需求提报.html')
+
+
+@app.get('/track')
+def track():
+    return RedirectResponse(url='/我的需求追踪.html')
+
+
 # ── Serve frontend static files (must be last) ───────────────────────────────
 _frontend_dir = os.path.join(os.path.dirname(__file__), '..')
 app.mount('/', StaticFiles(directory=_frontend_dir, html=True), name='frontend')
