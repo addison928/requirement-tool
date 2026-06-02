@@ -23,6 +23,7 @@ from openai import OpenAI
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -1147,54 +1148,53 @@ def run_saas_merge():
     }
 
 
+_frontend_dir = os.path.join(os.path.dirname(__file__), '..')
+
+
+def _serve_html(filename: str):
+    """Serve an HTML file from the frontend directory."""
+    return FileResponse(os.path.join(_frontend_dir, filename), media_type='text/html; charset=utf-8')
+
+
 @app.get('/')
 def root(request: Request):
-    return RedirectResponse(url='/需求看板.html')
+    return _serve_html('需求看板.html')
 
 
 @app.get('/dashboard')
 def dashboard():
-    return RedirectResponse(url='/需求看板.html')
+    return _serve_html('需求看板.html')
 
 
 @app.get('/form')
-def form(request: Request):
-    """Back-compat: alias for /submit"""
-    q = str(request.query_params)
-    return RedirectResponse(url=f'/需求提报.html?{q}' if q else '/需求提报.html')
+def form():
+    return _serve_html('需求提报.html')
 
 
 @app.get('/partner')
-def partner(request: Request):
-    """Back-compat: alias for /track"""
-    q = str(request.query_params)
-    return RedirectResponse(url=f'/我的需求追踪.html?{q}' if q else '/我的需求追踪.html')
+def partner():
+    return _serve_html('我的需求追踪.html')
 
 
 @app.get('/submit')
-def submit(request: Request):
-    q = str(request.query_params)
-    return RedirectResponse(url=f'/需求提报.html?{q}' if q else '/需求提报.html')
+def submit():
+    return _serve_html('需求提报.html')
 
 
 @app.get('/track')
-def track(request: Request):
-    q = str(request.query_params)
-    return RedirectResponse(url=f'/我的需求追踪.html?{q}' if q else '/我的需求追踪.html')
+def track():
+    return _serve_html('我的需求追踪.html')
 
 
 @app.get('/saas-form')
-def saas_form(request: Request):
-    q = str(request.query_params)
-    return RedirectResponse(url=f'/SaaS需求提交.html?{q}' if q else '/SaaS需求提交.html')
+def saas_form():
+    return _serve_html('SaaS需求提交.html')
 
 
 @app.get('/saas-track')
-def saas_track(request: Request):
-    q = str(request.query_params)
-    return RedirectResponse(url=f'/SaaS需求追踪.html?{q}' if q else '/SaaS需求追踪.html')
+def saas_track():
+    return _serve_html('SaaS需求追踪.html')
 
 
 # ── Serve frontend static files (must be last) ───────────────────────────────
-_frontend_dir = os.path.join(os.path.dirname(__file__), '..')
 app.mount('/', StaticFiles(directory=_frontend_dir, html=True), name='frontend')
