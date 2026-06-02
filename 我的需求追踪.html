@@ -639,7 +639,7 @@
     </div>
   </div>
   <div class="header-right">
-    <a id="submitLink" href="需求提报.html" class="btn-outline">＋ 提交新需求</a>
+    <a id="submitLink" href="form" class="btn-outline">＋ 提交新需求</a>
   </div>
 </div>
 
@@ -813,7 +813,7 @@ if (!partner) {
   document.getElementById('mainWrap').style.display = '';
   document.getElementById('partnerFlag').textContent = partner.flag;
   document.getElementById('partnerName').textContent = partner.name;
-  document.getElementById('submitLink').href = '需求提报.html?token=' + partner.token;
+  document.getElementById('submitLink').href = 'form?token=' + partner.token;
 
   loadTickets();
 }

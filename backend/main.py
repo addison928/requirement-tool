@@ -1148,7 +1148,7 @@ def run_saas_merge():
 
 
 @app.get('/')
-def root():
+def root(request: Request):
     return RedirectResponse(url='/需求看板.html')
 
 
@@ -1157,14 +1157,42 @@ def dashboard():
     return RedirectResponse(url='/需求看板.html')
 
 
+@app.get('/form')
+def form(request: Request):
+    """Back-compat: alias for /submit"""
+    q = str(request.query_params)
+    return RedirectResponse(url=f'/需求提报.html?{q}' if q else '/需求提报.html')
+
+
+@app.get('/partner')
+def partner(request: Request):
+    """Back-compat: alias for /track"""
+    q = str(request.query_params)
+    return RedirectResponse(url=f'/我的需求追踪.html?{q}' if q else '/我的需求追踪.html')
+
+
 @app.get('/submit')
-def submit():
-    return RedirectResponse(url='/需求提报.html')
+def submit(request: Request):
+    q = str(request.query_params)
+    return RedirectResponse(url=f'/需求提报.html?{q}' if q else '/需求提报.html')
 
 
 @app.get('/track')
-def track():
-    return RedirectResponse(url='/我的需求追踪.html')
+def track(request: Request):
+    q = str(request.query_params)
+    return RedirectResponse(url=f'/我的需求追踪.html?{q}' if q else '/我的需求追踪.html')
+
+
+@app.get('/saas-form')
+def saas_form(request: Request):
+    q = str(request.query_params)
+    return RedirectResponse(url=f'/SaaS需求提交.html?{q}' if q else '/SaaS需求提交.html')
+
+
+@app.get('/saas-track')
+def saas_track(request: Request):
+    q = str(request.query_params)
+    return RedirectResponse(url=f'/SaaS需求追踪.html?{q}' if q else '/SaaS需求追踪.html')
 
 
 # ── Serve frontend static files (must be last) ───────────────────────────────

@@ -630,7 +630,7 @@
     </div>
   </div>
   <div class="header-right">
-    <a id="submitLink" href="SaaS需求提交.html" class="btn-outline">＋ 提交新需求</a>
+    <a id="submitLink" href="saas-form" class="btn-outline">＋ 提交新需求</a>
   </div>
 </div>
 
@@ -822,7 +822,7 @@ async function init() {
     document.getElementById('vendorCode').textContent = vendor.code || vendor.name.slice(0, 3).toUpperCase();
     document.getElementById('vendorName').textContent = vendor.name;
     document.getElementById('vendorIndustry').textContent = `${vendor.industry} · 需求追踪视图`;
-    document.getElementById('submitLink').href = `SaaS需求提交.html?token=${token}`;
+    document.getElementById('submitLink').href = `saas-form?token=${token}`;
 
     await loadTickets(token);
   } catch (e) {

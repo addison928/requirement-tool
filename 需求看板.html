@@ -3214,8 +3214,8 @@ function renderPartnersPage() {
   const container = document.getElementById('partnersCardList');
   if (!container) return;
   container.innerHTML = partnersList.map(p => {
-    const formUrl    = `${base}需求提报.html?token=${p.token}`;
-    const partnerUrl = `${base}我的需求追踪.html?token=${p.token}`;
+    const formUrl    = `${base}form?token=${p.token}`;
+    const partnerUrl = `${base}partner?token=${p.token}`;
     return `
     <div style="background:#fff;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.08),0 0 1px rgba(0,0,0,0.04);padding:20px 24px;transition:all 0.2s ease">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
