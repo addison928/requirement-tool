@@ -1,8 +1,18 @@
 FROM python:3.11-slim
+
 WORKDIR /app
-COPY . .
-RUN pip install -r backend/requirements.txt
-ENV PYTHONIOENCODING=utf-8
+
+# Install dependencies
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend code
+COPY backend/ backend/
+
+# Copy frontend HTML files
+COPY *.html .
+
 EXPOSE 8000
-CMD cd backend && python3 seed.py 2>/dev/null; \
-    uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+
+# Start server (Supabase REST API mode, no local DB needed)
+CMD cd backend && PYTHONIOENCODING=utf-8 uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}

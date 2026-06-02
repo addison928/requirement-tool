@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+load_dotenv('../.env')  # project root
+load_dotenv()  # backend dir fallback
+
 import json
 import os
 import random
@@ -83,6 +87,7 @@ def ticket_row(row):
     d['scenes'] = parse_json_field(d.get('scenes'), [])
     d['attachments'] = parse_json_field(d.get('attachments'), [])
     d['manual'] = bool(d.get('manual', 0))
+    d['user_summary'] = d.get('user_summary', '') or ''
     return d
 
 
@@ -106,15 +111,15 @@ def cluster_row(row):
     return d
 
 
-def generate_token(country_id: str) -> str:
+def generate_token(region_id: str) -> str:
     suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-    return f'{country_id}_{suffix}'
+    return f'{region_id}_{suffix}'
 
 
-def generate_ticket_id(country_id: str) -> str:
+def generate_ticket_id(region_id: str) -> str:
     with get_conn() as conn:
         for _ in range(20):
-            tid = f'{country_id}-{random.randint(1000, 9999)}'
+            tid = f'{region_id}-{random.randint(1000, 9999)}'
             exists = conn.execute('SELECT 1 FROM tickets WHERE id=?', (tid,)).fetchone()
             if not exists:
                 return tid
@@ -128,8 +133,8 @@ def get_stats():
     with get_conn() as conn:
         total_tickets = conn.execute('SELECT COUNT(*) FROM tickets').fetchone()[0]
         total_clusters = conn.execute('SELECT COUNT(*) FROM clusters').fetchone()[0]
-        by_country = conn.execute(
-            'SELECT country_id, COUNT(*) as cnt FROM tickets GROUP BY country_id ORDER BY cnt DESC'
+        by_region = conn.execute(
+            'SELECT region_id, COUNT(*) as cnt FROM tickets GROUP BY region_id ORDER BY cnt DESC'
         ).fetchall()
         by_layer = conn.execute(
             'SELECT layer, COUNT(*) as cnt FROM clusters GROUP BY layer'
@@ -137,7 +142,7 @@ def get_stats():
     return {
         'total_tickets': total_tickets,
         'total_clusters': total_clusters,
-        'by_country': [dict(r) for r in by_country],
+        'by_region': [dict(r) for r in by_region],
         'by_layer': [dict(r) for r in by_layer],
     }
 
@@ -145,12 +150,12 @@ def get_stats():
 # ── Partners ────────────────────────────────────────────────────────────────
 
 class PartnerIn(BaseModel):
-    country_id: str
-    flag: str
-    country_name: str
+    region_id: str
+    region_name: str
     name: str
-    lang: str = 'en'
+    lang: str = 'zh'
     tier: str = 'normal'
+    flag: str = ''
 
 
 @app.get('/api/partners')
@@ -162,24 +167,24 @@ def list_partners():
 
 @app.post('/api/partners', status_code=201)
 def create_partner(body: PartnerIn):
-    token = generate_token(body.country_id.upper())
+    token = generate_token(body.region_id.upper())
     with get_conn() as conn:
         conn.execute(
             'INSERT INTO partners VALUES (?,?,?,?,?,?,?)',
-            (token, body.country_id.upper(), body.flag, body.country_name,
-             body.name, body.lang, body.tier)
+            (token, body.region_id.upper(), body.region_name,
+             body.name, body.lang, body.tier, body.flag)
         )
-    return {'token': token, **body.dict(), 'country_id': body.country_id.upper()}
+    return {'token': token, **body.dict(), 'region_id': body.region_id.upper()}
 
 
 @app.put('/api/partners/{token}')
 def update_partner(token: str, body: PartnerIn):
     with get_conn() as conn:
         cur = conn.execute(
-            '''UPDATE partners SET country_id=?, flag=?, country_name=?, name=?, lang=?, tier=?
+            '''UPDATE partners SET region_id=?, region_name=?, name=?, lang=?, tier=?, flag=?
                WHERE token=?''',
-            (body.country_id.upper(), body.flag, body.country_name,
-             body.name, body.lang, body.tier, token)
+            (body.region_id.upper(), body.region_name,
+             body.name, body.lang, body.tier, body.flag, token)
         )
         if cur.rowcount == 0:
             raise HTTPException(404, 'Partner not found')
@@ -205,6 +210,7 @@ class TicketIn(BaseModel):
     biz_type: Optional[str] = None
     lang: Optional[str] = None
     manual: bool = False
+    user_summary: Optional[str] = ''
 
 
 class TicketUpdate(BaseModel):
@@ -215,7 +221,7 @@ class TicketUpdate(BaseModel):
 @app.get('/api/tickets')
 def list_tickets(
     token: Optional[str] = None,
-    country: Optional[str] = None,
+    region: Optional[str] = None,
     status: Optional[str] = None,
     impact: Optional[str] = None,
     search: Optional[str] = None,
@@ -225,13 +231,13 @@ def list_tickets(
     clauses, params = [], []
     if token:
         with get_conn() as conn:
-            p = conn.execute('SELECT country_id FROM partners WHERE token=?', (token,)).fetchone()
+            p = conn.execute('SELECT region_id FROM partners WHERE token=?', (token,)).fetchone()
         if p:
-            clauses.append('country_id=?')
-            params.append(p['country_id'])
-    if country and country != 'all':
-        clauses.append('country_id=?')
-        params.append(country)
+            clauses.append('region_id=?')
+            params.append(p['region_id'])
+    if region and region != 'all':
+        clauses.append('region_id=?')
+        params.append(region)
     if status and status != 'all':
         clauses.append('status=?')
         params.append(status)
@@ -263,17 +269,18 @@ def create_ticket(body: TicketIn):
         raise HTTPException(400, 'Invalid token')
     partner = row_to_dict(partner)
 
-    tid = generate_ticket_id(partner['country_id'])
+    tid = generate_ticket_id(partner['region_id'])
     now = datetime.now(_TZ_CST).strftime('%Y-%m-%d %H:%M')
 
     with get_conn() as conn:
         conn.execute(
             'INSERT INTO tickets VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-            (tid, partner['flag'], partner['name'], partner['country_id'],
+            (tid, partner['name'], partner['region_id'],
              body.text, body.merchant, body.impact,
              json.dumps(body.scenes, ensure_ascii=False),
              body.biz_type, now, 'pending', None, '[]',
-             1 if body.manual else 0, body.lang or partner['lang'])
+             1 if body.manual else 0, body.lang or partner['lang'],
+             body.user_summary or '')
         )
     return {'id': tid, 'time': now, 'status': 'pending'}
 
@@ -308,15 +315,15 @@ class ClusterUpdate(BaseModel):
 
 @app.get('/api/clusters')
 def list_clusters(
-    country: Optional[str] = None,
+    region: Optional[str] = None,
     status: Optional[str] = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(200, ge=1, le=200),
 ):
     clauses, params = [], []
-    if country and country != 'all':
+    if region and region != 'all':
         clauses.append("source_ids LIKE ?")
-        params.append(f'%"{country}"%')
+        params.append(f'%"{region}"%')
     if status and status != 'all':
         clauses.append('status=?')
         params.append(status)
@@ -412,6 +419,59 @@ def save_scoring_config(body: dict):
     return {'ok': True}
 
 
+# ── AI Preview (Requirement Analysis) ────────────────────────────────────────
+
+class PreviewIn(BaseModel):
+    text: str
+    impact: str = 'mid'
+    scenes: list[str] = []
+    biz_type: Optional[str] = None
+    lang: Optional[str] = 'zh'
+
+
+def _call_deepseek_preview(text: str, impact: str, scenes: list, biz_type: Optional[str]) -> str:
+    api_key = os.environ.get('DEEPSEEK_API_KEY', '')
+    if not api_key:
+        raise ValueError('DEEPSEEK_API_KEY not set')
+
+    scenes_str = ', '.join(scenes) if scenes else '-'
+    biz_str = biz_type or '-'
+    impact_str = {'high': '高', 'mid': '中', 'low': '低'}.get(impact, impact)
+
+    prompt = f"""你是一位便利店产品经理。门店用户提交了一条口语化的反馈，请改写成产品经理能快速理解的简短描述。
+
+规则：
+1. 保留原意，不编造信息
+2. 口语转书面语，用产品术语（如"东西卖不掉"→"部分商品滞销"）
+3. 格式：一句话说明场景+问题，一句话说明期望
+4. **总字数不超过 80 字**
+5. 只输出文本，不要标题、不要分点、不要 markdown
+
+【原始描述】{text}
+【门店类型】{biz_str}
+【影响程度】{impact_str}"""
+
+    client = OpenAI(api_key=api_key, base_url='https://api.deepseek.com')
+    response = client.chat.completions.create(
+        model='deepseek-chat',
+        messages=[{'role': 'user', 'content': prompt}],
+        max_tokens=200,
+    )
+    return response.choices[0].message.content.strip()
+
+
+@app.post('/api/preview-ticket')
+def preview_ticket(body: PreviewIn):
+    api_key = os.environ.get('DEEPSEEK_API_KEY', '')
+    if not api_key:
+        raise HTTPException(500, 'DEEPSEEK_API_KEY not set on the server')
+    try:
+        summary = _call_deepseek_preview(body.text, body.impact, body.scenes, body.biz_type)
+        return {'summary': summary}
+    except Exception as e:
+        raise HTTPException(500, f'AI 分析失败: {e}')
+
+
 # ── AI Merge ─────────────────────────────────────────────────────────────────
 
 def _next_cluster_ids(conn, count: int) -> list[str]:
@@ -441,7 +501,7 @@ def _call_deepseek(tickets: list[dict], existing_clusters: list[dict], saas_vend
     for t in tickets:
         scenes = ', '.join(t['scenes']) if t['scenes'] else '-'
         text = (t['text'] or '').encode('utf-8', errors='replace').decode('utf-8')
-        ticket_lines.append(f"ID: {t['id']} | Country: {t['country_id']} | Impact: {t['impact']} | Scenes: {scenes} | Text: {text}")
+        ticket_lines.append(f"ID: {t['id']} | 区域: {t['region_id']} | Impact: {t['impact']} | Scenes: {scenes} | Text: {text}")
 
     cluster_lines = []
     for c in existing_clusters:
@@ -465,17 +525,17 @@ def _call_deepseek(tickets: list[dict], existing_clusters: list[dict], saas_vend
 {chr(10).join(vlines)}
 """
 
-    prompt = f"""你是一个 SaaS 产品需求分析师，服务对象是海外代理商（泰国、印尼、意大利、法国、柬埔寨、马来西亚等）。
-工单描述语言可能为泰语、印尼语、意大利语、法语、英语或中文。
+    prompt = f"""你是一个 SaaS 产品需求分析师，服务对象是国内各区域代理商（华北、华南、华东、华中、西部等）。
+工单描述语言为中文。
 {existing_block}{vendor_block}
-【待归并的新工单】（格式：ID | 国家 | 影响 | 场景 | 描述原文）
+【待归并的新工单】（格式：ID | 区域 | 影响 | 场景 | 描述原文）
 {chr(10).join(ticket_lines)}
 
 归并原则（非常重要）：
 - 【优先归入已有需求簇】：如果新工单与已有需求簇描述的是同一类功能，必须归入已有簇，不要新建簇。
 - 【宁可多归并，不要拆散】：只要功能领域相同，无论措辞差异多大、语言是否相同，都应归为一簇。
 - 对于描述模糊或极短的工单，优先与语义最接近的簇合并，不要单独成簇。
-- 不同国家反馈同一功能缺失的工单，必须归为一簇。
+- 不同区域反馈同一功能缺失的工单，必须归为一簇。
 
 归并规则：
 1. 每条工单必须且只能属于一个需求簇
@@ -568,13 +628,13 @@ def run_merge():
 
             # Recalculate cluster metadata
             all_ticket_rows = conn.execute(
-                '''SELECT t.country_id, t.partner_name, t.impact FROM tickets t
+                '''SELECT t.region_id, t.partner_name, t.impact FROM tickets t
                    JOIN cluster_tickets ct ON ct.ticket_id = t.id
                    WHERE ct.cluster_id=?''',
                 (existing_id,)
             ).fetchall()
 
-            source_ids = list({r['country_id'] for r in all_ticket_rows if r['country_id']})
+            source_ids = list({r['region_id'] for r in all_ticket_rows if r['region_id']})
             partners   = list({r['partner_name'] for r in all_ticket_rows if r['partner_name']})
             impact_rank = {'high': 3, 'mid': 2, 'low': 1}
             top_impact = max((r['impact'] for r in all_ticket_rows), key=lambda x: impact_rank.get(x, 0), default='mid')
@@ -598,7 +658,7 @@ def run_merge():
             ai_summary = c.get('ai_summary', '')
 
             matched = [t for t in tickets if t['id'] in ticket_ids]
-            source_ids   = list({t['country_id'] for t in matched if t['country_id']})
+            source_ids   = list({t['region_id'] for t in matched if t['region_id']})
             partners     = list({t['partner_name'] for t in matched if t['partner_name']})
             related_saas = c.get('related_saas', [])
             if not isinstance(related_saas, list):
@@ -636,7 +696,7 @@ def run_merge():
 
 # ── SaaS Vendors ─────────────────────────────────────────────────────────────
 
-SAAS_INDUSTRIES = ['餐饮', '零售', '酒吧', '美业', 'SPA', '酒店', '诊所']
+SAAS_INDUSTRIES = ['连锁便利店', '独立便利店', '社区超市', '生鲜便利店', '加油站便利店', '校园便利店']
 
 class SaasVendorIn(BaseModel):
     name: str
@@ -946,11 +1006,18 @@ def _call_deepseek_saas(tickets: list[dict], existing_clusters: list[dict]) -> l
 {chr(10).join(cluster_lines)}
 """
 
-    prompt = f"""你是一个 SaaS 产品需求分析师，服务对象是国内 SaaS 厂商（餐饮、零售、酒吧、美业、SPA、酒店、诊所等行业）。
-工单描述均为中文。
+    prompt = f"""你是一个 SaaS 产品需求分析师，服务对象是国内便利店行业（连锁便利店、独立便利店、社区超市等）。工单描述均为中文。
 {existing_block}
 【待归并的新工单】（格式：ID | 厂商 | 行业 | 影响 | 场景 | 需求描述）
 {chr(10).join(ticket_lines)}
+
+便利店场景分类（归并时参考）：
+- 商品场景：商品管理、效期管理、选品、定价、促销
+- 智能补货场景：库存预警、自动补货、销量预测、保质期管理
+- 采购入库：供应商管理、采购订单、送货验收、入库登记
+- 店内操作：价签管理、盘点、陈列、温度监控
+- 店内POS：收银、自助收银、聚合支付、小票打印
+- O2O线上销售：外卖平台对接、小程序商城、团购、自提
 
 归并原则（非常重要）：
 - 【优先归入已有需求簇】：如果新工单与已有需求簇描述的是同一类功能，必须归入已有簇，不要新建簇。

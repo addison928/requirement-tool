@@ -52,8 +52,8 @@ class TestHealth:
 class TestPartners:
     def _partner_row(self):
         return {
-            'token': 'TH_abc12345', 'country_id': 'TH', 'flag': '🇹🇭',
-            'country_name': '泰国', 'name': 'TH-Test', 'lang': 'th', 'tier': 'normal'
+            'token': 'HB_abc12345', 'region_id': 'HB',
+            'region_name': '华北', 'name': 'HB-Test', 'lang': 'zh', 'tier': 'normal'
         }
 
     def test_list_partners_empty(self):
@@ -69,33 +69,33 @@ class TestPartners:
             r = client.get('/api/partners')
         assert r.status_code == 200
         assert len(r.json()) == 1
-        assert r.json()[0]['country_id'] == 'TH'
+        assert r.json()[0]['region_id'] == 'HB'
 
     def test_create_partner_returns_201_with_token(self):
         fake = make_fake_conn([])  # INSERT succeeds silently
         with patch('main.get_conn', fake):
             r = client.post('/api/partners', json={
-                'country_id': 'TH', 'flag': '🇹🇭', 'country_name': '泰国',
-                'name': 'TH-Test', 'lang': 'th', 'tier': 'normal'
+                'region_id': 'HB', 'region_name': '华北',
+                'name': 'HB-Test', 'lang': 'zh', 'tier': 'normal'
             })
         assert r.status_code == 201
         token = r.json()['token']
-        assert re.match(r'^TH_[a-zA-Z0-9]{8}$', token)
+        assert re.match(r'^HB_[a-zA-Z0-9]{8}$', token)
 
-    def test_create_partner_uppercases_country_id(self):
+    def test_create_partner_uppercases_region_id(self):
         fake = make_fake_conn([])
         with patch('main.get_conn', fake):
             r = client.post('/api/partners', json={
-                'country_id': 'th', 'flag': '🇹🇭', 'country_name': '泰国',
-                'name': 'test', 'lang': 'th', 'tier': 'normal'
+                'region_id': 'hb', 'region_name': '华北',
+                'name': 'test', 'lang': 'zh', 'tier': 'normal'
             })
-        assert r.json()['country_id'] == 'TH'
+        assert r.json()['region_id'] == 'HB'
 
     def test_delete_partner_204(self):
         cur = make_fake_cursor([], rowcount=1)
         fake = make_fake_conn([cur])
         with patch('main.get_conn', fake):
-            r = client.delete('/api/partners/TH_abc12345')
+            r = client.delete('/api/partners/HB_abc12345')
         assert r.status_code == 204
 
     def test_delete_partner_not_found(self):
@@ -110,8 +110,8 @@ class TestPartners:
         fake = make_fake_conn([cur])
         with patch('main.get_conn', fake):
             r = client.put('/api/partners/NO_SUCH', json={
-                'country_id': 'IT', 'flag': '🇮🇹', 'country_name': 'Italy',
-                'name': 'test', 'lang': 'it', 'tier': 'normal'
+                'region_id': 'HD', 'region_name': '华东',
+                'name': 'test', 'lang': 'zh', 'tier': 'normal'
             })
         assert r.status_code == 404
 
@@ -120,11 +120,11 @@ class TestPartners:
 
 def _ticket_row():
     return {
-        'id': 'TH-1234', 'flag': '🇹🇭', 'partner_name': 'TH-Test', 'country_id': 'TH',
-        'text': 'Need KDS', 'merchant': 'TestMart', 'impact': 'mid',
+        'id': 'HB-1234', 'partner_name': 'HB-Test', 'region_id': 'HB',
+        'text': '需要KDS系统', 'merchant': '北京测试商店', 'impact': 'mid',
         'scenes': '["厨显"]', 'biz_type': 'restaurant',
         'time': '2026-05-27 11:00', 'status': 'pending', 'cluster_id': None,
-        'attachments': '[]', 'manual': 0, 'lang': 'th'
+        'attachments': '[]', 'manual': 0, 'lang': 'zh'
     }
 
 
@@ -146,7 +146,7 @@ class TestTickets:
         assert r.status_code == 200
         items = r.json()['items']
         assert len(items) == 1
-        assert items[0]['id'] == 'TH-1234'
+        assert items[0]['id'] == 'HB-1234'
         assert isinstance(items[0]['scenes'], list)   # parsed from JSON string
         assert isinstance(items[0]['manual'], bool)   # converted to bool
 
@@ -168,12 +168,12 @@ class TestTickets:
         assert r.status_code == 400
 
     def test_create_ticket_valid_returns_201(self):
-        partner = {'country_id': 'TH', 'flag': '🇹🇭', 'name': 'TH-Test', 'lang': 'th'}
+        partner = {'region_id': 'HB', 'name': 'HB-Test', 'lang': 'zh'}
         # calls: SELECT partner, SELECT 1 (id check), INSERT ticket
         fake = make_fake_conn([[partner], [], []])
         with patch('main.get_conn', fake):
             r = client.post('/api/tickets', json={
-                'token': 'TH_abc12345', 'text': 'Need KDS', 'merchant': 'M',
+                'token': 'HB_abc12345', 'text': 'Need KDS', 'merchant': 'M',
                 'impact': 'high', 'scenes': ['厨显'], 'biz_type': 'restaurant'
             })
         assert r.status_code == 201
@@ -185,11 +185,11 @@ class TestTickets:
     def test_create_ticket_time_is_gmt8(self):
         """Time returned must be between 00:00 and 23:59 and not obviously UTC offset."""
         from datetime import datetime, timezone, timedelta
-        partner = {'country_id': 'TH', 'flag': '🇹🇭', 'name': 'TH-Test', 'lang': 'th'}
+        partner = {'region_id': 'HB', 'name': 'HB-Test', 'lang': 'zh'}
         fake = make_fake_conn([[partner], [], []])
         with patch('main.get_conn', fake):
             r = client.post('/api/tickets', json={
-                'token': 'TH_abc12345', 'text': 'TZ test', 'merchant': 'M',
+                'token': 'HB_abc12345', 'text': 'TZ test', 'merchant': 'M',
                 'impact': 'mid', 'scenes': [], 'biz_type': 'pos'
             })
         returned_time = r.json()['time']
@@ -204,7 +204,7 @@ class TestTickets:
         cur = make_fake_cursor([], rowcount=1)
         fake = make_fake_conn([cur])
         with patch('main.get_conn', fake):
-            r = client.put('/api/tickets/TH-1234', json={'status': 'in_progress'})
+            r = client.put('/api/tickets/HB-1234', json={'status': 'in_progress'})
         assert r.status_code == 200
         assert r.json()['ok'] is True
 
@@ -217,7 +217,7 @@ class TestTickets:
 
     def test_update_ticket_nothing_to_update(self):
         with patch('main.get_conn', make_fake_conn([])):
-            r = client.put('/api/tickets/TH-1234', json={})
+            r = client.put('/api/tickets/HB-1234', json={})
         assert r.status_code == 400
 
 
@@ -226,8 +226,8 @@ class TestTickets:
 def _cluster_row():
     return {
         'id': '#001', 'score': 80, 'urgent': 0, 'summary': 'Test cluster',
-        'layer': 'saas', 'impact': 'high', 'source_ids': '["TH"]',
-        'partners': '["TH-Test"]', 'count': 1, 'periods': 1,
+        'layer': 'saas', 'impact': 'high', 'source_ids': '["HB"]',
+        'partners': '["HB-Test"]', 'count': 1, 'periods': 1,
         'status': 'pending', 'ai_summary': 'Test AI summary'
     }
 

@@ -17,11 +17,11 @@ client = TestClient(app, raise_server_exceptions=False)
 
 def _pending_ticket():
     return {
-        'id': 'TH-0001', 'flag': '🇹🇭', 'partner_name': 'TH-Test', 'country_id': 'TH',
-        'text': 'Need KDS', 'merchant': 'M', 'impact': 'mid',
+        'id': 'HB-0001', 'partner_name': 'HB-Test', 'region_id': 'HB',
+        'text': '需要KDS系统', 'merchant': '北京测试店', 'impact': 'mid',
         'scenes': '["厨显"]', 'biz_type': 'restaurant',
         'time': '2026-05-27 11:00', 'status': 'pending', 'cluster_id': None,
-        'attachments': '[]', 'manual': 0, 'lang': 'th'
+        'attachments': '[]', 'manual': 0, 'lang': 'zh'
     }
 
 
@@ -87,7 +87,7 @@ class TestMergeDeepSeekParsing:
     def test_markdown_wrapped_json_is_parsed(self):
         """DeepSeek returns JSON wrapped in ```json fences — should still parse."""
         payload = json.dumps([{
-            'ticket_ids': ['TH-0001'],
+            'ticket_ids': ['HB-0001'],
             'summary': 'KDS系统', 'layer': 'saas', 'impact': 'mid', 'ai_summary': 'test'
         }])
         wrapped = f"```json\n{payload}\n```"
@@ -127,7 +127,7 @@ class TestMergeCreateNew:
         ])
         with patch.dict(os.environ, {'DEEPSEEK_API_KEY': 'sk-test'}):
             with patch('main.get_conn', fake):
-                with self._patch_deepseek_new(['TH-0001']):
+                with self._patch_deepseek_new(['HB-0001']):
                     r = client.post('/api/merge')
         assert r.status_code == 200
         data = r.json()
@@ -177,7 +177,7 @@ class TestMergeIntoExisting:
         # then inside the merge loop: validate cluster exists, UPDATE ticket, INSERT cluster_ticket,
         # SELECT all tickets for metadata recalculation, UPDATE clusters
         ticket_row_for_metadata = {
-            'country_id': 'TH', 'partner_name': 'TH-Test', 'impact': 'mid'
+            'region_id': 'HB', 'partner_name': 'HB-Test', 'impact': 'mid'
         }
         fake = make_fake_conn([
             [_pending_ticket()],           # pending
@@ -189,7 +189,7 @@ class TestMergeIntoExisting:
         ])
         with patch.dict(os.environ, {'DEEPSEEK_API_KEY': 'sk-test'}):
             with patch('main.get_conn', fake):
-                with self._patch_deepseek_existing(['TH-0001'], '#001'):
+                with self._patch_deepseek_existing(['HB-0001'], '#001'):
                     r = client.post('/api/merge')
         assert r.status_code == 200
         data = r.json()
@@ -207,7 +207,7 @@ class TestMergeIntoExisting:
         ])
         with patch.dict(os.environ, {'DEEPSEEK_API_KEY': 'sk-test'}):
             with patch('main.get_conn', fake):
-                with self._patch_deepseek_existing(['TH-0001'], '#999'):
+                with self._patch_deepseek_existing(['HB-0001'], '#999'):
                     r = client.post('/api/merge')
         assert r.status_code == 200
         data = r.json()

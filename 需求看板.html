@@ -347,6 +347,79 @@
       margin-left: 5px;
     }
 
+    /* ── Issue type badges ── */
+    .type-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 980px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .type-badge-system   { background: rgba(0,113,227,0.1);  color: #0071e3; }
+    .type-badge-operation{ background: rgba(175,82,222,0.1); color: #af52de; }
+    .type-badge-product  { background: rgba(255,149,0,0.1);  color: #ff9500; }
+    .type-badge-supply   { background: rgba(52,199,89,0.1);  color: #34c759; }
+
+    /* ── Card tags (AI已判断 / 可人工校正) ── */
+    .card-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: 980px;
+      font-size: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .card-tag-ai    { background: rgba(0,113,227,0.08); color: #0071e3; }
+    .card-tag-edit  { background: rgba(255,149,0,0.08); color: #ff9500; }
+    .card-tag-sort  { background: rgba(52,199,89,0.08); color: #34c759; }
+
+    /* ── AI info banner ── */
+    .ai-info-banner {
+      background: linear-gradient(135deg, rgba(0,113,227,0.04) 0%, rgba(175,82,222,0.04) 100%);
+      border: 1px solid rgba(0,113,227,0.12);
+      border-radius: 14px;
+      padding: 16px 22px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .ai-info-banner .ai-icon {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #0071e3, #af52de);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      color: #fff;
+    }
+    .ai-info-banner .ai-text {
+      font-size: 13px;
+      color: #1d1d1f;
+      line-height: 1.7;
+    }
+    .ai-info-banner .ai-text strong {
+      font-weight: 600;
+      color: #0071e3;
+    }
+
+    /* ── Issue type table cards spacing ── */
+    .issue-cards-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
     /* ── Detail drawer ── */
     .drawer-overlay {
       display: none;
@@ -1306,7 +1379,7 @@
       .filter-bar .filter-select, .filter-bar .search-input { flex: 1 1 calc(50% - 6px); min-width: 120px; }
 
       /* Drawers slide up from bottom on mobile */
-      .drawer, .ticket-drawer, #saasDrawer {
+      .drawer, .ticket-drawer {
         width: 100% !important;
         max-width: 100% !important;
         border-radius: 20px 20px 0 0;
@@ -1318,7 +1391,7 @@
         transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
         box-shadow: 0 -4px 32px rgba(0,0,0,0.18) !important;
       }
-      .drawer.open, .ticket-drawer.open, #saasDrawer.open {
+      .drawer.open, .ticket-drawer.open {
         transform: translateY(0) !important;
       }
 
@@ -1393,13 +1466,8 @@
   </div>
   <nav class="nav">
     <div class="nav-item active" onclick="switchPage('dashboard')"><span class="icon">📊</span> 需求看板</div>
-    <div class="nav-item" onclick="toggleNavGroup('allGroup')"><span class="icon">📋</span> 所有需求 <span id="allGroupArrow" style="margin-left:auto;font-size:10px;transition:transform 0.2s">▶</span></div>
-    <div id="allGroup" style="display:none">
-      <div class="nav-item nav-sub" onclick="switchPage('all-partner')"><span class="icon">🌏</span> 服务商需求</div>
-      <div class="nav-item nav-sub" onclick="switchPage('all-saas')"><span class="icon">🏢</span> SaaS厂商需求</div>
-    </div>
-    <div class="nav-item" onclick="switchPage('partners')"><span class="icon">🌐</span> 服务商管理</div>
-    <div class="nav-item" onclick="switchPage('saas-vendors')"><span class="icon">🏢</span> SaaS厂商管理</div>
+    <div class="nav-item" onclick="switchPage('all-partner')"><span class="icon">🌏</span> 大区需求</div>
+    <div class="nav-item" onclick="switchPage('partners')"><span class="icon">🌐</span> 大区管理</div>
   </nav>
   <div class="sidebar-bottom">周期：2026-W22 · 批次 #14 <span onclick="showOnboarding()" title="使用引导" style="cursor:pointer;margin-left:8px;opacity:0.6;font-size:13px">❓</span></div>
 </div>
@@ -1416,12 +1484,12 @@
     <div class="topbar-right">
       <div id="dashFilters" class="dash-filters" style="display:flex;gap:12px;align-items:center">
         <select class="filter-select" id="dashFilterCountry" onchange="renderTable()">
-          <option value="">全部国家</option>
-          <option value="TH">🇹🇭 泰国</option>
-          <option value="ID">🇮🇩 印尼</option>
-          <option value="IT">🇮🇹 意大利</option>
-          <option value="KH">🇰🇭 柬埔寨</option>
-          <option value="MY">🇲🇾 马来西亚</option>
+          <option value="">全部区域</option>
+          <option value="HB">🏔️ 华北</option>
+          <option value="HN">🌴 华南</option>
+          <option value="HD">🌆 华东</option>
+          <option value="HZ">🌾 华中</option>
+          <option value="XB">🏜️ 西部</option>
         </select>
         <select class="filter-select" id="dashFilterPeriod" onchange="renderTable()">
           <option value="">全部周期</option>
@@ -1441,12 +1509,12 @@
   <!-- Mobile filter strip (visible only on mobile) -->
   <div class="mob-filter-strip" id="mobFilterStrip" style="display:none;padding:10px 12px 0">
     <select class="filter-select" onchange="document.getElementById('dashFilterCountry').value=this.value;renderTable()">
-      <option value="">全部国家</option>
-      <option value="TH">🇹🇭 泰国</option>
-      <option value="ID">🇮🇩 印尼</option>
-      <option value="IT">🇮🇹 意大利</option>
-      <option value="KH">🇰🇭 柬埔寨</option>
-      <option value="MY">🇲🇾 马来西亚</option>
+      <option value="">全部区域</option>
+      <option value="HB">🏔️ 华北</option>
+      <option value="HN">🌴 华南</option>
+      <option value="HD">🌆 华东</option>
+      <option value="HZ">🌾 华中</option>
+      <option value="XB">🏜️ 西部</option>
     </select>
     <select class="filter-select" onchange="document.getElementById('dashFilterPeriod').value=this.value;renderTable()">
       <option value="">全部周期</option>
@@ -1462,53 +1530,58 @@
     <!-- Stats -->
     <div class="stats">
       <div class="stat-card">
-        <div class="label">服务商工单总量</div>
+        <div class="label">大区工单总量</div>
         <div class="value" id="statTotalTickets">—</div>
         <div class="sub" id="statTotalTicketsSub"></div>
       </div>
       <div class="stat-card">
-        <div class="label">服务商需求簇</div>
+        <div class="label">大区需求簇</div>
         <div class="value" id="statTotalClusters">—</div>
         <div class="sub" id="statCompress"></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">SaaS工单总量</div>
-        <div class="value" id="statSaasTickets">—</div>
-        <div class="sub" id="statSaasTicketsSub"></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">SaaS需求簇</div>
-        <div class="value" id="statSaasClusters">—</div>
-        <div class="sub" id="statSaasCompress"></div>
       </div>
     </div>
 
     <!-- Charts -->
     <div class="charts-row">
       <div class="chart-card">
-        <h3>来源国分布</h3>
+        <h3>来源区域分布</h3>
         <div class="chart-wrap">
           <canvas id="pieChart"></canvas>
         </div>
       </div>
       <div class="chart-card">
-        <h3>归属层分布</h3>
+        <h3>问题分布</h3>
         <div class="chart-wrap">
-          <canvas id="layerChart"></canvas>
+          <canvas id="issueChart"></canvas>
         </div>
       </div>
       <div class="chart-card">
-        <h3>周期提交量趋势</h3>
+        <h3>需求状态分布</h3>
         <div class="chart-wrap">
-          <canvas id="trendChart"></canvas>
+          <canvas id="statusChart"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- Partner clusters table -->
+    <!-- AI Info Banner -->
+    <div class="ai-info-banner">
+      <div class="ai-icon">✦</div>
+      <div class="ai-text">
+        <strong>AI 智能问题分类</strong> — AI 会根据店主提交的需求内容、来源区域、重复频次、业务影响和历史相似需求，自动判断问题类型，并将需求分流至对应处理团队。需求将被归类为：<span class="type-badge type-badge-system">系统问题</span> <span class="type-badge type-badge-operation">人工运营</span> <span class="type-badge type-badge-product">商品货盘</span> <span class="type-badge type-badge-supply">履约供应链</span>
+      </div>
+    </div>
+
+    <!-- Partner clusters table: 系统问题 -->
     <div class="table-card">
       <div class="table-header">
-        <h3>服务商需求簇 · Top 10 优先级</h3>
+        <div style="display:flex;align-items:center;gap:12px">
+          <h3>系统问题 · 大区需求簇 Top 10 优先级</h3>
+          <div class="card-tags">
+            <span class="card-tag card-tag-ai">✦ AI 已判断</span>
+            <span class="card-tag card-tag-edit">可人工校正</span>
+            <span class="card-tag card-tag-sort">↓ 按优先级排序</span>
+          </div>
+        </div>
         <input class="search-input" id="dashSearch" placeholder="🔍 搜索需求..." oninput="renderTable()" />
       </div>
       <table>
@@ -1516,8 +1589,7 @@
           <tr>
             <th>ID</th>
             <th>需求摘要</th>
-            <th>归属层</th>
-            <th>业务影响</th>
+            <th>问题判断</th>
             <th>来源</th>
             <th>频次</th>
             <th>优先级</th>
@@ -1529,27 +1601,205 @@
       <div id="dashTableFooter" style="text-align:center;padding:14px 0 4px;font-size:12px;color:#6e6e73"></div>
     </div>
 
-    <!-- SaaS clusters table -->
-    <div class="table-card" style="margin-top:16px">
-      <div class="table-header">
-        <h3>SaaS需求簇 · Top 10</h3>
-        <input class="search-input" id="dashSaasSearch" placeholder="🔍 搜索SaaS需求..." oninput="renderSaasDashTable()" />
+    <!-- Issue type cards: 人工运营 / 商品货盘 / 履约供应链 -->
+    <div class="issue-cards-grid">
+
+      <!-- 人工运营问题 -->
+      <div class="table-card">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <h3 style="color:#af52de">人工运营问题 · Top 优先级</h3>
+            <div class="card-tags">
+              <span class="card-tag card-tag-ai">✦ AI 已判断</span>
+              <span class="card-tag card-tag-edit">可人工校正</span>
+              <span class="card-tag card-tag-sort">↓ 按优先级排序</span>
+            </div>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>需求摘要</th>
+              <th>问题判断</th>
+              <th>来源大区</th>
+              <th>频次</th>
+              <th>优先级</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr onclick="openIssueDrawer({id:'#061',type:'人工运营',summary:'店主反馈活动规则理解困难，需要运营解释',sources:'华东大区 华南大区',freq:'4次 / 2周期',score:72,status:'跟进中'})" style="cursor:pointer">
+              <td><span class="cluster-id">#061</span></td>
+              <td style="max-width:180px">店主反馈活动规则理解困难，需要运营解释</td>
+              <td><span class="type-badge type-badge-operation">人工运营</span></td>
+              <td style="font-size:12px;color:#6e6e73">华东大区 华南大区</td>
+              <td style="font-size:12px">4次 / 2周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:72%"></div></div><div class="num">72</div></div></td>
+              <td><span class="status-badge status-scheduled">跟进中</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#067',type:'人工运营',summary:'新店主不清楚如何配置秒杀活动',sources:'西部大区',freq:'3次 / 2周期',score:58,status:'待处理'})" style="cursor:pointer">
+              <td><span class="cluster-id">#067</span></td>
+              <td style="max-width:180px">新店主不清楚如何配置秒杀活动</td>
+              <td><span class="type-badge type-badge-operation">人工运营</span></td>
+              <td style="font-size:12px;color:#6e6e73">西部大区</td>
+              <td style="font-size:12px">3次 / 2周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:58%"></div></div><div class="num">58</div></div></td>
+              <td><span class="status-badge status-pending">待处理</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#073',type:'人工运营',summary:'商品报名活动后审核进度不透明',sources:'华中大区 华北大区',freq:'3次 / 1周期',score:46,status:'跟进中'})" style="cursor:pointer">
+              <td><span class="cluster-id">#073</span></td>
+              <td style="max-width:180px">商品报名活动后审核进度不透明</td>
+              <td><span class="type-badge type-badge-operation">人工运营</span></td>
+              <td style="font-size:12px;color:#6e6e73">华中大区 华北大区</td>
+              <td style="font-size:12px">3次 / 1周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:46%"></div></div><div class="num">46</div></div></td>
+              <td><span class="status-badge status-scheduled">跟进中</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#081',type:'人工运营',summary:'区域运营答复口径不一致，影响店主执行',sources:'华南大区',freq:'2次 / 1周期',score:35,status:'待处理'})" style="cursor:pointer">
+              <td><span class="cluster-id">#081</span></td>
+              <td style="max-width:180px">区域运营答复口径不一致，影响店主执行</td>
+              <td><span class="type-badge type-badge-operation">人工运营</span></td>
+              <td style="font-size:12px;color:#6e6e73">华南大区</td>
+              <td style="font-size:12px">2次 / 1周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:35%"></div></div><div class="num">35</div></div></td>
+              <td><span class="status-badge status-pending">待处理</span></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>需求摘要</th>
-            <th>业务影响</th>
-            <th>涉及厂商</th>
-            <th>频次</th>
-            <th>状态</th>
-          </tr>
-        </thead>
-        <tbody id="saasDashBody"></tbody>
-      </table>
-      <div id="saasDashFooter" style="text-align:center;padding:14px 0 4px;font-size:12px;color:#6e6e73"></div>
-    </div>
+
+      <!-- 商品货盘问题 -->
+      <div class="table-card">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <h3 style="color:#ff9500">商品货盘问题 · Top 优先级</h3>
+            <div class="card-tags">
+              <span class="card-tag card-tag-ai">✦ AI 已判断</span>
+              <span class="card-tag card-tag-edit">可人工校正</span>
+              <span class="card-tag card-tag-sort">↓ 按优先级排序</span>
+            </div>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>需求摘要</th>
+              <th>问题判断</th>
+              <th>来源大区</th>
+              <th>频次</th>
+              <th>优先级</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr onclick="openIssueDrawer({id:'#092',type:'商品货盘',summary:'店主反馈应季爆品不足，缺少引流款',sources:'华东大区 华南大区',freq:'5次 / 2周期',score:86,status:'已归并'})" style="cursor:pointer">
+              <td><span class="cluster-id">#092</span></td>
+              <td style="max-width:180px">店主反馈应季爆品不足，缺少引流款</td>
+              <td><span class="type-badge type-badge-product">商品货盘</span></td>
+              <td style="font-size:12px;color:#6e6e73">华东大区 华南大区</td>
+              <td style="font-size:12px">5次 / 2周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:86%;background:linear-gradient(90deg,#ff9500,#ff6b00)"></div></div><div class="num">86</div></div></td>
+              <td><span class="status-badge status-merged">已归并</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#096',type:'商品货盘',summary:'同类商品价格带重复，缺少差异化货盘',sources:'华中大区',freq:'4次 / 2周期',score:69,status:'排期中'})" style="cursor:pointer">
+              <td><span class="cluster-id">#096</span></td>
+              <td style="max-width:180px">同类商品价格带重复，缺少差异化货盘</td>
+              <td><span class="type-badge type-badge-product">商品货盘</span></td>
+              <td style="font-size:12px;color:#6e6e73">华中大区</td>
+              <td style="font-size:12px">4次 / 2周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:69%;background:linear-gradient(90deg,#ff9500,#ff6b00)"></div></div><div class="num">69</div></div></td>
+              <td><span class="status-badge status-scheduled">排期中</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#104',type:'商品货盘',summary:'部分高频复购品缺货，影响店主转化',sources:'西部大区 华北大区',freq:'3次 / 2周期',score:62,status:'跟进中'})" style="cursor:pointer">
+              <td><span class="cluster-id">#104</span></td>
+              <td style="max-width:180px">部分高频复购品缺货，影响店主转化</td>
+              <td><span class="type-badge type-badge-product">商品货盘</span></td>
+              <td style="font-size:12px;color:#6e6e73">西部大区 华北大区</td>
+              <td style="font-size:12px">3次 / 2周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:62%;background:linear-gradient(90deg,#ff9500,#ff6b00)"></div></div><div class="num">62</div></div></td>
+              <td><span class="status-badge status-scheduled">跟进中</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#112',type:'商品货盘',summary:'生鲜类商品规格不统一，店主难以讲解',sources:'华南大区',freq:'2次 / 1周期',score:31,status:'待处理'})" style="cursor:pointer">
+              <td><span class="cluster-id">#112</span></td>
+              <td style="max-width:180px">生鲜类商品规格不统一，店主难以讲解</td>
+              <td><span class="type-badge type-badge-product">商品货盘</span></td>
+              <td style="font-size:12px;color:#6e6e73">华南大区</td>
+              <td style="font-size:12px">2次 / 1周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:31%;background:linear-gradient(90deg,#ff9500,#ff6b00)"></div></div><div class="num">31</div></div></td>
+              <td><span class="status-badge status-pending">待处理</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 履约供应链问题 -->
+      <div class="table-card">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <h3 style="color:#34c759">履约供应链问题 · Top 优先级</h3>
+            <div class="card-tags">
+              <span class="card-tag card-tag-ai">✦ AI 已判断</span>
+              <span class="card-tag card-tag-edit">可人工校正</span>
+              <span class="card-tag card-tag-sort">↓ 按优先级排序</span>
+            </div>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>需求摘要</th>
+              <th>问题判断</th>
+              <th>来源大区</th>
+              <th>频次</th>
+              <th>优先级</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr onclick="openIssueDrawer({id:'#123',type:'履约供应链',summary:'店主反馈部分订单配送时效不稳定',sources:'华东大区 华中大区',freq:'5次 / 2周期',score:88,status:'跟进中'})" style="cursor:pointer">
+              <td><span class="cluster-id">#123</span></td>
+              <td style="max-width:180px">店主反馈部分订单配送时效不稳定</td>
+              <td><span class="type-badge type-badge-supply">履约供应链</span></td>
+              <td style="font-size:12px;color:#6e6e73">华东大区 华中大区</td>
+              <td style="font-size:12px">5次 / 2周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:88%;background:linear-gradient(90deg,#34c759,#28a745)"></div></div><div class="num">88</div></div></td>
+              <td><span class="status-badge status-scheduled">跟进中</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#127',type:'履约供应链',summary:'冷链商品到货温控异常，影响用户体验',sources:'华南大区',freq:'4次 / 2周期',score:76,status:'已归并'})" style="cursor:pointer">
+              <td><span class="cluster-id">#127</span></td>
+              <td style="max-width:180px">冷链商品到货温控异常，影响用户体验</td>
+              <td><span class="type-badge type-badge-supply">履约供应链</span></td>
+              <td style="font-size:12px;color:#6e6e73">华南大区</td>
+              <td style="font-size:12px">4次 / 2周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:76%;background:linear-gradient(90deg,#34c759,#28a745)"></div></div><div class="num">76</div></div></td>
+              <td><span class="status-badge status-merged">已归并</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#136',type:'履约供应链',summary:'供应商临时缺货未及时同步给店主',sources:'西部大区 华北大区',freq:'3次 / 1周期',score:54,status:'排期中'})" style="cursor:pointer">
+              <td><span class="cluster-id">#136</span></td>
+              <td style="max-width:180px">供应商临时缺货未及时同步给店主</td>
+              <td><span class="type-badge type-badge-supply">履约供应链</span></td>
+              <td style="font-size:12px;color:#6e6e73">西部大区 华北大区</td>
+              <td style="font-size:12px">3次 / 1周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:54%;background:linear-gradient(90deg,#34c759,#28a745)"></div></div><div class="num">54</div></div></td>
+              <td><span class="status-badge status-scheduled">排期中</span></td>
+            </tr>
+            <tr onclick="openIssueDrawer({id:'#141',type:'履约供应链',summary:'售后退换货链路较长，店主处理成本高',sources:'华中大区',freq:'2次 / 1周期',score:38,status:'待处理'})" style="cursor:pointer">
+              <td><span class="cluster-id">#141</span></td>
+              <td style="max-width:180px">售后退换货链路较长，店主处理成本高</td>
+              <td><span class="type-badge type-badge-supply">履约供应链</span></td>
+              <td style="font-size:12px;color:#6e6e73">华中大区</td>
+              <td style="font-size:12px">2次 / 1周期</td>
+              <td><div class="score-bar"><div class="bar"><div class="fill" style="width:38%;background:linear-gradient(90deg,#34c759,#28a745)"></div></div><div class="num">38</div></div></td>
+              <td><span class="status-badge status-pending">待处理</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /issue-cards-grid -->
   </div>
 
   <!-- Page: Partner Requirements -->
@@ -1568,12 +1818,12 @@
           <h3>全部需求簇</h3>
           <div style="display:flex;gap:8px;align-items:center">
             <select class="filter-select" id="acFilterCountry" onchange="clusterPage=1;renderAllClusters()">
-              <option value="">全部国家</option>
-              <option value="TH">🇹🇭 泰国</option>
-              <option value="ID">🇮🇩 印尼</option>
-              <option value="IT">🇮🇹 意大利</option>
-              <option value="KH">🇰🇭 柬埔寨</option>
-              <option value="MY">🇲🇾 马来西亚</option>
+              <option value="">全部区域</option>
+              <option value="HB">🏔️ 华北</option>
+              <option value="HN">🌴 华南</option>
+              <option value="HD">🌆 华东</option>
+              <option value="HZ">🌾 华中</option>
+              <option value="XB">🏜️ 西部</option>
             </select>
             <select class="filter-select" id="acFilterStatus" onchange="clusterPage=1;renderAllClusters()">
               <option value="">全部状态</option>
@@ -1590,8 +1840,7 @@
             <tr>
               <th>ID</th>
               <th>需求摘要</th>
-              <th>归属层</th>
-              <th>业务影响</th>
+              <th>问题判断</th>
               <th>来源</th>
               <th>频次</th>
               <th>优先级</th>
@@ -1618,12 +1867,12 @@
               <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(this)" />
             </label>
             <select class="filter-select" id="allFilterCountry" onchange="ticketPage=1;renderAllTable()">
-              <option value="">全部国家</option>
-              <option value="🇹🇭">🇹🇭 泰国</option>
-              <option value="🇮🇩">🇮🇩 印尼</option>
-              <option value="🇮🇹">🇮🇹 意大利</option>
-              <option value="🇰🇭">🇰🇭 柬埔寨</option>
-              <option value="🇲🇾">🇲🇾 马来西亚</option>
+              <option value="">全部区域</option>
+              <option value="🏔️">🏔️ 华北</option>
+              <option value="🌴">🌴 华南</option>
+              <option value="🌆">🌆 华东</option>
+              <option value="🌾">🌾 华中</option>
+              <option value="🏜️">🏜️ 西部</option>
             </select>
             <select class="filter-select" id="allFilterStatus" onchange="ticketPage=1;renderAllTable()">
               <option value="">全部状态</option>
@@ -1647,10 +1896,10 @@
             <tr>
               <th>工单 ID</th>
               <th>原始描述</th>
+              <th>AI 润色</th>
               <th>商户</th>
-              <th>来源服务商</th>
+              <th>来源大区</th>
               <th>业务影响</th>
-              <th>涉及场景</th>
               <th>提交时间</th>
               <th>归并状态</th>
             </tr>
@@ -1667,107 +1916,12 @@
   <!-- Page: Partner Management -->
   <div class="content" id="page-partners" style="display:none">
     <div class="table-header" style="margin-bottom:16px">
-      <h3 style="font-size:15px;font-weight:700">服务商管理</h3>
-      <button class="btn-primary" onclick="openPartnerForm(null)">＋ 新增服务商</button>
+      <h3 style="font-size:15px;font-weight:700">大区管理</h3>
+      <button class="btn-primary" onclick="openPartnerForm(null)">＋ 新增大区</button>
     </div>
     <div id="partnersCardList" style="display:flex;flex-direction:column;gap:12px"></div>
   </div>
 
-  <!-- ── SaaS Vendors ── -->
-  <div class="content" id="page-saas-vendors" style="display:none">
-    <div class="table-header" style="margin-bottom:16px">
-      <h3 style="font-size:15px;font-weight:700">SaaS厂商管理</h3>
-      <button class="btn-primary" onclick="openSaasVendorForm(null)">＋ 新增厂商</button>
-    </div>
-    <div id="saasVendorList" style="display:flex;flex-direction:column;gap:12px"></div>
-  </div>
-
-  <!-- ── SaaS All (tickets + clusters as tabs) ── -->
-  <div class="content" id="page-all-saas" style="display:none">
-    <div class="tab-bar">
-      <button class="tab-btn active" id="saasBtnClusters" onclick="switchSaasTab('clusters')">需求簇</button>
-      <button class="tab-btn" id="saasBtnTickets"  onclick="switchSaasTab('tickets')">原始需求</button>
-    </div>
-
-    <!-- SaaS Clusters tab -->
-    <div id="saasTabClusters">
-      <div class="table-card">
-        <div class="table-header">
-          <h3>SaaS需求簇</h3>
-          <div style="display:flex;gap:8px;align-items:center">
-            <select class="filter-select" id="scFilterVendor" onchange="saasClusterPage=1;renderSaasClusters()">
-              <option value="">全部厂商</option>
-            </select>
-            <select class="filter-select" id="scFilterStatus" onchange="saasClusterPage=1;renderSaasClusters()">
-              <option value="">全部状态</option>
-              <option value="pending">待处理</option>
-              <option value="scheduled">排期中</option>
-              <option value="dev">开发中</option>
-              <option value="live">已上线</option>
-            </select>
-          </div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>需求摘要</th>
-              <th>业务影响</th>
-              <th>涉及厂商</th>
-              <th>频次</th>
-              <th>状态</th>
-            </tr>
-          </thead>
-          <tbody id="saasClusterBody"></tbody>
-        </table>
-        <div id="saasClusterEmpty" style="display:none;text-align:center;padding:40px;color:#6e6e73;font-size:14px">暂无需求簇，点击「⚡ AI归并」开始归并</div>
-        <div id="saasClusterPager" class="pager"></div>
-      </div>
-    </div>
-
-    <!-- SaaS Tickets tab -->
-    <div id="saasTabTickets" style="display:none">
-      <div class="table-card">
-        <div class="table-header">
-          <h3>SaaS原始需求工单</h3>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn-primary" style="background:#6c5ce7;border:none;white-space:nowrap" onclick="openSaasTicketForm()">＋ 手动录入</button>
-            <select class="filter-select" id="saasTicketFilter" onchange="saasTicketPage=1;renderSaasTickets()">
-              <option value="">全部状态</option>
-              <option value="pending">待处理</option>
-              <option value="merged">已归并</option>
-              <option value="scheduled">排期中</option>
-              <option value="dev">开发中</option>
-              <option value="live">已上线</option>
-            </select>
-            <select class="filter-select" id="saasTicketFilterImpact" onchange="saasTicketPage=1;renderSaasTickets()">
-              <option value="">全部影响</option>
-              <option value="high">高</option>
-              <option value="mid">中</option>
-              <option value="low">低</option>
-            </select>
-            <input class="search-input" id="saasTicketSearch" placeholder="🔍 搜索工单..." oninput="saasTicketPage=1;renderSaasTickets()" style="width:180px" />
-          </div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>工单 ID</th>
-              <th>需求描述</th>
-              <th>商户</th>
-              <th>来源厂商</th>
-              <th>业务影响</th>
-              <th>提交时间</th>
-              <th>归并状态</th>
-            </tr>
-          </thead>
-          <tbody id="saasTicketBody"></tbody>
-        </table>
-        <div id="saasTicketEmpty" style="display:none;text-align:center;padding:40px;color:#6e6e73;font-size:14px">暂无匹配工单</div>
-        <div id="saasTicketPager" class="pager"></div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Drawer overlay -->
@@ -1789,24 +1943,6 @@
       <option value="live">已上线</option>
     </select>
     <button onclick="saveStatus()">更新状态</button>
-  </div>
-</div>
-
-<!-- SaaS Cluster Drawer -->
-<div class="drawer" id="saasDrawer">
-  <div class="drawer-head">
-    <h2 id="saasDrawerTitle">SaaS需求簇详情</h2>
-    <button class="close-btn" onclick="closeSaasDrawer()">✕</button>
-  </div>
-  <div class="drawer-body" id="saasDrawerBody"></div>
-  <div class="drawer-footer">
-    <select id="saasStatusSelect">
-      <option value="pending">待处理</option>
-      <option value="scheduled">排期中</option>
-      <option value="dev">开发中</option>
-      <option value="live">已上线</option>
-    </select>
-    <button onclick="saveSaasClusterStatus()">更新状态</button>
   </div>
 </div>
 
@@ -1871,14 +2007,14 @@
 
       <!-- Country ranking -->
       <div class="sp-section">
-        <div class="sp-section-title">来源国战略优先级</div>
+        <div class="sp-section-title">来源区域战略优先级</div>
         <div class="sp-section-hint">拖动排序，排名越靠前权重越高 · 系统自动分配加成比例</div>
         <div class="country-list" id="countryRankList"></div>
       </div>
 
       <!-- Partner tier -->
       <div class="sp-section">
-        <div class="sp-section-title">服务商重要度</div>
+        <div class="sp-section-title">大区重要度</div>
         <div class="sp-section-hint">战略级加权最高，普通级无额外加成</div>
         <div class="partner-tier-list" id="partnerTierList"></div>
       </div>
@@ -1917,37 +2053,31 @@
 <!-- Partner form modal -->
 <div class="confirm-overlay" id="partnerFormOverlay" style="align-items:center">
   <div class="confirm-box" style="max-width:440px;width:92%">
-    <h3 id="partnerFormTitle">新增服务商</h3>
+    <h3 id="partnerFormTitle">新增大区</h3>
     <div style="display:flex;flex-direction:column;gap:12px;margin:16px 0">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
-          <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">国家 Flag（Emoji）</div>
-          <input id="pf_flag" placeholder="🇹🇭" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:18px;outline:none;font-family:inherit;transition:all 0.2s ease" />
+          <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">区域标识（Emoji）</div>
+          <input id="pf_flag" placeholder="🏔️" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:18px;outline:none;font-family:inherit;transition:all 0.2s ease" />
         </div>
         <div>
-          <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">国家代码（如 TH）</div>
-          <input id="pf_countryId" placeholder="TH" maxlength="4" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;text-transform:uppercase;font-family:inherit;transition:all 0.2s ease" oninput="this.value=this.value.toUpperCase()" />
+          <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">区域代码（如 HB）</div>
+          <input id="pf_countryId" placeholder="HB" maxlength="4" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;text-transform:uppercase;font-family:inherit;transition:all 0.2s ease" oninput="this.value=this.value.toUpperCase()" />
         </div>
       </div>
       <div>
-        <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">国家名称（中文，如 泰国）</div>
-        <input id="pf_countryName" placeholder="泰国" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease" />
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">区域名称（中文，如 华北）</div>
+        <input id="pf_countryName" placeholder="华北" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease" />
       </div>
       <div>
-        <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">服务商名称（如 TH-Partner）</div>
-        <input id="pf_name" placeholder="TH-Partner" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease" />
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">大区名称（如 华北大区）</div>
+        <input id="pf_name" placeholder="华北大区" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease" />
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
           <div style="font-size:11px;color:#6e6e73;margin-bottom:4px">默认语言</div>
           <select id="pf_lang" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease">
-            <option value="en">English</option>
             <option value="zh">中文</option>
-            <option value="th">ภาษาไทย</option>
-            <option value="id">Indonesian</option>
-            <option value="it">Italiano</option>
-            <option value="fr">Français</option>
-            <option value="km">ខ្មែរ</option>
           </select>
         </div>
         <div>
@@ -1976,14 +2106,8 @@
   <div class="confirm-box" style="max-width:400px;width:92%">
     <h3 style="margin-bottom:6px">选择模板语言</h3>
     <p style="font-size:12px;color:#6e6e73;margin-bottom:16px">模板表头和示例内容将以所选语言生成</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:18px">
       <button class="lang-pick-btn" onclick="downloadTemplateInLang('zh')">🇨🇳 中文</button>
-      <button class="lang-pick-btn" onclick="downloadTemplateInLang('en')">🇬🇧 English</button>
-      <button class="lang-pick-btn" onclick="downloadTemplateInLang('th')">🇹🇭 ภาษาไทย</button>
-      <button class="lang-pick-btn" onclick="downloadTemplateInLang('id')">🇮🇩 Indonesia</button>
-      <button class="lang-pick-btn" onclick="downloadTemplateInLang('it')">🇮🇹 Italiano</button>
-      <button class="lang-pick-btn" onclick="downloadTemplateInLang('fr')">🇫🇷 Français</button>
-      <button class="lang-pick-btn" onclick="downloadTemplateInLang('km')" style="grid-column:1/-1">🇰🇭 ភាសាខ្មែរ</button>
     </div>
     <div class="confirm-btns">
       <button class="btn-cancel" onclick="document.getElementById('templateLangOverlay').classList.remove('show')">取消</button>
@@ -2006,14 +2130,14 @@
 <div class="confirm-overlay" id="manualFormOverlay" style="align-items:flex-start;padding-top:48px">
   <div class="confirm-box" style="max-width:480px;width:94%;max-height:82vh;overflow-y:auto">
     <h3 style="margin-bottom:4px">＋ 人工录入需求工单</h3>
-    <p style="font-size:12px;color:#6e6e73;margin-bottom:16px">代服务商录入，工单将标记为「人工」来源</p>
+    <p style="font-size:12px;color:#6e6e73;margin-bottom:16px">代大区录入，工单将标记为「人工」来源</p>
 
     <div style="display:flex;flex-direction:column;gap:14px">
 
       <div>
-        <div style="font-size:11px;color:#6e6e73;margin-bottom:5px">代录服务商 <span style="color:#ff3b30">*</span></div>
+        <div style="font-size:11px;color:#6e6e73;margin-bottom:5px">代录大区 <span style="color:#ff3b30">*</span></div>
         <select id="mf_partner" style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:9px 14px;font-size:13px;outline:none;font-family:inherit;transition:all 0.2s ease">
-          <option value="">请选择服务商...</option>
+          <option value="">请选择大区...</option>
         </select>
       </div>
 
@@ -2024,7 +2148,7 @@
 
       <div>
         <div style="font-size:11px;color:#6e6e73;margin-bottom:5px">需求描述 <span style="color:#ff3b30">*</span></div>
-        <textarea id="mf_text" rows="3" placeholder="请描述服务商反馈的具体需求（可用中文转述）..." style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:9px 14px;font-size:13px;outline:none;resize:vertical;line-height:1.6;font-family:inherit;transition:all 0.2s ease"></textarea>
+        <textarea id="mf_text" rows="3" placeholder="请描述大区反馈的具体需求（可用中文转述）..." style="width:100%;border:1.5px solid #d2d2d7;border-radius:10px;padding:9px 14px;font-size:13px;outline:none;resize:vertical;line-height:1.6;font-family:inherit;transition:all 0.2s ease"></textarea>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -2039,18 +2163,18 @@
         <div>
           <div style="font-size:11px;color:#6e6e73;margin-bottom:8px">涉及场景</div>
           <div style="display:flex;flex-direction:column;gap:6px">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="收银" class="mf_scene" /> 收银</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="报表" class="mf_scene" /> 报表</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="会员" class="mf_scene" /> 会员</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="厨显" class="mf_scene" /> 厨显</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="支付" class="mf_scene" /> 支付</label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="库存" class="mf_scene" /> 库存</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="商品场景" class="mf_scene" /> 商品场景</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="智能补货场景" class="mf_scene" /> 智能补货场景</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="采购入库" class="mf_scene" /> 采购入库</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="店内操作" class="mf_scene" /> 店内操作</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="店内POS" class="mf_scene" /> 店内POS</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="O2O线上销售" class="mf_scene" /> O2O线上销售</label>
           </div>
         </div>
       </div>
 
       <div style="background:rgba(255,149,0,0.06);border:1px solid rgba(255,149,0,0.2);border-radius:12px;padding:11px 14px;font-size:12px;color:#ff9500">
-        ⚠ 该工单将标记为「人工录入」，与服务商在线提交的工单区分显示，但同样参与 AI 归并处理。
+        ⚠ 该工单将标记为「人工录入」，与大区在线提交的工单区分显示，但同样参与 AI 归并处理。
       </div>
 
     </div>
@@ -2084,20 +2208,21 @@ const API_BASE = '';
 
 // ── Data (populated async from API) ──
 let clusters = [];
+let issueClusters = [];
 
 // ── Scoring config ──
 const scoringConfig = {
   impactWeight:  { high: 3.0, mid: 2.0, low: 1.0 },
-  countryWeight: { TH: 1.5, ID: 1.3, IT: 1.2, MY: 1.1, KH: 1.0, FR: 1.0 },
-  partnerTier:   { 'TH-Partner': 'strategic', 'ID-Partner': 'important', 'IT-Partner': 'important', 'MY-Partner': 'normal', 'KH-Partner': 'normal', 'FR-Partner': 'normal' },
+  countryWeight: { HB: 1.5, HD: 1.3, HN: 1.2, HZ: 1.1, XB: 1.0 },
+  partnerTier:   { '华北大区': 'strategic', '华东大区': 'important', '华南大区': 'important', '华中大区': 'normal', '西部大区': 'normal' },
   tierWeight:    { strategic: 2.0, important: 1.5, normal: 1.0 },
   periodCoeff:   [1.0, 1.3, 1.6],
 };
 
 function calcScoreRaw(c) {
   const impact    = scoringConfig.impactWeight[c.impact] || 1.0;
-  const countryW  = Math.max(...(c.sourceIds || ['KH']).map(id => scoringConfig.countryWeight[id] || 1.0));
-  const partnerW  = Math.max(...(c.partners  || ['KH-Partner']).map(p => scoringConfig.tierWeight[scoringConfig.partnerTier[p] || 'normal'] || 1.0));
+  const countryW  = Math.max(...(c.sourceIds || ['XB']).map(id => scoringConfig.countryWeight[id] || 1.0));
+  const partnerW  = Math.max(...(c.partners  || ['西部大区']).map(p => scoringConfig.tierWeight[scoringConfig.partnerTier[p] || 'normal'] || 1.0));
   const pidx      = Math.min((c.periods || 1) - 1, scoringConfig.periodCoeff.length - 1);
   const coeff     = scoringConfig.periodCoeff[pidx];
   return (c.count || 1) * impact * countryW * partnerW * coeff;
@@ -2113,12 +2238,12 @@ function recalcAllScores() {
 function scoreBreakdown(c) {
   const impact    = scoringConfig.impactWeight[c.impact] || 1.0;
   const countryW  = Math.max(...(c.sourceIds || ['KH']).map(id => scoringConfig.countryWeight[id] || 1.0));
-  const bestCountry = (c.sourceIds || ['KH']).reduce((a, b) =>
-    (scoringConfig.countryWeight[a] || 1.0) >= (scoringConfig.countryWeight[b] || 1.0) ? a : b, 'KH');
-  const partnerW  = Math.max(...(c.partners || ['KH-Partner']).map(p => scoringConfig.tierWeight[scoringConfig.partnerTier[p] || 'normal'] || 1.0));
-  const bestPartner = (c.partners || ['KH-Partner']).reduce((a, b) =>
+  const bestCountry = (c.sourceIds || ['XB']).reduce((a, b) =>
+    (scoringConfig.countryWeight[a] || 1.0) >= (scoringConfig.countryWeight[b] || 1.0) ? a : b, 'XB');
+  const partnerW  = Math.max(...(c.partners || ['西部大区']).map(p => scoringConfig.tierWeight[scoringConfig.partnerTier[p] || 'normal'] || 1.0));
+  const bestPartner = (c.partners || ['西部大区']).reduce((a, b) =>
     (scoringConfig.tierWeight[scoringConfig.partnerTier[a] || 'normal'] || 1.0) >=
-    (scoringConfig.tierWeight[scoringConfig.partnerTier[b] || 'normal'] || 1.0) ? a : b, 'KH-Partner');
+    (scoringConfig.tierWeight[scoringConfig.partnerTier[b] || 'normal'] || 1.0) ? a : b, '西部大区');
   const pidx  = Math.min((c.periods || 1) - 1, scoringConfig.periodCoeff.length - 1);
   const coeff = scoringConfig.periodCoeff[pidx];
   const raw   = (c.count || 1) * impact * countryW * partnerW * coeff;
@@ -2135,24 +2260,50 @@ const statusMap = {
   pending:   '<span class="status-badge status-pending">待处理</span>',
   merged:    '<span class="status-badge status-merged">已归并</span>',
   scheduled: '<span class="status-badge status-scheduled">排期中</span>',
+  following: '<span class="status-badge status-scheduled">跟进中</span>',
   dev:       '<span class="status-badge status-dev">开发中</span>',
   live:      '<span class="status-badge status-live">已上线</span>',
 };
 
 const DASH_TOP = 10;
+const issueStatusMap = { following: '跟进中', scheduled: '排期中', merged: '已归并', pending: '待处理' };
+const typeBadgeClass = {
+  '系统问题': 'type-badge-system',
+  '人工运营': 'type-badge-operation',
+  '商品货盘': 'type-badge-product',
+  '履约供应链': 'type-badge-supply'
+};
+
+function initIssueClusters() {
+  issueClusters = [
+    { id: '#061', issueType: '人工运营', summary: '店主反馈活动规则理解困难，需要运营解释', sources: ['华东大区','华南大区'], sourceIds: [], count: 4, periods: 2, score: 72, status: 'following', urgent: false },
+    { id: '#067', issueType: '人工运营', summary: '新店主不清楚如何配置秒杀活动', sources: ['西部大区'], sourceIds: [], count: 3, periods: 2, score: 58, status: 'pending', urgent: false },
+    { id: '#073', issueType: '人工运营', summary: '商品报名活动后审核进度不透明', sources: ['华中大区','华北大区'], sourceIds: [], count: 3, periods: 1, score: 46, status: 'following', urgent: false },
+    { id: '#081', issueType: '人工运营', summary: '区域运营答复口径不一致，影响店主执行', sources: ['华南大区'], sourceIds: [], count: 2, periods: 1, score: 35, status: 'pending', urgent: false },
+    { id: '#092', issueType: '商品货盘', summary: '店主反馈应季爆品不足，缺少引流款', sources: ['华东大区','华南大区'], sourceIds: [], count: 5, periods: 2, score: 86, status: 'merged', urgent: false },
+    { id: '#096', issueType: '商品货盘', summary: '同类商品价格带重复，缺少差异化货盘', sources: ['华中大区'], sourceIds: [], count: 4, periods: 2, score: 69, status: 'scheduled', urgent: false },
+    { id: '#104', issueType: '商品货盘', summary: '部分高频复购品缺货，影响店主转化', sources: ['西部大区','华北大区'], sourceIds: [], count: 3, periods: 2, score: 62, status: 'following', urgent: false },
+    { id: '#112', issueType: '商品货盘', summary: '生鲜类商品规格不统一，店主难以讲解', sources: ['华南大区'], sourceIds: [], count: 2, periods: 1, score: 31, status: 'pending', urgent: false },
+    { id: '#123', issueType: '履约供应链', summary: '店主反馈部分订单配送时效不稳定', sources: ['华东大区','华中大区'], sourceIds: [], count: 5, periods: 2, score: 88, status: 'following', urgent: false },
+    { id: '#127', issueType: '履约供应链', summary: '冷链商品到货温控异常，影响用户体验', sources: ['华南大区'], sourceIds: [], count: 4, periods: 2, score: 76, status: 'merged', urgent: false },
+    { id: '#136', issueType: '履约供应链', summary: '供应商临时缺货未及时同步给店主', sources: ['西部大区','华北大区'], sourceIds: [], count: 3, periods: 1, score: 54, status: 'scheduled', urgent: false },
+    { id: '#141', issueType: '履约供应链', summary: '售后退换货链路较长，店主处理成本高', sources: ['华中大区'], sourceIds: [], count: 2, periods: 1, score: 38, status: 'pending', urgent: false },
+  ];
+}
 
 function renderClusterRows(list) {
   return list.map(c => {
     const origIdx = clusters.indexOf(c);
+    const type = c.issueType || '系统问题';
+    const badgeClass = typeBadgeClass[type] || 'type-badge-system';
+    const onclick = origIdx >= 0
+      ? `openDrawer(${origIdx})`
+      : `openIssueDrawer({id:'${c.id}',type:'${type}',summary:'${c.summary.replace(/'/g, "\\'")}',sources:'${c.sources.join(' ')}',freq:'${c.count}次 / ${c.periods}周期',score:${c.score},status:'${issueStatusMap[c.status] || '待处理'}'})`;
     return `
-    <tr onclick="openDrawer(${origIdx})">
+    <tr onclick="${onclick}" style="cursor:pointer">
       <td><span class="cluster-id">${c.id}</span>${c.urgent ? '<span class="urgent-tag">紧急</span>' : ''}</td>
-      <td style="max-width:200px">${c.summary}</td>
-      <td>
-        <span class="badge ${layerClass[c.layer]}">${layerLabel[c.layer]}</span>
-        ${c.relatedSaas && c.relatedSaas.length ? `<div style="font-size:10px;color:#6c5ce7;margin-top:3px">${c.relatedSaas.join('/')}</div>` : ''}
-      </td>
-      <td><span class="badge ${impactClass[c.impact]}">${impactLabel[c.impact]}</span></td>
+      <td style="max-width:180px">${c.summary}</td>
+      <td><span class="type-badge ${badgeClass}">${type}</span></td>
       <td>${c.sources.join(' ')}</td>
       <td>${c.count}次 / ${c.periods}周期</td>
       <td>
@@ -2185,49 +2336,10 @@ function renderTable() {
   if (footer) {
     const total = filtered.length;
     if (total > DASH_TOP) {
-      footer.innerHTML = `共 ${total} 个需求簇，仅展示 Top ${DASH_TOP} · <a href="#" style="color:#0071e3" onclick="event.preventDefault();switchPage('all-partner')">前往「服务商需求」查看全部</a>`;
+      footer.innerHTML = `共 ${total} 个需求簇，仅展示 Top ${DASH_TOP} · <a href="#" style="color:#0071e3" onclick="event.preventDefault();switchPage('all-partner')">前往「大区需求」查看全部</a>`;
     } else {
       footer.innerHTML = `共 ${total} 个需求簇`;
     }
-  }
-}
-
-function renderSaasDashTable() {
-  const tbody  = document.getElementById('saasDashBody');
-  const footer = document.getElementById('saasDashFooter');
-  if (!tbody) return;
-
-  const q = ((document.getElementById('dashSaasSearch') || {}).value || '').toLowerCase();
-  const filtered = saasClustersList.filter(c =>
-    !q || (c.summary || '').toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
-  );
-
-  const top = filtered.slice(0, DASH_TOP);
-  if (top.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:#8e8e93">暂无SaaS需求簇</td></tr>`;
-    if (footer) footer.innerHTML = '';
-    return;
-  }
-
-  tbody.innerHTML = top.map(c => {
-    const origIdx = saasClustersList.indexOf(c);
-    const vendors = (c.vendor_names || []).join(' ') || '—';
-    return `
-    <tr onclick="openSaasClusterDrawer(${origIdx})" style="cursor:pointer">
-      <td><span class="cluster-id" style="color:#6c5ce7">${c.id}</span></td>
-      <td style="max-width:200px">${c.summary || '（无标题）'}</td>
-      <td><span class="badge ${impactClass[c.impact] || 'badge-mid'}">${impactLabel[c.impact] || '中'}</span></td>
-      <td style="font-size:12px;color:#6e6e73">${vendors}</td>
-      <td>${c.count}次</td>
-      <td>${statusMap[c.status] || statusMap['pending']}</td>
-    </tr>`;
-  }).join('');
-
-  if (footer) {
-    const total = filtered.length;
-    footer.innerHTML = total > DASH_TOP
-      ? `共 ${total} 个需求簇，仅展示 Top ${DASH_TOP} · <a href="#" style="color:#6c5ce7" onclick="event.preventDefault();switchPage('all-saas')">前往「SaaS厂商需求」查看全部</a>`
-      : `共 ${total} 个需求簇`;
   }
 }
 
@@ -2250,8 +2362,8 @@ function openDrawer(i) {
           ${(() => { const b = scoreBreakdown(c);
             return `<div>提及频次：<b>${c.count}</b> 次 → 基础分 ${c.count}</div>
             <div>业务影响：${b.impactLbl[c.impact]}（×${b.impact.toFixed(1)}）</div>
-            <div>来源国最优：${b.bestCountry}（×${b.countryW.toFixed(1)}）</div>
-            <div>服务商：${b.tierLabel[scoringConfig.partnerTier[b.bestPartner] || 'normal']}（×${b.partnerW.toFixed(1)}）</div>
+            <div>来源区域最优：${b.bestCountry}（×${b.countryW.toFixed(1)}）</div>
+            <div>大区：${b.tierLabel[scoringConfig.partnerTier[b.bestPartner] || 'normal']}（×${b.partnerW.toFixed(1)}）</div>
             <div>跨周期：${c.periods} 周期（×${b.coeff.toFixed(1)}）</div>
             <div style="border-top:1px solid rgba(0,113,227,0.15);margin-top:4px;padding-top:4px">原始分：<b>${b.raw.toFixed(1)}</b> → 归一化：<b style="color:#0071e3">${c.score}</b></div>`;
           })()}
@@ -2295,7 +2407,8 @@ function openDrawer(i) {
           </span>
         </div>
         <div class="si-text">${item.text}</div>
-        <div class="si-meta">商户：${item.merchant} · 服务商：${item.partner} · 语言：${item.lang}</div>
+        ${item.userSummary ? `<div class="si-meta" style="color:#0071e3;margin-top:2px">✦ AI润色：${item.userSummary}</div>` : ''}
+        <div class="si-meta">商户：${item.merchant} · 大区：${item.partner}</div>
         ${item.attachments && item.attachments.length ? `<div class="si-attach">📎 ${item.attachments.length} 个附件（点击查看）</div>` : ''}
       </div>
     `).join('')}
@@ -2307,13 +2420,14 @@ function openDrawer(i) {
       </button>
       <div class="review-body" id="reviewBody">
         <div class="review-row">
-          <span class="review-label">归属层</span>
-          <select id="reviewLayer" onchange="this.classList.toggle('changed', this.value !== '${c.layer}')">
-            <option value="platform" ${c.layer==='platform'?'selected':''}>平台层</option>
-            <option value="saas"     ${c.layer==='saas'?'selected':''}>SaaS 层</option>
-            <option value="cross"    ${c.layer==='cross'?'selected':''}>跨层</option>
+          <span class="review-label">问题类型</span>
+          <select id="reviewLayer" onchange="this.classList.toggle('changed', this.value !== '${c.issueType || '系统问题'}')">
+            <option value="系统问题" ${(c.issueType || '系统问题')==='系统问题'?'selected':''}>系统问题</option>
+            <option value="人工运营" ${(c.issueType || '')==='人工运营'?'selected':''}>人工运营</option>
+            <option value="商品货盘" ${(c.issueType || '')==='商品货盘'?'selected':''}>商品货盘</option>
+            <option value="履约供应链" ${(c.issueType || '')==='履约供应链'?'selected':''}>履约供应链</option>
           </select>
-          <button class="btn-sm btn-sm-primary" onclick="saveLayer()">保存</button>
+          <button class="btn-sm btn-sm-primary" onclick="saveIssueType()">保存</button>
         </div>
         <div style="margin-bottom:8px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -2337,7 +2451,7 @@ function closeDrawer() {
 }
 
 function syncOverlay() {
-  const anyOpen = ['drawer','ticketDrawer','saasDrawer'].some(
+  const anyOpen = ['drawer','ticketDrawer'].some(
     id => document.getElementById(id).classList.contains('open')
   );
   document.getElementById('drawerOverlay').classList.toggle('show', anyOpen);
@@ -2346,7 +2460,94 @@ function syncOverlay() {
 function closeAllDrawers() {
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('ticketDrawer').classList.remove('open');
-  document.getElementById('saasDrawer').classList.remove('open');
+  syncOverlay();
+}
+
+function openIssueDrawer(data) {
+  const typeColors = {
+    '系统问题': '#0071e3',
+    '人工运营': '#af52de',
+    '商品货盘': '#ff9500',
+    '履约供应链': '#34c759'
+  };
+  const typeBadgeClass = {
+    '系统问题': 'type-badge-system',
+    '人工运营': 'type-badge-operation',
+    '商品货盘': 'type-badge-product',
+    '履约供应链': 'type-badge-supply'
+  };
+  const statusMap = {
+    '跟进中': '<span class="status-badge status-scheduled">跟进中</span>',
+    '待处理': '<span class="status-badge status-pending">待处理</span>',
+    '已归并': '<span class="status-badge status-merged">已归并</span>',
+    '排期中': '<span class="status-badge status-scheduled">排期中</span>'
+  };
+
+  document.getElementById('drawerTitle').textContent = `需求详情 ${data.id}`;
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="meta-row">
+      <div class="meta-item">
+        <div class="ml">优先级得分</div>
+        <div class="mv" style="color:${typeColors[data.type] || '#0071e3'};font-size:22px;font-weight:700;letter-spacing:-0.03em">${data.score}</div>
+      </div>
+      <div class="meta-item">
+        <div class="ml">问题判断</div>
+        <div class="mv"><span class="type-badge ${typeBadgeClass[data.type] || 'type-badge-system'}">${data.type}</span></div>
+      </div>
+      <div class="meta-item">
+        <div class="ml">来源大区</div>
+        <div class="mv">${data.sources}</div>
+      </div>
+      <div class="meta-item">
+        <div class="ml">反馈次数</div>
+        <div class="mv">${data.freq}</div>
+      </div>
+    </div>
+
+    <div class="ai-summary">
+      <div class="ai-label">✦ AI 生成摘要</div>
+      <p>${data.summary}。该需求已被 AI 自动识别归类为「${data.type}」类型，建议交由对应业务团队跟进处理。</p>
+    </div>
+
+    <div class="sources-title">关联原始需求（示例）</div>
+    <div class="source-item">
+      <div class="si-head">
+        <span class="si-id">${data.id}</span>
+        <span class="si-time">2026-05-20 14:30</span>
+      </div>
+      <div class="si-text">${data.summary}</div>
+      <div class="si-meta">来源：${data.sources} · 状态：${data.status}</div>
+    </div>
+    <div class="source-item">
+      <div class="si-head">
+        <span class="si-id">${data.id}-2</span>
+        <span class="si-time">2026-05-18 09:15</span>
+      </div>
+      <div class="si-text">${data.summary}，相关反馈持续收集中。</div>
+      <div class="si-meta">来源：${data.sources} · 状态：${data.status}</div>
+    </div>
+
+    <div class="review-panel">
+      <button class="review-toggle" onclick="this.classList.toggle('open');document.getElementById('issueReviewBody').classList.toggle('open')">
+        <span>🔍 人工核查 · 纠错</span>
+        <span class="rt-chevron">▼</span>
+      </button>
+      <div class="review-body" id="issueReviewBody">
+        <div style="font-size:12px;color:#6e6e73;margin-bottom:8px">如需调整问题类型分类，可在此手动校正。</div>
+        <div class="review-row">
+          <span class="review-label">问题类型</span>
+          <select id="issueTypeSelect">
+            <option value="系统问题" ${data.type==='系统问题'?'selected':''}>系统问题</option>
+            <option value="人工运营" ${data.type==='人工运营'?'selected':''}>人工运营</option>
+            <option value="商品货盘" ${data.type==='商品货盘'?'selected':''}>商品货盘</option>
+            <option value="履约供应链" ${data.type==='履约供应链'?'selected':''}>履约供应链</option>
+          </select>
+          <button class="btn-sm btn-sm-primary" onclick="showToast('✓ 问题类型已更新')">保存</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('drawer').classList.add('open');
   syncOverlay();
 }
 
@@ -2364,7 +2565,8 @@ function saveStatus() {
 
 // ── Charts ──
 let pieChartInst = null;
-let layerChartInst = null;
+let issueChartInst = null;
+let statusChartInst = null;
 
 function updateDashboardStats() {
   // Stat cards
@@ -2372,28 +2574,21 @@ function updateDashboardStats() {
   const totalC = clusters.length;
   document.getElementById('statTotalTickets').textContent = totalT;
   document.getElementById('statTotalClusters').textContent = totalC;
-  const compress = totalT > 0 ? Math.round((1 - totalC / totalT) * 100) : 0;
-  document.getElementById('statCompress').textContent = totalT > 0 ? `压缩率 ${compress}%` : '';
+  const mergedCount = totalT > totalC ? totalT - totalC : 0;
+  document.getElementById('statCompress').textContent = totalT > 0 ? `AI 合并了 ${mergedCount} 条` : '';
 
-  const saasT = saasTicketsList.length;
-  const saasC = saasClustersList.length;
-  document.getElementById('statSaasTickets').textContent = saasT;
-  document.getElementById('statSaasClusters').textContent = saasC;
-  const saasCompress = saasT > 0 ? Math.round((1 - saasC / saasT) * 100) : 0;
-  document.getElementById('statSaasCompress').textContent = saasT > 0 ? `压缩率 ${saasCompress}%` : '';
-
-  // Pie chart: tickets by country
-  const countryCount = {};
+  // Pie chart: tickets by partner
+  const partnerCount = {};
+  const partnerColor = {};
+  const flagColors = { '🏔️': '#f59e0b', '🌴': '#10b981', '🌆': '#3b82f6', '🌾': '#ef4444', '🏜️': '#8b5cf6' };
   allTickets.forEach(t => {
-    const key = (t.flag || '') + ' ' + (t.partner || '');
-    // group by flag
-    const f = t.flag || '其他';
-    countryCount[f] = (countryCount[f] || 0) + 1;
+    const name = t.partner || '其他';
+    partnerCount[name] = (partnerCount[name] || 0) + 1;
+    if (t.flag) partnerColor[name] = flagColors[t.flag] || '#aaa';
   });
-  const flagColors = { '🇹🇭': '#f59e0b', '🇮🇩': '#10b981', '🇮🇹': '#3b82f6', '🇰🇭': '#ef4444', '🇲🇾': '#8b5cf6' };
-  const pieLabels = Object.keys(countryCount);
-  const pieData   = pieLabels.map(f => countryCount[f]);
-  const pieColors = pieLabels.map(f => flagColors[f] || '#aaa');
+  const pieLabels = Object.keys(partnerCount);
+  const pieData   = pieLabels.map(p => partnerCount[p]);
+  const pieColors = pieLabels.map(p => partnerColor[p] || '#aaa');
 
   if (pieChartInst) pieChartInst.destroy();
   pieChartInst = new Chart(document.getElementById('pieChart'), {
@@ -2402,40 +2597,51 @@ function updateDashboardStats() {
     options: { plugins: { legend: { position: 'right', labels: { font: { size: 12 }, boxWidth: 14, padding: 10 } } }, cutout: '55%' }
   });
 
-  // Layer chart: clusters by layer
-  const layerCount = { platform: 0, saas: 0, cross: 0 };
-  clusters.forEach(c => { if (c.layer in layerCount) layerCount[c.layer]++; else layerCount.cross++; });
-  if (layerChartInst) layerChartInst.destroy();
-  layerChartInst = new Chart(document.getElementById('layerChart'), {
+  // Issue type distribution chart
+  const issueCount = {
+    system: clusters.length,
+    operation: 4,
+    product: 4,
+    supply: 4
+  };
+  if (issueChartInst) issueChartInst.destroy();
+  issueChartInst = new Chart(document.getElementById('issueChart'), {
     type: 'bar',
     data: {
-      labels: ['平台层', 'SaaS层', '跨层'],
-      datasets: [{ data: [layerCount.platform, layerCount.saas, layerCount.cross], backgroundColor: ['#7c3aed','#1a56db','#d97706'], borderRadius: 6, borderWidth: 0 }]
+      labels: ['系统问题', '人工运营', '商品货盘', '履约供应链'],
+      datasets: [{ data: [issueCount.system, issueCount.operation, issueCount.product, issueCount.supply], backgroundColor: ['#0071e3','#af52de','#ff9500','#34c759'], borderRadius: 6, borderWidth: 0 }]
     },
     options: {
       plugins: { legend: { display: false } },
       scales: { y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } }
     }
   });
-
-  renderSaasDashTable();
 }
 
-// Trend chart stays static (no historical data in DB) — rendered once
-new Chart(document.getElementById('trendChart'), {
-  type: 'line',
-  data: {
-    labels: ['W18','W19','W20','W21','W22'],
-    datasets: [
-      { label: '服务商', data: [0, 0, 0, 0, 0], borderColor: '#1a56db', backgroundColor: 'rgba(26,86,219,0.08)', tension: 0.4, fill: true, pointRadius: 3 },
-      { label: 'SaaS', data: [0, 0, 0, 0, 0], borderColor: '#6c5ce7', tension: 0.4, fill: false, pointRadius: 3 },
-    ]
-  },
-  options: {
-    plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 12 } } },
-    scales: { y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } }
-  }
-});
+// Status distribution chart — data from clusters
+function renderStatusChart() {
+  const statusCount = { merged: 0, scheduled: 0, pending: 0 };
+  clusters.forEach(c => {
+    if (c.status in statusCount) statusCount[c.status]++;
+    else statusCount.pending++;
+  });
+  if (statusChartInst) statusChartInst.destroy();
+  statusChartInst = new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['已归并', '排期中', '待处理'],
+      datasets: [{
+        data: [statusCount.merged, statusCount.scheduled, statusCount.pending],
+        backgroundColor: ['#34c759', '#0071e3', '#ff9500'],
+        borderWidth: 2, borderColor: '#fff'
+      }]
+    },
+    options: {
+      plugins: { legend: { position: 'right', labels: { font: { size: 12 }, boxWidth: 14, padding: 10 } } },
+      cutout: '55%'
+    }
+  });
+}
 
 // ── All Requirements page ──
 let allTickets = [];
@@ -2488,19 +2694,19 @@ function renderAllClusters() {
   const country = document.getElementById('acFilterCountry').value;
   const status  = document.getElementById('acFilterStatus').value;
 
-  const filtered = clusters.filter(c =>
+  const all = [...clusters, ...issueClusters];
+  const filtered = all.filter(c =>
     (!country || (c.sourceIds || []).includes(country)) &&
     (!status  || c.status === status)
-  );
+  ).sort((a, b) => b.score - a.score);
 
   const empty = document.getElementById('allClustersEmpty');
   const tbody = document.getElementById('allClustersBody');
   if (filtered.length === 0) { tbody.innerHTML = ''; empty.style.display = ''; document.getElementById('allClustersPager').innerHTML = ''; return; }
   empty.style.display = 'none';
 
-  const page = filtered.slice((clusterPage - 1) * PAGE_SIZE, clusterPage * PAGE_SIZE);
-  tbody.innerHTML = renderClusterRows(page);
-  renderPager('allClustersPager', filtered.length, clusterPage, 'function(p){clusterPage=p;renderAllClusters()}');
+  tbody.innerHTML = renderClusterRows(filtered);
+  document.getElementById('allClustersPager').innerHTML = '';
 }
 
 function renderAllTable() {
@@ -2513,7 +2719,7 @@ function renderAllTable() {
     (!country || t.flag === country) &&
     (!status  || t.status === status) &&
     (!impact  || t.impact === impact) &&
-    (!q || t.id.toLowerCase().includes(q) || t.text.toLowerCase().includes(q) || t.merchant.toLowerCase().includes(q))
+    (!q || t.id.toLowerCase().includes(q) || t.text.toLowerCase().includes(q) || (t.userSummary && t.userSummary.toLowerCase().includes(q)) || t.merchant.toLowerCase().includes(q))
   );
 
   const tbody = document.getElementById('allTableBody');
@@ -2527,21 +2733,24 @@ function renderAllTable() {
   }
   empty.style.display = 'none';
 
-  const page = filtered.slice((ticketPage - 1) * PAGE_SIZE, ticketPage * PAGE_SIZE);
-  tbody.innerHTML = page.map(t => `
+  tbody.innerHTML = filtered.map(t => `
     <tr style="cursor:pointer" onclick="openTicketDrawer('${t.id}')">
       <td>
         <span class="cluster-id">${t.id}</span>
         ${t.manual ? `<span style="display:inline-block;background:#fef3c7;color:#d97706;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:4px">人工</span>` : ''}
         ${t.attachments && t.attachments.length ? `<span style="font-size:10px;color:#0071e3;margin-left:4px">📎${t.attachments.length}</span>` : ''}
       </td>
-      <td style="max-width:220px">
-        <div style="font-size:13px;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px" title="${t.text}">${t.text}</div>
+      <td style="max-width:180px">
+        <div style="font-size:13px;color:#6e6e73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px" title="${t.text}">${t.text}</div>
+      </td>
+      <td style="max-width:180px">
+        ${t.userSummary
+          ? `<div style="font-size:13px;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px" title="${t.userSummary}">${t.userSummary}</div>`
+          : `<div style="font-size:12px;color:#aeaeb2">—</div>`}
       </td>
       <td style="font-size:13px;color:#1d1d1f">${t.merchant}</td>
       <td style="font-size:13px">${t.flag} ${t.partner}</td>
       <td><span class="badge ${impactClass[t.impact]}">${impactLabel[t.impact]}</span></td>
-      <td style="font-size:12px;color:#6e6e73">${t.scenes.join('、')}</td>
       <td style="font-size:12px;color:#6e6e73;white-space:nowrap">${t.time}</td>
       <td>
         ${statusBadge[t.status]}
@@ -2549,7 +2758,7 @@ function renderAllTable() {
       </td>
     </tr>
   `).join('');
-  renderPager('allTicketsPager', filtered.length, ticketPage, 'function(p){ticketPage=p;renderAllTable()}');
+  document.getElementById('allTicketsPager').innerHTML = '';
 }
 
 // ── Toast ──
@@ -2586,17 +2795,17 @@ function toggleReview() {
   body.classList.toggle('open');
 }
 
-function saveLayer() {
-  const newLayer = document.getElementById('reviewLayer').value;
+function saveIssueType() {
+  const newType = document.getElementById('reviewLayer').value;
   const c = clusters[currentIdx];
-  c.layer = newLayer;
+  c.issueType = newType;
   document.getElementById('reviewLayer').classList.remove('changed');
   fetch(`${API_BASE}/api/clusters/${encodeURIComponent(c.id)}`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ layer: newLayer }),
+    body: JSON.stringify({ issue_type: newType }),
   });
   renderTable(); renderAllClusters();
-  showToast(`归属层已更新为「${layerLabel[newLayer]}」`);
+  showToast(`问题类型已更新为「${newType}」`);
 }
 
 let editingSummary = false;
@@ -2724,7 +2933,7 @@ function openTicketDrawer(id) {
     <div class="td-grid">
       <div class="td-field"><div class="tf-label">工单 ID</div><div class="tf-value" style="font-family:'SF Mono','Menlo',monospace;color:#0071e3;font-weight:600">${t.id}</div></div>
       <div class="td-field"><div class="tf-label">提交时间</div><div class="tf-value">${t.time}</div></div>
-      <div class="td-field"><div class="tf-label">来源服务商</div><div class="tf-value">${t.flag || ''} ${t.partner || ''}</div></div>
+      <div class="td-field"><div class="tf-label">来源大区</div><div class="tf-value">${t.flag || ''} ${t.partner || ''}</div></div>
       <div class="td-field"><div class="tf-label">商户</div><div class="tf-value">${t.merchant}</div></div>
       <div class="td-field"><div class="tf-label">业务影响</div><div class="tf-value" style="color:${impactColors[t.impact] || '#1d1d1f'}">${impactLabels[t.impact] || '-'}</div></div>
       <div class="td-field"><div class="tf-label">涉及场景</div><div class="tf-value">${(t.scenes || []).join('、') || '-'}</div></div>
@@ -2732,6 +2941,11 @@ function openTicketDrawer(id) {
 
     <div class="td-section-title">原始描述（${t.lang || '原文'}）</div>
     <div class="td-original-box">${t.text}</div>
+
+    ${t.userSummary ? `
+    <div class="td-section-title" style="display:flex;align-items:center;gap:6px">✦ AI 润色后</div>
+    <div style="background:#f0f7ff;border:1.5px solid #b3d7ff;border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.6;color:#1d1d1f">${t.userSummary}</div>
+    ` : ''}
 
     <div class="td-section-title">附件（${(t.attachments || []).length} 个）</div>
     ${renderAttachments(t.attachments)}
@@ -2743,43 +2957,6 @@ function openTicketDrawer(id) {
 
 function closeTicketDrawer() {
   document.getElementById('ticketDrawer').classList.remove('open');
-  syncOverlay();
-}
-
-function openSaasTicketDrawer(id) {
-  const t = saasTicketsList.find(t => t.id === id);
-  if (!t) return;
-
-  const impactLabels = { high:'高', mid:'中', low:'低' };
-  const impactColors = { high:'#ff3b30', mid:'#ff9500', low:'#6c5ce7' };
-  const cluster = t.saas_cluster_id ? saasClustersList.find(c => c.id === t.saas_cluster_id) : null;
-
-  document.getElementById('tdTitle').textContent = t.id;
-  document.getElementById('tdBody').innerHTML = `
-    <div class="td-section-title">基本信息</div>
-    <div class="td-grid">
-      <div class="td-field"><div class="tf-label">工单 ID</div><div class="tf-value" style="font-family:'SF Mono','Menlo',monospace;color:#6c5ce7;font-weight:600">${t.id}</div></div>
-      <div class="td-field"><div class="tf-label">提交时间</div><div class="tf-value">${t.time || '—'}</div></div>
-      <div class="td-field"><div class="tf-label">来源厂商</div><div class="tf-value">${t.vendor_name || '—'}</div></div>
-      <div class="td-field"><div class="tf-label">行业</div><div class="tf-value">${t.industry || '—'}</div></div>
-      <div class="td-field"><div class="tf-label">商户</div><div class="tf-value">${t.merchant || '—'}</div></div>
-      <div class="td-field"><div class="tf-label">业务影响</div><div class="tf-value" style="color:${impactColors[t.impact] || '#1d1d1f'}">${impactLabels[t.impact] || '—'}</div></div>
-    </div>
-
-    <div class="td-section-title">需求描述</div>
-    <div class="td-original-box">${t.text}</div>
-
-    ${cluster ? `
-    <div class="td-section-title">归并信息</div>
-    <div class="td-grid">
-      <div class="td-field"><div class="tf-label">需求簇</div><div class="tf-value" style="color:#6c5ce7;font-weight:600">${cluster.id}</div></div>
-      <div class="td-field"><div class="tf-label">簇标题</div><div class="tf-value">${cluster.summary || '—'}</div></div>
-    </div>
-    ${cluster.ai_summary ? `<div style="margin-top:10px;padding:12px 14px;background:#f0eeff;border-left:3px solid #6c5ce7;border-radius:0 8px 8px 0;font-size:13px;color:#1d1d1f;line-height:1.6">${cluster.ai_summary}</div>` : ''}
-    ` : ''}
-  `;
-
-  document.getElementById('ticketDrawer').classList.add('open');
   syncOverlay();
 }
 
@@ -3016,7 +3193,7 @@ function rebuildCountryFilters() {
     const el = document.getElementById(id);
     if (!el) return;
     const cur = el.value;
-    el.innerHTML = `<option value="">全部国家</option>` + opts;
+    el.innerHTML = `<option value="">全部区域</option>` + opts;
     el.value = cur;
   });
 
@@ -3024,7 +3201,7 @@ function rebuildCountryFilters() {
   const allEl = document.getElementById('allFilterCountry');
   if (allEl) {
     const cur = allEl.value;
-    allEl.innerHTML = `<option value="">全部国家</option>` +
+    allEl.innerHTML = `<option value="">全部区域</option>` +
       Object.entries(cm).map(([, m]) => `<option value="${m.flag}">${m.flag} ${m.name}</option>`).join('');
     allEl.value = cur;
   }
@@ -3088,7 +3265,7 @@ function openPartnerForm(token) {
   if (token) {
     const p = partnersList.find(x => x.token === token);
     if (!p) return;
-    document.getElementById('partnerFormTitle').textContent = '编辑服务商';
+    document.getElementById('partnerFormTitle').textContent = '编辑大区';
     document.getElementById('pf_flag').value = p.flag;
     document.getElementById('pf_countryId').value = p.countryId;
     document.getElementById('pf_countryName').value = p.countryName;
@@ -3098,9 +3275,9 @@ function openPartnerForm(token) {
     document.getElementById('pf_tokenDisplay').textContent = p.token;
     tokenRow.style.display = '';
   } else {
-    document.getElementById('partnerFormTitle').textContent = '新增服务商';
+    document.getElementById('partnerFormTitle').textContent = '新增大区';
     ['pf_flag','pf_countryId','pf_countryName','pf_name'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('pf_lang').value = 'en';
+    document.getElementById('pf_lang').value = 'zh';
     document.getElementById('pf_tier').value = 'normal';
     tokenRow.style.display = 'none';
   }
@@ -3125,7 +3302,7 @@ function savePartnerForm() {
     return;
   }
 
-  const body = { country_id: countryId, flag, country_name: countryName, name, lang, tier };
+  const body = { region_id: countryId, flag, region_name: countryName, name, lang, tier };
   const url  = editingToken ? `${API_BASE}/api/partners/${editingToken}` : `${API_BASE}/api/partners`;
   const method = editingToken ? 'PUT' : 'POST';
 
@@ -3133,7 +3310,7 @@ function savePartnerForm() {
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
     .then(() => {
       closePartnerForm();
-      showToast(editingToken ? '服务商信息已更新' : `服务商「${name}」已新增`);
+      showToast(editingToken ? '大区信息已更新' : `大区「${name}」已新增`);
       return reloadPartners();
     })
     .catch(() => showToast('保存失败，请检查后端服务'));
@@ -3143,13 +3320,13 @@ function deletePartner(token) {
   const p = partnersList.find(x => x.token === token);
   if (!p) return;
   showConfirm(
-    `删除服务商 ${p.name}`,
+    `删除大区 ${p.name}`,
     `删除后其专属链接将失效，此操作不可撤销。`,
     () => {
       fetch(`${API_BASE}/api/partners/${token}`, { method: 'DELETE' })
         .then(r => { if (!r.ok) throw new Error(); })
         .then(() => {
-          showToast(`服务商「${p.name}」已删除`);
+          showToast(`大区「${p.name}」已删除`);
           return reloadPartners();
         })
         .catch(() => showToast('删除失败，请检查后端服务'));
@@ -3161,8 +3338,8 @@ async function reloadPartners() {
   partnersList = await fetch(`${API_BASE}/api/partners`).then(r => r.json());
   // normalize field names (backend uses snake_case)
   partnersList = partnersList.map(p => ({
-    token: p.token, countryId: p.country_id, flag: p.flag,
-    countryName: p.country_name, name: p.name, lang: p.lang, tier: p.tier,
+    token: p.token, countryId: p.region_id, flag: p.flag || '',
+    countryName: p.region_name, name: p.name, lang: p.lang, tier: p.tier,
   }));
   syncScoringConfig();
   rebuildCountryFilters();
@@ -3174,53 +3351,11 @@ async function reloadPartners() {
 // Template i18n config
 const TMPL_I18N = {
   zh: {
-    sheet: '需求录入模板', refSheet: '服务商参考列表',
-    headers: ['服务商名称', '商户名称', '需求描述', '业务影响', '涉及场景'],
-    hint: ['填写服务商名称（见第2个Sheet）', '填写商户名称', '描述具体需求', '高 / 中 / 低', '多个场景用逗号分隔：收银,报表,会员,厨显,支付,库存'],
+    sheet: '需求录入模板', refSheet: '大区参考列表',
+    headers: ['大区名称', '商户名称', '需求描述', '业务影响', '涉及场景'],
+    hint: ['填写大区名称（见第2个Sheet）', '填写商户名称', '描述具体需求', '高 / 中 / 低', '多个场景用逗号分隔：商品场景,智能补货场景,采购入库,店内操作,店内POS,O2O线上销售'],
     exDesc: '希望系统支持打印门店 Logo 和二维码', exImpact: '高', exScene: '收银,报表',
-    refHeaders: ['服务商名称', '国家', '旗帜'], filename: '需求批量录入模板',
-  },
-  en: {
-    sheet: 'Requirement Template', refSheet: 'Partner Reference',
-    headers: ['Partner Name', 'Merchant Name', 'Requirement Description', 'Business Impact', 'Scenes'],
-    hint: ['Fill partner name (see Sheet 2)', 'Fill merchant name', 'Describe the requirement', 'high / mid / low', 'Separate multiple: cashier,report,member,kds,payment,inventory'],
-    exDesc: 'Customer wants to print store logo and QR code on receipt', exImpact: 'high', exScene: 'cashier,report',
-    refHeaders: ['Partner Name', 'Country', 'Flag'], filename: 'requirement_import_template',
-  },
-  th: {
-    sheet: 'แบบฟอร์มความต้องการ', refSheet: 'รายชื่อพาร์ทเนอร์',
-    headers: ['ชื่อพาร์ทเนอร์', 'ชื่อร้านค้า', 'รายละเอียดความต้องการ', 'ผลกระทบ', 'หมวดหมู่'],
-    hint: ['กรอกชื่อพาร์ทเนอร์ (ดู Sheet 2)', 'กรอกชื่อร้านค้า', 'อธิบายความต้องการ', 'สูง / กลาง / ต่ำ', 'คั่นด้วยเครื่องหมายจุลภาค: แคชเชียร์,รายงาน,สมาชิก'],
-    exDesc: 'ต้องการพิมพ์โลโก้ร้านและ QR Code บนใบเสร็จ', exImpact: 'สูง', exScene: 'แคชเชียร์,รายงาน',
-    refHeaders: ['ชื่อพาร์ทเนอร์', 'ประเทศ', 'ธง'], filename: 'requirement_template_th',
-  },
-  id: {
-    sheet: 'Template Kebutuhan', refSheet: 'Referensi Mitra',
-    headers: ['Nama Mitra', 'Nama Merchant', 'Deskripsi Kebutuhan', 'Dampak Bisnis', 'Skenario'],
-    hint: ['Isi nama mitra (lihat Sheet 2)', 'Isi nama merchant', 'Jelaskan kebutuhannya', 'tinggi / sedang / rendah', 'Pisahkan dengan koma: kasir,laporan,anggota'],
-    exDesc: 'Pelanggan ingin cetak logo toko dan QR Code di struk kasir', exImpact: 'tinggi', exScene: 'kasir,laporan',
-    refHeaders: ['Nama Mitra', 'Negara', 'Bendera'], filename: 'requirement_template_id',
-  },
-  it: {
-    sheet: 'Modello Requisiti', refSheet: 'Elenco Partner',
-    headers: ['Nome Partner', 'Nome Commerciante', 'Descrizione Requisito', 'Impatto Business', 'Scenari'],
-    hint: ['Inserire nome partner (vedi Sheet 2)', 'Inserire nome commerciante', 'Descrivere il requisito', 'alto / medio / basso', 'Separare con virgola: cassa,report,fidelity'],
-    exDesc: 'Il cliente vuole stampare il logo del negozio sullo scontrino', exImpact: 'alto', exScene: 'cassa,report',
-    refHeaders: ['Nome Partner', 'Paese', 'Bandiera'], filename: 'requirement_template_it',
-  },
-  fr: {
-    sheet: 'Modèle de Besoins', refSheet: 'Liste des Partenaires',
-    headers: ['Nom du Partenaire', 'Nom du Marchand', 'Description du Besoin', 'Impact Métier', 'Scénarios'],
-    hint: ['Saisir le nom du partenaire (voir Sheet 2)', 'Saisir le nom du marchand', 'Décrire le besoin', 'élevé / moyen / faible', 'Séparer par virgule: caisse,rapport,fidélité'],
-    exDesc: 'Le client souhaite imprimer le logo du magasin sur le reçu', exImpact: 'élevé', exScene: 'caisse,rapport',
-    refHeaders: ['Nom Partenaire', 'Pays', 'Drapeau'], filename: 'requirement_template_fr',
-  },
-  km: {
-    sheet: 'ទម្រង់តម្រូវការ', refSheet: 'បញ្ជីដៃគូ',
-    headers: ['ឈ្មោះដៃគូ', 'ឈ្មោះពាណិជ្ជករ', 'ការពិពណ៌នាតម្រូវការ', 'ផលប៉ះពាល់', 'សេណារីយ៉ូ'],
-    hint: ['បំពេញឈ្មោះដៃគូ (មើល Sheet 2)', 'បំពេញឈ្មោះពាណិជ្ជករ', 'ពិពណ៌នាតម្រូវការ', 'ខ្ពស់ / មធ្យម / ទាប', 'ញែកដោយក្បៀស: ការបង់ប្រាក់,របាយការណ៍'],
-    exDesc: 'ចង់បោះពុម្ពនិមិត្តសញ្ញានិង QR Code លើវិក្កយបត្រ', exImpact: 'ខ្ពស់', exScene: 'ការបង់ប្រាក់,របាយការណ៍',
-    refHeaders: ['ឈ្មោះដៃគូ', 'ប្រទេស', 'ទង់ជាតិ'], filename: 'requirement_template_km',
+    refHeaders: ['大区名称', '区域', '标识'], filename: '需求批量录入模板',
   },
 };
 
@@ -3235,7 +3370,7 @@ function downloadTemplateInLang(lang) {
 
   // Row 1: headers, Row 2: hint row (grey guide), Row 3+: examples
   const hintRow  = t.hint;
-  const exPartner = partnersList[0]?.name || 'TH-Partner';
+  const exPartner = partnersList[0]?.name || '华北大区';
   const exRow    = [exPartner, t.exDesc.slice(0, 12) + '…', t.exDesc, t.exImpact, t.exScene];
 
   const ws = XLSX.utils.aoa_to_sheet([t.headers, hintRow, exRow]);
@@ -3277,7 +3412,7 @@ function importExcel(input) {
       const skipReasons = [];
 
       rows.forEach((row, idx) => {
-        const partnerName = String(row['服务商名称'] || '').trim();
+        const partnerName = String(row['大区名称'] || '').trim();
         const merchant    = String(row['商户名称']   || '').trim();
         const text        = String(row['需求描述']   || '').trim();
         const impactRaw   = String(row['业务影响(高/中/低)'] || row['业务影响'] || '中').trim();
@@ -3285,11 +3420,11 @@ function importExcel(input) {
 
         const rowLabel = `第 ${idx + 2} 行`;
 
-        if (!partnerName) { skipped++; skipReasons.push(`${rowLabel}：缺少服务商名称`); return; }
+        if (!partnerName) { skipped++; skipReasons.push(`${rowLabel}：缺少大区名称`); return; }
         if (!text)        { skipped++; skipReasons.push(`${rowLabel}：缺少需求描述`); return; }
 
         const partner = partnerMap[partnerName];
-        if (!partner) { skipped++; skipReasons.push(`${rowLabel}：服务商「${partnerName}」不存在`); return; }
+        if (!partner) { skipped++; skipReasons.push(`${rowLabel}：大区「${partnerName}」不存在`); return; }
 
         const impact = impactMap[impactRaw] || 'mid';
         const scenes = scenesRaw ? scenesRaw.split(/[,，]/).map(s => s.trim()).filter(Boolean) : ['其他'];
@@ -3328,7 +3463,7 @@ function importExcel(input) {
       document.getElementById('importResultTitle').textContent = `导入完成：成功 ${imported} 条`;
       let body = `<div style="color:#34c759;margin-bottom:8px">✓ 成功录入 <b>${imported}</b> 条工单</div>`;
       if (skipped > 0) {
-        body += `<div style="color:#ff9500;margin-bottom:8px">⚠ 跳过 <b>${skipped}</b> 条（缺少必填或服务商不匹配）</div>`;
+        body += `<div style="color:#ff9500;margin-bottom:8px">⚠ 跳过 <b>${skipped}</b> 条（缺少必填或大区不匹配）</div>`;
         body += `<div style="background:#f5f5f7;border-radius:10px;padding:10px 12px;font-size:12px;color:#6e6e73;max-height:120px;overflow-y:auto">${skipReasons.join('<br>')}</div>`;
       }
       document.getElementById('importResultBody').innerHTML = body;
@@ -3345,7 +3480,7 @@ function importExcel(input) {
 function openManualForm() {
   // Populate partner dropdown from partnersList
   const sel = document.getElementById('mf_partner');
-  sel.innerHTML = '<option value="">请选择服务商...</option>' +
+  sel.innerHTML = '<option value="">请选择大区...</option>' +
     partnersList.map(p => `<option value="${p.token}">${p.flag} ${p.name}（${p.countryName}）</option>`).join('');
   // Reset fields
   document.getElementById('mf_merchant').value = '';
@@ -3366,7 +3501,7 @@ function submitManualTicket() {
   const impact   = document.querySelector('input[name="mf_impact"]:checked')?.value || 'mid';
   const scenes   = [...document.querySelectorAll('.mf_scene:checked')].map(cb => cb.value);
 
-  if (!token)    { showToast('请选择代录服务商'); return; }
+  if (!token)    { showToast('请选择代录大区'); return; }
   if (!merchant) { showToast('请填写商户名称'); return; }
   if (!text)     { showToast('请填写需求描述'); return; }
 
@@ -3409,10 +3544,10 @@ async function runMerge() {
     if (res.ticket_count === 0) {
       showToast('没有待归并的工单（所有工单已有归属）');
     } else {
-      showToast(`✦ AI 归并完成：处理 ${res.ticket_count} 条工单，新增 ${res.created} 个需求簇`);
-      statusEl.textContent = `上次归并：刚刚 · 新增 ${res.created} 簇`;
+      showToast(`✦ AI 归并完成：处理 ${res.ticket_count} 条工单，新增 ${res.created_new || 0} 个需求簇`);
+      statusEl.textContent = `上次归并：刚刚 · 新增 ${res.created_new || 0} 簇`;
       await Promise.all([reloadClusters(), reloadTickets()]);
-      renderTable(); renderAllClusters(); renderAllTable(); updateDashboardStats();
+      renderTable(); renderAllClusters(); renderAllTable(); updateDashboardStats(); renderStatusChart();
     }
   } catch(e) {
     showToast('归并失败：' + (e.message || '请检查后端服务和 DEEPSEEK_API_KEY'));
@@ -3425,79 +3560,46 @@ async function runMerge() {
 }
 
 // ── Page switching ──
-function toggleNavGroup(id) {
-  const el = document.getElementById(id);
-  const isOpen = el.style.display !== 'none';
-  el.style.display = isOpen ? 'none' : '';
-  const arrow = document.getElementById(id + 'Arrow');
-  if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
-}
 
 function switchPage(page) {
-  ['page-dashboard','page-all-partner','page-all-saas','page-partners','page-saas-vendors'].forEach(id => {
+  ['page-dashboard','page-all-partner','page-partners'].forEach(id => {
     document.getElementById(id).style.display = id === `page-${page}` ? '' : 'none';
   });
   document.getElementById('dashFilters').style.display = page === 'dashboard' ? 'flex' : 'none';
 
   // Update nav active state
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  const activeMap = {
-    dashboard:    0,
-    'all-partner': null,  // handled by sub-item
-    'all-saas':   null,
-    partners:     null,
-    'saas-vendors': null,
-  };
-  // Top-level items (indices in nav-item list): 0=看板, 1=所有需求(parent), 4=服务商管理, 5=SaaS厂商管理
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach(el => el.classList.remove('active'));
   if (page === 'dashboard')     navItems[0]?.classList.add('active');
-  if (page === 'all-partner')   { navItems[1]?.classList.add('active'); navItems[2]?.classList.add('active'); }
-  if (page === 'all-saas')      { navItems[1]?.classList.add('active'); navItems[3]?.classList.add('active'); }
-  if (page === 'partners')      navItems[4]?.classList.add('active');
-  if (page === 'saas-vendors')  navItems[5]?.classList.add('active');
-
-  // Auto-expand allGroup when navigating to sub-pages
-  if (page === 'all-partner' || page === 'all-saas') {
-    document.getElementById('allGroup').style.display = '';
-    const arrow = document.getElementById('allGroupArrow');
-    if (arrow) arrow.style.transform = 'rotate(90deg)';
-  }
+  if (page === 'all-partner')   navItems[1]?.classList.add('active');
+  if (page === 'partners')      navItems[2]?.classList.add('active');
 
   const titles = {
     dashboard:      '需求看板 · Requirement Dashboard',
-    'all-partner':  '服务商需求',
-    'all-saas':     'SaaS厂商需求',
-    partners:       '服务商管理 · Partner Management',
-    'saas-vendors': 'SaaS厂商管理',
+    'all-partner':  '大区需求',
+    partners:       '大区管理 · Partner Management',
   };
   document.getElementById('topbarTitle').textContent = titles[page] || '';
 
   if (page === 'all-partner')  switchAllTab('clusters');
-  if (page === 'all-saas')     { switchSaasTab('clusters'); Promise.all([reloadSaasTickets(), reloadSaasClusters()]).then(() => { renderSaasTickets(); renderSaasClusters(); }); }
   if (page === 'partners')     renderPartnersPage();
-  if (page === 'saas-vendors') renderSaasVendors();
-}
-
-function switchSaasTab(tab) {
-  document.getElementById('saasTabClusters').style.display = tab === 'clusters' ? '' : 'none';
-  document.getElementById('saasTabTickets').style.display  = tab === 'tickets'  ? '' : 'none';
-  document.getElementById('saasBtnClusters').classList.toggle('active', tab === 'clusters');
-  document.getElementById('saasBtnTickets').classList.toggle('active',  tab === 'tickets');
-  if (tab === 'clusters') { saasClusterPage = 1; renderSaasClusters(); }
-  else                    { saasTicketPage  = 1; renderSaasTickets();  }
 }
 
 // ── API helpers ──
 
 async function reloadTickets() {
   const data = await fetch(`${API_BASE}/api/tickets?page_size=200`).then(r => r.json());
-  allTickets = (data.items || []).map(t => ({
-    id: t.id, flag: t.flag, partner: t.partner_name, text: t.text,
-    merchant: t.merchant, impact: t.impact, scenes: t.scenes || [],
-    time: t.time, status: t.status, cluster: t.cluster_id,
-    attachments: t.attachments || [], manual: t.manual, lang: t.lang,
-  }));
+  allTickets = (data.items || []).map(t => {
+    const partner = partnersList.find(p => p.countryId === t.region_id);
+    return {
+      id: t.id, flag: partner ? partner.flag : '', partner: t.partner_name, text: t.text,
+      merchant: t.merchant, impact: t.impact, scenes: t.scenes || [],
+      time: t.time, status: t.status, cluster: t.cluster_id,
+      attachments: t.attachments || [], manual: t.manual, lang: t.lang,
+      userSummary: t.user_summary || '',
+    };
+  });
   renderAllTable();
 }
 
@@ -3505,363 +3607,32 @@ async function reloadClusters() {
   const data = await fetch(`${API_BASE}/api/clusters?page_size=200`).then(r => r.json());
   clusters = (data.items || []).map(c => ({
     id: c.id, score: c.score, urgent: c.urgent, summary: c.summary,
+    issueType: '系统问题',
     layer: c.layer, impact: c.impact,
-    sources: (c.source_ids || []).map(id => partnersList.find(p => p.countryId === id)?.flag || id),
+    sources: (c.source_ids || []).map(id => partnersList.find(p => p.countryId === id)?.name || id),
     sourceIds: c.source_ids || [],
     partners: c.partners || [],
     count: c.count, periods: c.periods, status: c.status,
     aiSummary: c.ai_summary,
     relatedSaas: c.related_saas || [],
-    items: (c.items || []).map(t => ({
-      id: t.id, flag: t.flag, lang: t.lang, text: t.text, merchant: t.merchant,
-      time: t.time, partner: t.partner_name, impact: t.impact,
-      scenes: t.scenes || [], attachments: t.attachments || [],
-    })),
+    items: (c.items || []).map(t => {
+      const p = partnersList.find(x => x.countryId === t.region_id);
+      return {
+        id: t.id, flag: p ? p.flag : '', lang: t.lang, text: t.text, merchant: t.merchant,
+        time: t.time, partner: t.partner_name, impact: t.impact,
+        scenes: t.scenes || [], attachments: t.attachments || [],
+        userSummary: t.user_summary || '',
+      };
+    }),
   }));
   recalcAllScores();
   renderTable();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SaaS Vendor Management
-// ═══════════════════════════════════════════════════════════════════════════
-
-const SAAS_INDUSTRIES = ['餐饮','零售','酒吧','美业','SPA','酒店','诊所'];
-
-let saasVendorsList = [];
-let saasTicketsList = [];
-let saasClustersList = [];
-let saasClusterPage = 1;
-let saasTicketPage  = 1;
-let currentSaasClusterIdx = 0;
-
-async function reloadSaasVendors() {
-  saasVendorsList = await fetch(`${API_BASE}/api/saas-vendors`).then(r => r.json()).catch(() => []);
-}
-
-async function reloadSaasTickets() {
-  const data = await fetch(`${API_BASE}/api/saas-tickets?page_size=200`).then(r => r.json()).catch(() => ({ items: [] }));
-  saasTicketsList = data.items || [];
-}
-
-async function reloadSaasClusters() {
-  const data = await fetch(`${API_BASE}/api/saas-clusters?page_size=200`).then(r => r.json()).catch(() => ({ items: [] }));
-  saasClustersList = data.items || [];
-}
-
-// ── SaaS Vendors ──
-
-function renderSaasVendors() {
-  const list = document.getElementById('saasVendorList');
-  if (!list) return;
-  if (saasVendorsList.length === 0) {
-    list.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#8e8e93"><div style="font-size:40px;margin-bottom:12px">🏢</div><p>暂无SaaS厂商，点击「新增厂商」开始配置</p></div>`;
-    return;
-  }
-  const base = location.origin + location.pathname.replace('dashboard.html', '');
-  list.innerHTML = saasVendorsList.map(v => {
-    const formUrl    = `${base}saas-form.html?token=${v.token}`;
-    const trackUrl   = `${base}saas-partner.html?token=${v.token}`;
-    return `
-    <div style="background:#fff;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.08),0 0 1px rgba(0,0,0,0.04);padding:20px 24px;transition:all 0.2s ease">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:800;flex-shrink:0;letter-spacing:-0.5px">${v.code}</div>
-          <div>
-            <div style="font-size:15px;font-weight:600;color:#1d1d1f">${v.name}</div>
-            <div style="font-size:12px;color:#6e6e73;margin-top:3px">${v.industry}${v.contact ? ' · ' + v.contact : ''}</div>
-          </div>
-        </div>
-        <div class="pm-actions">
-          <button class="pm-btn pm-btn-edit" onclick="openSaasVendorForm(${JSON.stringify(v).replace(/"/g,'&quot;')})">编辑</button>
-          <button class="pm-btn pm-btn-delete" onclick="deleteSaasVendor('${v.token}','${v.name}')">删除</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:68px;font-size:10px;font-weight:600;color:#6e6e73;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0">提交表单</div>
-        <div style="flex:1;background:#f5f5f7;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'SF Mono','Menlo',monospace;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${formUrl}</div>
-        <button class="copy-btn" onclick="pmCopyLink(this,'${formUrl}')">复制</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:68px;font-size:10px;font-weight:600;color:#6e6e73;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0">需求追踪</div>
-        <div style="flex:1;background:#f5f5f7;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'SF Mono','Menlo',monospace;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${trackUrl}</div>
-        <button class="copy-btn" onclick="pmCopyLink(this,'${trackUrl}')">复制</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openSaasVendorForm(vendor) {
-  const isEdit = !!vendor;
-  const title = isEdit ? '编辑SaaS厂商' : '新增SaaS厂商';
-  const industryOptions = SAAS_INDUSTRIES.map(i =>
-    `<option value="${i}" ${vendor && vendor.industry === i ? 'selected' : ''}>${i}</option>`
-  ).join('');
-  showModal(title, `
-    <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0">
-      <div>
-        <label style="font-size:12px;font-weight:600;color:#6e6e73;display:block;margin-bottom:5px">厂商名称 *</label>
-        <input id="svName" type="text" value="${vendor ? vendor.name : ''}" placeholder="如：美团" style="width:100%;border:1.5px solid #d2d2d7;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit" />
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:#6e6e73;display:block;margin-bottom:5px">行业 *</label>
-        <select id="svIndustry" style="width:100%;border:1.5px solid #d2d2d7;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit;background:#fff">
-          ${industryOptions}
-        </select>
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:#6e6e73;display:block;margin-bottom:5px">工单前缀代码 * <span style="font-weight:400">(2-4位大写字母，如 MT)</span></label>
-        <input id="svCode" type="text" value="${vendor ? vendor.code : ''}" placeholder="如：MT" maxlength="4" style="width:100%;border:1.5px solid #d2d2d7;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit;text-transform:uppercase" />
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:#6e6e73;display:block;margin-bottom:5px">联系人</label>
-        <input id="svContact" type="text" value="${vendor ? vendor.contact : ''}" placeholder="姓名或邮箱（选填）" style="width:100%;border:1.5px solid #d2d2d7;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit" />
-      </div>
-    </div>
-  `, async () => {
-    const body = {
-      name: document.getElementById('svName').value.trim(),
-      industry: document.getElementById('svIndustry').value,
-      code: document.getElementById('svCode').value.trim().toUpperCase(),
-      contact: document.getElementById('svContact').value.trim(),
-    };
-    if (!body.name || !body.code) { showToast('请填写厂商名称和代码', true); return; }
-    const url = isEdit ? `/api/saas-vendors/${vendor.token}` : '/api/saas-vendors';
-    const method = isEdit ? 'PUT' : 'POST';
-    const r = await fetch(`${API_BASE}${url}`, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
-    if (!r.ok) { showToast('操作失败', true); return; }
-    closeModal();
-    await reloadSaasVendors();
-    renderSaasVendors();
-    showToast(isEdit ? '厂商已更新' : '厂商已创建');
-  });
-}
-
-async function deleteSaasVendor(token, name) {
-  if (!confirm(`确认删除厂商「${name}」？相关工单不会被删除。`)) return;
-  const r = await fetch(`${API_BASE}/api/saas-vendors/${token}`, { method: 'DELETE' });
-  if (r.ok) { await reloadSaasVendors(); renderSaasVendors(); showToast('已删除'); }
-  else showToast('删除失败', true);
-}
-
-// ── SaaS Tickets ──
-
-function renderSaasTickets() {
-  const tbody = document.getElementById('saasTicketBody');
-  const empty = document.getElementById('saasTicketEmpty');
-  if (!tbody) return;
-
-  const statusFilter = (document.getElementById('saasTicketFilter')?.value || '');
-  const impactFilter = (document.getElementById('saasTicketFilterImpact')?.value || '');
-  const search = (document.getElementById('saasTicketSearch')?.value || '').toLowerCase();
-
-  const filtered = saasTicketsList.filter(t =>
-    (!statusFilter || t.status === statusFilter) &&
-    (!impactFilter || t.impact === impactFilter) &&
-    (!search || t.text.toLowerCase().includes(search) || t.id.toLowerCase().includes(search) || (t.merchant || '').toLowerCase().includes(search) || (t.vendor_name || '').toLowerCase().includes(search))
-  );
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    empty.style.display = '';
-    document.getElementById('saasTicketPager').innerHTML = '';
-    return;
-  }
-  empty.style.display = 'none';
-
-  const page = filtered.slice((saasTicketPage - 1) * PAGE_SIZE, saasTicketPage * PAGE_SIZE);
-  tbody.innerHTML = page.map(t => `
-    <tr style="cursor:pointer" onclick="openSaasTicketDrawer('${t.id}')">
-      <td>
-        <span class="cluster-id" style="color:#6c5ce7">${t.id}</span>
-        ${t.manual ? `<span style="display:inline-block;background:#f0eeff;color:#6c5ce7;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:4px">人工</span>` : ''}
-      </td>
-      <td style="max-width:220px">
-        <div style="font-size:13px;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px" title="${t.text}">${t.text}</div>
-      </td>
-      <td style="font-size:13px;color:#1d1d1f">${t.merchant || '—'}</td>
-      <td style="font-size:13px;color:#1d1d1f">${t.vendor_name}<div style="font-size:11px;color:#8e8e93">${t.industry || ''}</div></td>
-      <td><span class="badge ${impactClass[t.impact] || 'badge-mid'}">${impactLabel[t.impact] || '中'}</span></td>
-      <td style="font-size:12px;color:#6e6e73;white-space:nowrap">${t.time || ''}</td>
-      <td>
-        ${statusMap[t.status] || statusMap['pending']}
-        ${t.saas_cluster_id ? `<span style="font-size:11px;color:#6e6e73;margin-left:4px">→ ${t.saas_cluster_id}</span>` : ''}
-      </td>
-    </tr>`).join('');
-  renderPager('saasTicketPager', filtered.length, saasTicketPage, 'function(p){saasTicketPage=p;renderSaasTickets()}');
-}
-
-function openSaasTicketForm() {
-  const vendorOptions = saasVendorsList.map(v => `<option value="${v.token}">${v.name} (${v.code})</option>`).join('');
-  if (!vendorOptions) { showToast('请先添加SaaS厂商', true); return; }
-  const industryOptions = SAAS_INDUSTRIES.map(i => `<option value="${i}">${i}</option>`).join('');
-  showModal('手动录入SaaS工单', `
-    <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0">
-      <div>
-        <label style="font-size:12px;font-weight:600;color:#6e6e73;display:block;margin-bottom:5px">厂商 *</label>
-        <select id="stVendor" style="width:100%;border:1.5px solid #d2d2d7;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit;background:#fff">${vendorOptions}</select>
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:#6e6e73;display:block;margin-bottom:5px">需求描述 *</label>
-        <textarea id="stText" placeholder="描述功能需求..." style="width:100%;border:1.5px solid #d2d2d7;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit;min-height:80px;resize:vertical"></textarea>
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:#6e6e73;display:block;margin-bottom:5px">来源商户</label>
-        <input id="stMerchant" type="text" placeholder="商户名称（选填）" style="width:100%;border:1.5px solid #d2d2d7;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit" />
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:#6e6e73;display:block;margin-bottom:5px">影响等级 *</label>
-        <select id="stImpact" style="width:100%;border:1.5px solid #d2d2d7;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit;background:#fff">
-          <option value="high">高影响</option>
-          <option value="mid" selected>中影响</option>
-          <option value="low">低影响</option>
-        </select>
-      </div>
-    </div>
-  `, async () => {
-    const token = document.getElementById('stVendor').value;
-    const text = document.getElementById('stText').value.trim();
-    const merchant = document.getElementById('stMerchant').value.trim();
-    const impact = document.getElementById('stImpact').value;
-    if (!text) { showToast('请填写需求描述', true); return; }
-    const r = await fetch(`${API_BASE}/api/saas-tickets`, {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ token, text, merchant, impact, scenes: [], manual: true })
-    });
-    if (!r.ok) { showToast('提交失败', true); return; }
-    closeModal();
-    await reloadSaasTickets();
-    renderSaasTickets();
-    showToast('工单已录入');
-  });
-}
-
-// ── SaaS Clusters ──
-
-function rebuildSaasVendorFilter() {
-  const sel = document.getElementById('scFilterVendor');
-  if (!sel) return;
-  const current = sel.value;
-  const names = [...new Set(saasClustersList.flatMap(c => c.vendor_names || []))].sort();
-  sel.innerHTML = `<option value="">全部厂商</option>` + names.map(n => `<option value="${n}" ${n===current?'selected':''}>${n}</option>`).join('');
-}
-
-function renderSaasClusters() {
-  const tbody = document.getElementById('saasClusterBody');
-  const empty = document.getElementById('saasClusterEmpty');
-  if (!tbody) return;
-
-  rebuildSaasVendorFilter();
-
-  const vendor = (document.getElementById('scFilterVendor')?.value || '');
-  const status = (document.getElementById('scFilterStatus')?.value || '');
-
-  const filtered = saasClustersList.filter(c =>
-    (!vendor || (c.vendor_names || []).includes(vendor)) &&
-    (!status || c.status === status)
-  );
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    empty.style.display = '';
-    document.getElementById('saasClusterPager').innerHTML = '';
-    return;
-  }
-  empty.style.display = 'none';
-
-  const page = filtered.slice((saasClusterPage - 1) * PAGE_SIZE, saasClusterPage * PAGE_SIZE);
-  tbody.innerHTML = page.map(c => {
-    const origIdx = saasClustersList.indexOf(c);
-    const vendors = (c.vendor_names || []).join('、') || '—';
-    return `
-    <tr onclick="openSaasClusterDrawer(${origIdx})" style="cursor:pointer">
-      <td><span class="cluster-id" style="color:#6c5ce7">${c.id}</span></td>
-      <td style="max-width:200px">${c.summary || '（无标题）'}</td>
-      <td><span class="badge ${impactClass[c.impact] || 'badge-mid'}">${impactLabel[c.impact] || '中'}</span></td>
-      <td style="font-size:12px;color:#6e6e73">${vendors}</td>
-      <td>${c.count}次</td>
-      <td>${statusMap[c.status] || statusMap['pending']}</td>
-    </tr>`;
-  }).join('');
-  renderPager('saasClusterPager', filtered.length, saasClusterPage, 'function(p){saasClusterPage=p;renderSaasClusters()}');
-}
-
-function openSaasClusterDrawer(i) {
-  currentSaasClusterIdx = i;
-  const c = saasClustersList[i];
-  const drawer  = document.getElementById('saasDrawer');
-
-  document.getElementById('saasDrawerTitle').textContent = `SaaS需求簇 ${c.id}`;
-  document.getElementById('saasStatusSelect').value = c.status || 'pending';
-
-  const vendors = (c.vendor_names || []).join('、') || '—';
-  const ticketHtml = (c.items || []).map(t => `
-    <div style="padding:12px 14px;background:#f9f9f9;border-radius:10px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <span style="font-size:12px;font-weight:700;color:#6c5ce7">${t.id}</span>
-        <span class="badge ${impactClass[t.impact] || 'badge-mid'}">${impactLabel[t.impact] || '中'}</span>
-      </div>
-      <div style="font-size:13px;color:#1d1d1f;line-height:1.5">${t.text}</div>
-      <div style="font-size:11px;color:#8e8e93;margin-top:4px">${t.vendor_name}${t.merchant ? ' · ' + t.merchant : ''}</div>
-    </div>`).join('');
-
-  document.getElementById('saasDrawerBody').innerHTML = `
-    <div class="meta-row">
-      <div class="meta-item"><div class="ml">业务影响</div><div class="mv"><span class="badge ${impactClass[c.impact] || 'badge-mid'}">${impactLabel[c.impact] || '中'}</span></div></div>
-      <div class="meta-item"><div class="ml">涉及厂商</div><div class="mv" style="font-size:13px">${vendors}</div></div>
-      <div class="meta-item"><div class="ml">工单数量</div><div class="mv">${c.count} 条</div></div>
-    </div>
-    ${c.ai_summary ? `
-    <div class="ai-summary">
-      <div class="ai-label" style="color:#6c5ce7">✦ AI 需求摘要</div>
-      <p id="saasReviewSummary">${c.ai_summary}</p>
-    </div>` : ''}
-    <div style="margin-top:18px">
-      <div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">归并工单（${(c.items||[]).length} 条）</div>
-      ${ticketHtml || '<div style="color:#8e8e93;font-size:13px">暂无工单</div>'}
-    </div>`;
-
-  drawer.classList.add('open');
-  syncOverlay();
-}
-
-function closeSaasDrawer() {
-  document.getElementById('saasDrawer').classList.remove('open');
-  syncOverlay();
-}
-
-async function saveSaasClusterStatus() {
-  const c = saasClustersList[currentSaasClusterIdx];
-  const status = document.getElementById('saasStatusSelect').value;
-  const r = await fetch(`${API_BASE}/api/saas-clusters/${encodeURIComponent(c.id)}`, {
-    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ status })
-  });
-  if (r.ok) {
-    await reloadSaasClusters();
-    renderSaasClusters();
-    closeSaasDrawer();
-    showToast('状态已更新');
-  } else showToast('更新失败', true);
-}
 
 
-async function runSaasMerge() {
-  document.getElementById('thinkingOverlay').style.display = 'flex';
-  document.getElementById('thinkingSubText').textContent = '正在分析SaaS工单并归并需求簇…';
-  try {
-    const r = await fetch(`${API_BASE}/api/saas-merge`, { method: 'POST' });
-    const data = await r.json();
-    if (!r.ok) { showToast(data.detail || 'AI归并失败', true); return; }
-    await Promise.all([reloadSaasClusters(), reloadSaasTickets()]);
-    renderSaasClusters(); renderSaasTickets(); updateDashboardStats();
-    showToast(`归并完成：新建 ${data.created_new} 簇，归入已有 ${data.merged_into_existing} 簇`);
-  } catch(e) {
-    showToast('归并请求失败', true);
-  } finally {
-    document.getElementById('thinkingOverlay').style.display = 'none';
-  }
-}
 
+// ── Modal helper ──
 // ── Modal helper ──
 function showModal(title, bodyHtml, onConfirm) {
   let overlay = document.getElementById('genericModalOverlay');
@@ -3901,21 +3672,27 @@ async function init() {
   } catch(e) {}
 
   // Load all data in parallel
-  await Promise.all([reloadPartners(), reloadSaasVendors()]);
-  await Promise.all([reloadClusters(), reloadTickets(), reloadSaasTickets(), reloadSaasClusters()]);
+  await reloadPartners();
+  await Promise.all([reloadClusters(), reloadTickets()]);
+  initIssueClusters();
 
   rebuildCountryFilters();
   renderTable();
   renderAllTable();
+  renderAllClusters();
   updateDashboardStats();
+  renderStatusChart();
 }
 
 init().catch(err => {
   console.error('API init failed:', err);
   syncScoringConfig();
   rebuildCountryFilters();
+  initIssueClusters();
   renderTable();
+  renderAllClusters();
   updateDashboardStats();
+  renderStatusChart();
 });
 
 // ── Tab visibility: refresh data when user switches back ──────────────────────
@@ -3925,8 +3702,8 @@ document.addEventListener('keydown', e => {
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
-    Promise.all([reloadPartners(), reloadClusters(), reloadTickets(), reloadSaasTickets(), reloadSaasClusters()])
-      .then(() => { rebuildCountryFilters(); renderTable(); renderAllTable(); updateDashboardStats(); })
+    Promise.all([reloadPartners(), reloadClusters(), reloadTickets()])
+      .then(() => { rebuildCountryFilters(); renderTable(); renderAllTable(); renderAllClusters(); updateDashboardStats(); renderStatusChart(); })
       .catch(() => {});
   }
 });
@@ -3934,10 +3711,10 @@ document.addEventListener('visibilitychange', () => {
 // ── Onboarding Guide ──────────────────────────────────────────────────────────
 const ONBOARD_KEY = 'rm_onboarded_dashboard';
 const ONBOARD_STEPS = [
-  { icon: '👋', title: '欢迎使用需求管理平台', desc: '这是一个 AI 驱动的 ToB 需求归并与优先级管理工具，帮助 PM 高效收集、归并并跟踪来自全球服务商的产品需求。' },
+  { icon: '👋', title: '欢迎使用需求管理平台', desc: '这是一个 AI 驱动的 ToB 需求归并与优先级管理工具，帮助 PM 高效收集、归并并跟踪来自全国各区域大区的产品需求。' },
   { icon: '📊', title: '需求看板', desc: '查看经 AI 自动归并后的需求聚类。每个聚类有评分、状态和摘要，可直接修改状态（排期中 / 开发中 / 已上线）。' },
-  { icon: '📋', title: '所有需求', desc: '查看所有原始需求列表，支持按服务商、国家、状态筛选。也可点击「手动添加需求」直接录入未通过表单提交的需求。' },
-  { icon: '🌐', title: '服务商管理', desc: '在此配置合作服务商信息，并获取各服务商专属的需求提交链接，发给对应服务商团队即可开始收集需求。' },
+  { icon: '📋', title: '所有需求', desc: '查看所有原始需求列表，支持按大区、区域、状态筛选。也可点击「手动添加需求」直接录入未通过表单提交的需求。' },
+  { icon: '🌐', title: '大区管理', desc: '在此配置合作大区信息，并获取各大区专属的需求提交链接，发给对应大区团队即可开始收集需求。' },
   { icon: '⚡', title: 'AI 归并', desc: '点击右上角「⚡ AI 归并」按钮，DeepSeek AI 将自动将所有待归并需求按业务语义聚类，归并结果立即显示在需求看板中。' },
 ];
 let onboardStep = 0;

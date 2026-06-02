@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SaaS需求追踪</title>
+  <title>我的需求追踪</title>
+  <script src="partners.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -18,7 +19,7 @@
 
     /* ── Header ── */
     .header {
-      background: linear-gradient(180deg, #2d1f4e 0%, #3d2a6e 100%);
+      background: linear-gradient(180deg, #1d1d1f 0%, #2d2d2d 100%);
       padding: 24px 40px;
       display: flex;
       align-items: center;
@@ -28,27 +29,24 @@
 
     .header-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
-    .vendor-avatar {
+    .partner-avatar {
       width: 48px; height: 48px;
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.18);
       border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.5px;
+      font-size: 24px;
       flex-shrink: 0;
     }
 
-    .vendor-info h1 {
+    .partner-info h1 {
       color: #fff;
       font-size: 17px;
       font-weight: 600;
       letter-spacing: -0.2px;
     }
 
-    .vendor-info p {
+    .partner-info p {
       color: rgba(255,255,255,0.5);
       font-size: 12px;
       margin-top: 3px;
@@ -181,7 +179,7 @@
     }
 
     .ticket.s-accent-pending::before   { background: #8e8e93; }
-    .ticket.s-accent-merged::before    { background: #6c5ce7; }
+    .ticket.s-accent-merged::before    { background: #0071e3; }
     .ticket.s-accent-scheduled::before { background: #9b59b6; }
     .ticket.s-accent-dev::before       { background: #ff9500; }
     .ticket.s-accent-live::before      { background: #34c759; }
@@ -191,8 +189,8 @@
     }
 
     .ticket.expanded {
-      border-color: #6c5ce7;
-      box-shadow: 0 4px 16px rgba(108,92,231,0.14), 0 1px 3px rgba(0,0,0,0.06);
+      border-color: #0071e3;
+      box-shadow: 0 4px 16px rgba(0,113,227,0.12), 0 1px 3px rgba(0,0,0,0.06);
     }
 
     .ticket-row {
@@ -207,7 +205,7 @@
     .ticket-id {
       font-size: 13px;
       font-weight: 700;
-      color: #6c5ce7;
+      color: #0071e3;
       letter-spacing: -0.1px;
     }
 
@@ -241,8 +239,8 @@
     }
 
     .ticket-desc .ai-hint .ai-tag {
-      background: #f0eeff;
-      color: #6c5ce7;
+      background: #e8f0ff;
+      color: #0071e3;
       border-radius: 4px;
       padding: 1px 5px;
       font-size: 10px;
@@ -269,7 +267,7 @@
 
     .badge-high { background: #fff0f0; color: #ff3b30; }
     .badge-mid  { background: #fff8e6; color: #ff9500; }
-    .badge-low  { background: #f0eeff; color: #6c5ce7; }
+    .badge-low  { background: #f0f9ff; color: #0071e3; }
 
     /* ── Status chips ── */
     .status-chip {
@@ -293,8 +291,8 @@
     .s-pending   { background: #f2f2f7; color: #6e6e73; }
     .s-pending .dot { background: #8e8e93; }
 
-    .s-merged    { background: #f0eeff; color: #6c5ce7; }
-    .s-merged .dot { background: #6c5ce7; }
+    .s-merged    { background: #e6f2ff; color: #0071e3; }
+    .s-merged .dot { background: #0071e3; }
 
     .s-scheduled { background: #f5eeff; color: #9b59b6; }
     .s-scheduled .dot { background: #9b59b6; }
@@ -341,8 +339,8 @@
 
     /* ── AI summary box ── */
     .ai-box {
-      background: #f0eeff;
-      border-left: 3px solid #6c5ce7;
+      background: #f0f4ff;
+      border-left: 3px solid #0071e3;
       border-radius: 0 8px 8px 0;
       padding: 14px 16px;
     }
@@ -350,7 +348,7 @@
     .ai-box .ai-label {
       font-size: 11px;
       font-weight: 700;
-      color: #6c5ce7;
+      color: #0071e3;
       margin-bottom: 7px;
       letter-spacing: 0.3px;
       text-transform: uppercase;
@@ -395,7 +393,7 @@
     .similar-hint {
       font-size: 12.5px;
       color: #1d1d1f;
-      background: #f0eeff;
+      background: #e8f4ff;
       border-radius: 8px;
       padding: 10px 14px;
       margin-bottom: 18px;
@@ -430,6 +428,7 @@
       position: relative;
     }
 
+    /* Connector line: extends from center of this dot to center of next dot */
     .tl-step:not(:last-child)::after {
       content: '';
       position: absolute;
@@ -442,7 +441,7 @@
       transition: background 0.3s;
     }
 
-    .tl-step.done:not(:last-child)::after { background: #6c5ce7; }
+    .tl-step.done:not(:last-child)::after { background: #0071e3; }
 
     .tl-dot {
       width: 22px; height: 22px;
@@ -459,18 +458,18 @@
     }
 
     .tl-step.done .tl-dot {
-      background: #6c5ce7;
-      border-color: #6c5ce7;
+      background: #0071e3;
+      border-color: #0071e3;
       color: #fff;
-      box-shadow: 0 2px 6px rgba(108,92,231,0.35);
+      box-shadow: 0 2px 6px rgba(0,113,227,0.35);
     }
 
     .tl-step.current .tl-dot {
       background: #fff;
-      border-color: #6c5ce7;
+      border-color: #0071e3;
       border-width: 2.5px;
-      color: #6c5ce7;
-      box-shadow: 0 0 0 4px rgba(108,92,231,0.15), 0 2px 6px rgba(108,92,231,0.2);
+      color: #0071e3;
+      box-shadow: 0 0 0 4px rgba(0,113,227,0.15), 0 2px 6px rgba(0,113,227,0.2);
     }
 
     .tl-label {
@@ -483,7 +482,7 @@
     }
 
     .tl-step.done .tl-label {
-      color: #6c5ce7;
+      color: #0071e3;
       font-weight: 600;
     }
 
@@ -517,6 +516,7 @@
     .invalid-page .inv-icon {
       font-size: 52px;
       margin-bottom: 20px;
+      filter: grayscale(0.2);
     }
 
     .invalid-page h2 {
@@ -581,11 +581,20 @@
       .filter-bar { flex-wrap: wrap; gap: 6px; }
       .filter-bar select, .filter-bar input { flex: 1 1 calc(50% - 6px); min-width: 100px; }
 
+      /* Section head wraps */
       .section-head { flex-wrap: wrap; gap: 10px; }
       .section-head h2 { flex: 1 0 100%; }
+
+      /* Filter segmented control: scrollable */
       .filter-row { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-shrink: 0; max-width: 100%; }
+
+      /* Tabs scrollable */
+      .tabs-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+      /* Cluster card content */
       .cluster-meta { flex-wrap: wrap; gap: 6px; }
 
+      /* Cluster detail modal full-screen */
       #clusterModal > div {
         width: 100% !important;
         max-width: 100% !important;
@@ -600,11 +609,11 @@
 </head>
 <body>
 
-<!-- Invalid token fallback -->
+<!-- Invalid token fallback (shown via JS) -->
 <div class="invalid-page" id="invalidPage" style="display:none">
   <div class="inv-icon">🔒</div>
-  <h2>链接无效</h2>
-  <p>此链接已失效或不存在，请联系您的对接人获取专属链接。</p>
+  <h2>链接无效 · Invalid Link</h2>
+  <p>此链接已失效或不存在，请联系您的对接人获取专属链接。<br>This link is invalid. Please contact your account manager.</p>
 </div>
 
 <!-- Main (hidden until token validated) -->
@@ -613,16 +622,16 @@
 <!-- Header -->
 <div class="header">
   <div class="header-left">
-    <div class="vendor-avatar" id="vendorCode">—</div>
-    <div class="vendor-info">
-      <h1 id="vendorName">—</h1>
-      <p id="vendorIndustry">需求追踪视图</p>
+    <div class="partner-avatar" id="partnerFlag">—</div>
+    <div class="partner-info">
+      <h1 id="partnerName">—</h1>
+      <p>需求追踪视图 · 当前周期：2026-W22</p>
     </div>
   </div>
   <div class="header-stats">
     <div class="stat-pill">
       <div class="sv" id="statTotal">—</div>
-      <div class="sl">累计提交</div>
+      <div class="sl">本周期提交</div>
     </div>
     <div class="stat-pill">
       <div class="sv" id="statScheduled">—</div>
@@ -630,7 +639,7 @@
     </div>
   </div>
   <div class="header-right">
-    <a id="submitLink" href="saas-form.html" class="btn-outline">＋ 提交新需求</a>
+    <a id="submitLink" href="需求提报.html" class="btn-outline">＋ 提交新需求</a>
   </div>
 </div>
 
@@ -648,20 +657,19 @@
   </div>
 
   <div id="ticketList"></div>
-</div>
+</div><!-- /.content -->
 </div><!-- /#mainWrap -->
 
 <script>
 const API_BASE = '';
 let tickets = [];
-let vendorToken = null;
 
 const statusConfig = {
-  pending:   { cls: 's-pending',   label: '待处理', filterGroup: 'pending' },
-  merged:    { cls: 's-merged',    label: '已归并', filterGroup: 'merged' },
-  scheduled: { cls: 's-scheduled', label: '排期中', filterGroup: 'progress' },
-  dev:       { cls: 's-dev',       label: '开发中', filterGroup: 'progress' },
-  live:      { cls: 's-live',      label: '已上线', filterGroup: 'live' },
+  pending:   { cls: 's-pending',   label: '待处理',          filterGroup: 'pending' },
+  merged:    { cls: 's-merged',    label: '已归并',          filterGroup: 'merged' },
+  scheduled: { cls: 's-scheduled', label: '排期中',          filterGroup: 'progress' },
+  dev:       { cls: 's-dev',       label: '开发中',          filterGroup: 'progress' },
+  live:      { cls: 's-live',      label: '已上线',          filterGroup: 'live' },
 };
 
 const impactConfig = {
@@ -693,13 +701,15 @@ function renderTimeline(ticket) {
   const currentIdx = statusOrder.indexOf(ticket.status);
   const isPending = ticket.status === 'pending';
 
+  // For pending tickets, show a leading "已提交" node as current,
+  // followed by the normal steps (all greyed out)
   if (isPending) {
     const pendingStep = `<div class="tl-step current">
       <div class="tl-dot"></div>
       <div class="tl-label">已提交</div>
       ${ticket.timelineDates[0] ? `<div class="tl-date">${ticket.timelineDates[0]}</div>` : ''}
     </div>`;
-    const restSteps = tlSteps.map(label => `
+    const restSteps = tlSteps.map((label, i) => `
       <div class="tl-step">
         <div class="tl-dot"></div>
         <div class="tl-label">${label}</div>
@@ -721,11 +731,15 @@ function renderTimeline(ticket) {
   </div>`;
 }
 
-function renderList() {
+let currentPartnerId = null;
+
+function renderList(pid) {
+  if (pid !== undefined) currentPartnerId = pid;
   const list = document.getElementById('ticketList');
   const filtered = tickets.filter(t => {
+    if (currentPartnerId && t.partnerId !== currentPartnerId) return false;
     if (currentFilter === 'all') return true;
-    return (statusConfig[t.status] || statusConfig.pending).filterGroup === currentFilter;
+    return statusConfig[t.status].filterGroup === currentFilter;
   });
 
   if (filtered.length === 0) {
@@ -733,20 +747,17 @@ function renderList() {
     return;
   }
 
-  const accentMap = {
-    pending: 's-accent-pending', merged: 's-accent-merged',
-    scheduled: 's-accent-scheduled', dev: 's-accent-dev', live: 's-accent-live'
-  };
+  const accentMap = { pending: 's-accent-pending', merged: 's-accent-merged', scheduled: 's-accent-scheduled', dev: 's-accent-dev', live: 's-accent-live' };
 
   list.innerHTML = filtered.map(t => {
-    const sc = statusConfig[t.status] || statusConfig.pending;
-    const ic = impactConfig[t.impact] || impactConfig.mid;
+    const sc = statusConfig[t.status];
+    const ic = impactConfig[t.impact];
     const isExpanded = expandedId === t.id;
-    const canExpand = !!t.cluster;
+    const canExpand = t.cluster !== null;
     const accentCls = accentMap[t.status] || '';
 
-    const statusLabel = t.cluster && t.status !== 'pending'
-      ? `${sc.label} · 需求簇 ${t.cluster}`
+    const statusLabel = t.cluster
+      ? `${sc.label}${t.status !== 'pending' ? ` · 需求簇 ${t.cluster}` : ''}`
       : sc.label;
 
     return `
@@ -754,15 +765,13 @@ function renderList() {
       <div class="ticket-row" onclick="${canExpand ? `toggle('${t.id}')` : ''}">
         <div class="ticket-id">
           ${t.id}
-          <span class="merchant">${t.merchant || ''}</span>
+          <span class="merchant">${t.merchant}</span>
         </div>
         <div class="ticket-desc">
           <div class="original">${t.original}</div>
-          ${t.clusterSummary
-            ? `<div class="ai-hint"><span class="ai-tag">AI摘要</span>${t.clusterSummary.slice(0, 40)}…</div>`
-            : '<div class="ai-hint" style="color:#d1d1d6">等待 AI 处理…</div>'}
+          ${t.clusterSummary ? `<div class="ai-hint"><span class="ai-tag">AI摘要</span>${t.clusterSummary.slice(0, 40)}…</div>` : '<div class="ai-hint" style="color:#d1d1d6">等待 AI 处理…</div>'}
         </div>
-        <div class="ticket-time">${t.time || ''}</div>
+        <div class="ticket-time">${t.time}</div>
         <div><span class="badge ${ic.cls}">${ic.label}</span></div>
         <div style="display:flex;align-items:center">
           <span class="status-chip ${sc.cls}"><span class="dot"></span>${statusLabel}</span>
@@ -774,19 +783,19 @@ function renderList() {
       <div class="ticket-detail">
         <div class="detail-grid">
           <div class="ai-box">
-            <div class="ai-label">✦ AI 需求摘要</div>
+            <div class="ai-label">✦ AI 需求摘要（中文）</div>
             <p>${t.clusterSummary}</p>
           </div>
           <div class="cluster-meta">
             <div class="cm-label">需求簇信息</div>
             <div class="cm-row"><span class="ck">簇 ID</span><span class="cv">${t.cluster}</span></div>
-            <div class="cm-row"><span class="ck">优先级得分</span><span class="cv" style="color:#6c5ce7">${t.clusterScore ?? '—'}</span></div>
-            <div class="cm-row"><span class="ck">当前状态</span><span class="cv">${sc.label}</span></div>
+            <div class="cm-row"><span class="ck">优先级得分</span><span class="cv" style="color:#0071e3">${t.clusterScore}</span></div>
+            <div class="cm-row"><span class="ck">当前状态</span><span class="cv">${statusConfig[t.status].label}</span></div>
           </div>
         </div>
         ${t.similarCount > 0 ? `
         <div class="similar-hint">
-          🏢 该需求簇还归并了来自 <strong>${t.similarCount} 条</strong>相似需求，共同推动优先级排序。
+          🌏 该需求簇还归并了来自 <strong>${t.similarCountries} 个其他区域</strong>的 <strong>${t.similarCount} 条</strong>相似需求，共同推动优先级排序。
         </div>` : ''}
         <div class="timeline-title">进展时间线</div>
         ${renderTimeline(t)}
@@ -795,91 +804,132 @@ function renderList() {
   }).join('');
 }
 
-// ── Token resolution ──
-function getToken() {
-  return new URLSearchParams(location.search).get('token') || '';
+// ── Token / partner resolution ──
+const partner = resolvePartner();
+
+if (!partner) {
+  document.getElementById('invalidPage').style.display = 'flex';
+} else {
+  document.getElementById('mainWrap').style.display = '';
+  document.getElementById('partnerFlag').textContent = partner.flag;
+  document.getElementById('partnerName').textContent = partner.name;
+  document.getElementById('submitLink').href = 'form.html?token=' + partner.token;
+
+  loadTickets();
 }
 
-async function init() {
-  const token = getToken();
-  if (!token.startsWith('SV_')) {
-    document.getElementById('invalidPage').style.display = 'flex';
-    return;
-  }
-  vendorToken = token;
-
-  try {
-    const res = await fetch(`${API_BASE}/api/saas-vendors`);
-    const data = await res.json();
-    const list = Array.isArray(data) ? data : (data.vendors || []);
-    const vendor = list.find(v => v.token === token);
-    if (!vendor) {
-      document.getElementById('invalidPage').style.display = 'flex';
-      return;
-    }
-
-    document.getElementById('mainWrap').style.display = '';
-    document.getElementById('vendorCode').textContent = vendor.code || vendor.name.slice(0, 3).toUpperCase();
-    document.getElementById('vendorName').textContent = vendor.name;
-    document.getElementById('vendorIndustry').textContent = `${vendor.industry} · 需求追踪视图`;
-    document.getElementById('submitLink').href = `saas-form.html?token=${token}`;
-
-    await loadTickets(token);
-  } catch (e) {
-    document.getElementById('invalidPage').style.display = 'flex';
-  }
-}
-
-async function loadTickets(token) {
-  try {
-    const res = await fetch(`${API_BASE}/api/saas-tickets?token=${token}&page_size=200`);
-    const data = await res.json();
-    const rawTickets = data.items || [];
-
-    // Fetch cluster info for merged tickets
-    const clusterIds = [...new Set(rawTickets.filter(t => t.saas_cluster_id).map(t => t.saas_cluster_id))];
-    const clusterMap = {};
-    if (clusterIds.length > 0) {
-      try {
-        const cr = await fetch(`${API_BASE}/api/saas-clusters?token=${token}&page_size=200`);
-        const cd = await cr.json();
-        const clusterList = Array.isArray(cd) ? cd : (cd.items || cd.clusters || []);
-        clusterList.forEach(c => { clusterMap[c.id] = c; });
-      } catch (_) {}
-    }
-
-    tickets = rawTickets.map(t => {
-      const cluster = t.saas_cluster_id ? clusterMap[t.saas_cluster_id] : null;
-      return {
-        id: t.id,
-        merchant: t.merchant || '',
-        original: t.text,
-        time: t.time || '',
-        impact: t.impact || 'mid',
-        status: t.status || 'pending',
-        cluster: t.saas_cluster_id || null,
-        clusterScore: cluster ? cluster.score : null,
-        clusterSummary: cluster ? (cluster.ai_summary || cluster.summary || null) : null,
-        similarCount: cluster ? (cluster.count - 1) : 0,
+function loadTickets() {
+  if (!partner) return;
+  fetch(`${API_BASE}/api/tickets?token=${partner.token}&page_size=200`)
+    .then(r => r.json())
+    .then(data => {
+      tickets = (data.items || []).map(t => ({
+        id: t.id, partnerId: t.region_id, merchant: t.merchant,
+        original: t.text, time: t.time, impact: t.impact,
+        status: t.status, cluster: t.cluster_id,
+        clusterScore: null, clusterSummary: null,
+        similarCount: 0, similarCountries: 0,
+        timeline: [null, null, null, null, null],
         timelineDates: ['', '', '', '', ''],
-      };
-    });
-
-    document.getElementById('statTotal').textContent = tickets.length;
-    document.getElementById('statScheduled').textContent =
-      tickets.filter(t => ['scheduled', 'dev', 'live'].includes(t.status)).length;
-
-    renderList();
-  } catch (e) {
-    renderList();
-  }
+      }));
+      document.getElementById('statTotal').textContent = tickets.length;
+      document.getElementById('statScheduled').textContent =
+        tickets.filter(t => ['scheduled','dev','live'].includes(t.status)).length;
+      renderList(partner.id);
+    })
+    .catch(() => renderList(partner ? partner.id : null));
 }
 
+// ── Tab visibility: refresh when user switches back ───────────────────────────
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && vendorToken) loadTickets(vendorToken);
+  if (document.visibilityState === 'visible') loadTickets();
 });
 
-init();
+// ── Onboarding Guide ──────────────────────────────────────────────────────────
+const ONBOARD_KEY = 'rm_onboarded_partner';
+const ONBOARD_LANGS = ['zh'];
+const ONBOARD_LABELS = { zh: '中文' };
+const ONBOARD_I18N = {
+  zh: {
+    dontShow: '不再提醒', prev: '← 上一步', finish: '完成 ✓', next: '下一步 →',
+    steps: [
+      { icon: '📬', title: '欢迎使用需求跟踪页', desc: '在这里您可以查看贵公司提交的所有需求及其当前处理状态，随时了解 PM 的跟进进展。' },
+      { icon: '🔄', title: '需求状态说明', desc: '<b>待处理</b>：已收到，等待下一个归并周期处理<br><b>已归并</b>：正在与其他大区需求合并分析<br><b>已排期</b>：已纳入产品路线图<br><b>开发中</b>：研发团队正在实现<br><b>已上线</b>：功能已发布，可在产品中使用' },
+    ],
+  },
+};
+
+let onboardStep = 0;
+let onboardLang = (partner && partner.lang && ONBOARD_I18N[partner.lang]) ? partner.lang : 'zh';
+
+function showOnboarding() {
+  onboardStep = 0;
+  document.getElementById('onboardDontShow').checked = false;
+  renderOnboardLangBar();
+  renderOnboardStep();
+  document.getElementById('onboardingOverlay').style.display = 'flex';
+}
+
+function renderOnboardLangBar() {
+  document.getElementById('onboardLangBar').innerHTML = ONBOARD_LANGS.map(code =>
+    `<button onclick="onboardSwitchLang('${code}')" style="padding:4px 10px;border-radius:980px;border:1.5px solid ${code===onboardLang?'#0071e3':'#d1d1d6'};background:${code===onboardLang?'#0071e3':'#f5f5f7'};color:${code===onboardLang?'#fff':'#1d1d1f'};cursor:pointer;font-size:11px;font-weight:${code===onboardLang?'600':'500'};font-family:inherit;transition:all 0.15s">${ONBOARD_LABELS[code]}</button>`
+  ).join('');
+}
+
+function onboardSwitchLang(code) {
+  onboardLang = code;
+  renderOnboardLangBar();
+  renderOnboardStep();
+}
+
+function renderOnboardStep() {
+  const t = ONBOARD_I18N[onboardLang] || ONBOARD_I18N.zh;
+  const steps = t.steps;
+  const s = steps[onboardStep];
+  document.getElementById('onboardingStepContent').innerHTML =
+    `<div style="font-size:40px;margin-bottom:14px;text-align:center">${s.icon}</div>` +
+    `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#1d1d1f;letter-spacing:-0.3px;font-family:inherit">${s.title}</h2>` +
+    `<p style="font-size:14px;color:#6e6e73;line-height:1.75;text-align:center;font-family:inherit">${s.desc}</p>`;
+  document.getElementById('onboardDontShowLabel').textContent = t.dontShow;
+  document.getElementById('onboardPrevBtn').style.visibility = onboardStep === 0 ? 'hidden' : 'visible';
+  document.getElementById('onboardPrevBtn').textContent = t.prev;
+  document.getElementById('onboardNextBtn').textContent = onboardStep === steps.length - 1 ? t.finish : t.next;
+  document.getElementById('onboardDots').innerHTML = steps.map((_, i) =>
+    `<span style="display:inline-block;width:${i === onboardStep ? '20px' : '8px'};height:8px;border-radius:980px;margin:0 3px;background:${i === onboardStep ? '#0071e3' : '#d1d1d6'};transition:all 0.2s"></span>`
+  ).join('');
+}
+
+function onboardNav(dir) {
+  const steps = (ONBOARD_I18N[onboardLang] || ONBOARD_I18N.zh).steps;
+  if (dir === 1 && onboardStep === steps.length - 1) { closeOnboarding(); return; }
+  onboardStep = Math.max(0, Math.min(steps.length - 1, onboardStep + dir));
+  renderOnboardStep();
+}
+
+function closeOnboarding() {
+  document.getElementById('onboardingOverlay').style.display = 'none';
+  if (document.getElementById('onboardDontShow').checked) localStorage.setItem(ONBOARD_KEY, '1');
+}
+
+if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentLoaded', showOnboarding); }
 </script>
+
+<!-- Onboarding Overlay -->
+<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+  <div style="background:#ffffff;border-radius:20px;padding:36px 40px;max-width:500px;width:92%;box-shadow:0 32px 80px rgba(0,0,0,0.28),0 8px 24px rgba(0,0,0,0.12);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text',sans-serif;">
+    <div id="onboardLangBar" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;justify-content:center;"></div>
+    <div id="onboardingStepContent"></div>
+    <div id="onboardDots" style="text-align:center;margin-top:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <label style="font-size:12.5px;color:#6e6e73;cursor:pointer;display:flex;align-items:center;gap:7px;">
+        <input type="checkbox" id="onboardDontShow" style="accent-color:#0071e3"> <span id="onboardDontShowLabel">不再提醒</span>
+      </label>
+      <div style="display:flex;gap:8px;">
+        <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 18px;border:1.5px solid #d1d1d6;border-radius:980px;background:#f5f5f7;cursor:pointer;font-size:13px;font-weight:500;color:#1d1d1f;font-family:inherit;transition:background 0.15s;">← 上一步</button>
+        <button id="onboardNextBtn" onclick="onboardNav(1)" style="padding:8px 22px;border:none;border-radius:980px;background:#0071e3;color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:background 0.15s;">下一步 →</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

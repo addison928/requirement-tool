@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>提交门店反馈</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC&display=swap" rel="stylesheet">
+  <script src="partners.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      background: #f5f5f7;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 16px 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 640px;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(180deg, #1d1d1f 0%, #2d2d2d 100%);
+      padding: 32px 36px 28px;
+      color: #ffffff;
+    }
+
+    .header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 980px;
+      padding: 4px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: -0.01em;
+    }
+
+    .source-tag {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .source-tag .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #30d158;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 2px rgba(48, 209, 88, 0.3);
+    }
+
+    /* ── Form body ── */
+    .body {
+      padding: 32px 36px 40px;
+    }
+
+    .field {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 7px;
+      letter-spacing: -0.01em;
+    }
+
+    label .req {
+      color: #ff3b30;
+      margin-left: 2px;
+    }
+
+    label .hint {
+      font-weight: 400;
+      color: #6e6e73;
+      font-size: 12px;
+      margin-left: 6px;
+      letter-spacing: 0;
+    }
+
+    textarea,
+    input[type="text"],
+    select {
+      width: 100%;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 15px;
+      color: #1d1d1f;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: #ffffff;
+      font-family: inherit;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    textarea:focus,
+    input[type="text"]:focus,
+    select:focus {
+      border-color: #0071e3;
+      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+    }
+
+    textarea::placeholder,
+    input[type="text"]::placeholder {
+      color: #aeaeb2;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 108px;
+      line-height: 1.6;
+    }
+
+    /* ── Merchant type radio — compact row ── */
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1d1d1f;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+      background: #ffffff;
+      margin-bottom: 0;
+    }
+
+    .radio-group input { display: none; }
+
+    .radio-group label:has(input:checked) {
+      border-color: #0071e3;
+      background: #f0f7ff;
+      color: #0071e3;
+    }
+
+    /* ── Impact — segmented control style ── */
+    .impact-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .impact-group label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 12px 8px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1d1d1f;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+      background: #ffffff;
+      text-align: center;
+      line-height: 1.3;
+      margin-bottom: 0;
+    }
+
+    .impact-group input { display: none; }
+
+    .impact-indicator {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .impact-label-text {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .impact-sub {
+      font-size: 11px;
+      font-weight: 400;
+      color: #6e6e73;
+    }
+
+    .impact-high:has(input:checked) {
+      border-color: #ff3b30 !important;
+      background: #fff5f5 !important;
+      color: #ff3b30 !important;
+    }
+
+    .impact-high:has(input:checked) .impact-sub { color: #ff3b30; opacity: 0.7; }
+
+    .impact-mid:has(input:checked) {
+      border-color: #ff9f0a !important;
+      background: #fffbf0 !important;
+      color: #c87800 !important;
+    }
+
+    .impact-mid:has(input:checked) .impact-sub { color: #c87800; opacity: 0.7; }
+
+    .impact-low:has(input:checked) {
+      border-color: #30d158 !important;
+      background: #f0fff5 !important;
+      color: #1d8a3c !important;
+    }
+
+    .impact-low:has(input:checked) .impact-sub { color: #1d8a3c; opacity: 0.7; }
+
+    /* ── Module chips ── */
+    .check-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .check-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1.5px solid #d2d2d7;
+      border-radius: 980px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1d1d1f;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+      background: #ffffff;
+      margin-bottom: 0;
+    }
+
+    .check-group input { display: none; }
+
+    .check-group label:has(input:checked) {
+      border-color: #0071e3;
+      background: #e8f1ff;
+      color: #0071e3;
+    }
+
+    /* ── Upload area ── */
+    .upload-area {
+      border: 1.5px dashed #c7c7cc;
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: #fafafa;
+    }
+
+    .upload-area:hover,
+    .upload-area.drag-over {
+      border-color: #0071e3;
+      background: #f0f7ff;
+    }
+
+    .upload-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .upload-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .upload-hint {
+      font-size: 12px;
+      color: #6e6e73;
+    }
+
+    .file-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: #f5f5f7;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .file-item .fi-thumb {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #e5e5ea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .file-item .fi-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .file-item .fi-info { flex: 1; min-width: 0; }
+    .file-item .fi-name {
+      font-weight: 500;
+      color: #1d1d1f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-item .fi-size {
+      font-size: 11px;
+      color: #6e6e73;
+      margin-top: 2px;
+    }
+
+    .file-item .fi-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aeaeb2;
+      font-size: 15px;
+      padding: 4px;
+      flex-shrink: 0;
+      line-height: 1;
+      border-radius: 50%;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .file-item .fi-remove:hover {
+      color: #ff3b30;
+      background: rgba(255, 59, 48, 0.08);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid #f2f2f7;
+      margin: 28px 0;
+    }
+
+    /* ── Auto-recorded fields ── */
+    .auto-fields {
+      background: #f5f5f7;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      gap: 0;
+    }
+
+    .auto-field {
+      flex: 1;
+      padding: 0 8px;
+    }
+
+    .auto-field:not(:last-child) {
+      border-right: 1px solid #e5e5ea;
+      margin-right: 8px;
+    }
+
+    .auto-field .af-label {
+      font-size: 11px;
+      color: #6e6e73;
+      margin-bottom: 4px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+    .auto-field .af-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0071e3;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Submit button ── */
+    .submit-btn {
+      width: 100%;
+      height: 52px;
+      background: #0071e3;
+      color: #ffffff;
+      border: none;
+      border-radius: 980px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 28px;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      letter-spacing: -0.01em;
+      font-family: inherit;
+    }
+
+    .submit-btn:hover {
+      background: #0077ed;
+      box-shadow: 0 4px 16px rgba(0, 113, 227, 0.35);
+    }
+
+    .submit-btn:active {
+      background: #006edb;
+      transform: scale(0.99);
+      box-shadow: none;
+    }
+
+    /* ── Success overlay ── */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .success-overlay.show { display: flex; }
+
+    .success-box {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 44px 40px 40px;
+      text-align: center;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.18);
+    }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: #f0fff5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+    }
+
+    .success-box h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+    }
+
+    .success-box p {
+      font-size: 14px;
+      color: #6e6e73;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .id-badge {
+      display: inline-block;
+      background: #e8f1ff;
+      color: #0071e3;
+      border-radius: 8px;
+      padding: 5px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 14px 0 20px;
+      letter-spacing: 1px;
+    }
+
+    .success-box button {
+      padding: 0 32px;
+      height: 44px;
+      background: #0071e3;
+      color: #ffffff;
+      border: none;
+      border-radius: 980px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .success-box button:hover { background: #0077ed; }
+
+    /* ── Invalid token page ── */
+    .invalid-page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .invalid-page .inv-icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+    }
+
+    .invalid-page h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 10px;
+      letter-spacing: -0.03em;
+    }
+
+    .invalid-page p {
+      font-size: 14px;
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+
+    /* ── Section separator label ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #aeaeb2;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+      margin-top: 32px;
+    }
+
+    .section-label:first-child { margin-top: 0; }
+
+    /* ── AI Preview Card ── */
+    .ai-preview-card {
+      display: none;
+      margin-top: 28px;
+      background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%);
+      border: 1.5px solid #b3d7ff;
+      border-radius: 16px;
+      padding: 20px 22px 22px;
+    }
+    .ai-preview-card.show { display: block; }
+    .ai-preview-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; color: #0071e3;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px;
+    }
+    .ai-preview-hint {
+      font-size: 12px; color: #5e9bd6; margin-bottom: 10px; line-height: 1.5;
+    }
+    .ai-preview-card textarea {
+      width: 100%; border: 1.5px solid #b3d7ff; border-radius: 10px;
+      padding: 12px 14px; font-size: 14px; font-family: inherit;
+      background: rgba(255,255,255,0.8); color: #1d1d1f;
+      resize: vertical; min-height: 100px; outline: none; line-height: 1.6;
+      transition: border-color 0.15s;
+    }
+    .ai-preview-card textarea:focus { border-color: #0071e3; background: #fff; }
+    .preview-actions {
+      display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end;
+    }
+    .btn-back {
+      background: transparent; color: #0071e3;
+      border: 1.5px solid #b3d7ff; border-radius: 980px;
+      padding: 9px 20px; font-size: 14px; font-weight: 500;
+      cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .btn-back:hover { background: #e8f4ff; }
+    .btn-confirm {
+      background: #34c759; color: #fff; border: none; border-radius: 980px;
+      padding: 9px 24px; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: background 0.15s;
+    }
+    .btn-confirm:hover { background: #2db34a; }
+    .btn-confirm:disabled { background: #a8e6b8; cursor: not-allowed; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      body { padding: 0 0 60px; align-items: stretch; }
+
+      .card { border-radius: 0; box-shadow: none; max-width: 100%; }
+
+      .header { padding: 24px 20px 20px; }
+      .header h1 { font-size: 18px; }
+      .header p { font-size: 13px; }
+
+      .body { padding: 20px 16px 32px; }
+
+      .upload-area { padding: 20px 14px; }
+      .success-box { padding: 32px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Invalid token fallback -->
+<div class="invalid-page" id="invalidPage">
+  <div class="inv-icon">🔒</div>
+  <h2>链接无效 · Invalid Link</h2>
+  <p>此链接已失效或不存在，请联系区域负责人获取门店反馈专属链接。<br>This link is invalid. Please contact your regional manager.</p>
+</div>
+
+<div class="card" id="mainCard" style="display:none">
+
+  <div class="header">
+    <div class="badge">
+      <span>🏪</span>
+      <span data-i18n="badge">门店反馈系统</span>
+    </div>
+    <h1 data-i18n="title">提交门店反馈</h1>
+    <p data-i18n="subtitle">向产品和运营团队反馈日常运营中遇到的问题或改进建议</p>
+    <div class="source-tag">
+      <div class="dot"></div>
+      <div>
+        <strong data-i18n="partner">来源门店：</strong> <span id="partnerName">—</span> &nbsp;|&nbsp; <strong data-i18n="cycle">当前周期：</strong> 2026-W22
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+    <form id="reqForm">
+
+      <!-- Requirement Description -->
+      <div class="field">
+        <label data-i18n="labelDesc">需求描述 <span class="req">*</span><span class="hint" data-i18n="hintDesc">填写后 AI 会帮您润色</span></label>
+        <textarea id="desc" data-i18n-placeholder="placeholderDesc" placeholder="请描述门店遇到的问题或希望改进的点，尽量说明具体场景..." required></textarea>
+      </div>
+
+      <!-- Store -->
+      <div class="field">
+        <label data-i18n="labelMerchant">门店名称 <span class="req">*</span><span class="hint" data-i18n="hintMerchant">门店名称或编号</span></label>
+        <input type="text" id="merchant" data-i18n-placeholder="placeholderMerchant" placeholder="例：北京朝阳7-Eleven" required />
+      </div>
+
+      <!-- Store Type -->
+      <div class="field">
+        <label data-i18n="labelBizType">门店类型 <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="bizType" value="便利店" required checked> 🏪 <span data-i18n="typeStore">便利店</span></label>
+          <label><input type="radio" name="bizType" value="仓店"> 🏭 <span data-i18n="typeWarehouse">仓店</span></label>
+          <label><input type="radio" name="bizType" value="前店后仓"> 🏪🏭 <span data-i18n="typeHybrid">前店后仓</span></label>
+        </div>
+      </div>
+
+      <!-- Business Impact -->
+      <div class="field">
+        <label data-i18n="labelImpact">业务影响 <span class="req">*</span><span class="hint" data-i18n="hintImpact">此问题对门店日常运营的影响程度</span></label>
+        <div class="impact-group radio-group">
+          <label class="impact-high">
+            <input type="radio" name="impact" value="high" required>
+            <span class="impact-indicator">🔴</span>
+            <span class="impact-label-text">高</span>
+            <span class="impact-sub" data-i18n="impactHigh">影响核心流程</span>
+          </label>
+          <label class="impact-mid">
+            <input type="radio" name="impact" value="mid" checked>
+            <span class="impact-indicator">🟡</span>
+            <span class="impact-label-text">中</span>
+            <span class="impact-sub" data-i18n="impactMid">影响部分功能</span>
+          </label>
+          <label class="impact-low">
+            <input type="radio" name="impact" value="low">
+            <span class="impact-indicator">🟢</span>
+            <span class="impact-label-text">低</span>
+            <span class="impact-sub" data-i18n="impactLow">体验改善</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Attachments -->
+      <div class="field">
+        <label data-i18n="labelAttach">附件 <span class="hint" data-i18n="hintAttach">截图或视频能帮助我们更好理解需求</span></label>
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+          <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none" onchange="handleFiles(this.files)" />
+          <div class="upload-icon">📎</div>
+          <div class="upload-text" data-i18n="uploadText">点击上传或拖拽文件至此</div>
+          <div class="upload-hint" data-i18n="uploadHint">支持图片或视频 · 单文件最大 20 MB</div>
+        </div>
+        <div id="fileList" class="file-list"></div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Auto-recorded fields -->
+      <div class="auto-fields">
+        <div class="auto-field">
+          <div class="af-label" data-i18n="autoCountry">所属区域</div>
+          <div class="af-value" id="autoPartnerVal">—</div>
+        </div>
+        <div class="auto-field">
+          <div class="af-label" data-i18n="autoTime">提交时间</div>
+          <div class="af-value" id="nowTime">—</div>
+        </div>
+        <div class="auto-field">
+          <div class="af-label" data-i18n="autoId">反馈 ID</div>
+          <div class="af-value" id="previewId">HB-****</div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="analyzeBtn" data-i18n="submitBtn">🔍 让 AI 帮我润色</button>
+    </form>
+
+    <!-- AI Preview Card (shown after AI analysis) -->
+    <div class="ai-preview-card" id="aiPreviewCard">
+      <div class="ai-preview-label" data-i18n="previewTitle">✦ AI 帮您润色后的反馈</div>
+      <div class="ai-preview-hint" data-i18n="previewHint">AI 已帮您把需求描述得更清晰、更专业。如果理解有偏差，请直接修改后再提交。</div>
+      <textarea id="aiSummaryText" rows="5"></textarea>
+      <div class="preview-actions">
+        <button class="btn-back" onclick="backToEdit()" data-i18n="previewBack">← 返回修改</button>
+        <button class="btn-confirm" id="confirmSubmitBtn" onclick="confirmSubmit()" data-i18n="previewConfirm">✓ 确认提交</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success modal -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon">✅</div>
+    <h2 data-i18n="successTitle">提交成功！</h2>
+    <p data-i18n="successMsg">产品和运营团队会尽快处理您的反馈</p>
+    <p style="font-size:12px;color:#aeaeb2;margin-top:4px;" data-i18n="successAI">系统已自动归并至对应需求池</p>
+    <div class="id-badge" id="submittedId">HB-0000</div>
+    <p style="font-size:12px;color:#6e6e73;margin-bottom:0" data-i18n="successNotify">处理进度变更时您将收到通知</p>
+    <br/>
+    <button onclick="resetForm()" data-i18n="submitAnother">继续提交</button>
+  </div>
+</div>
+
+<script>
+  // ── Translations ──
+  const i18n = {
+    zh: {
+      badge: '门店反馈系统',
+      title: '提交门店反馈',
+      subtitle: '向产品和运营团队反馈日常运营中遇到的问题或改进建议',
+      partner: '来源门店：',
+      cycle: '当前周期：',
+      labelDesc: '需求描述 <span class="req">*</span>',
+      hintDesc: '填写后 AI 会帮您润色',
+      placeholderDesc: '请描述门店遇到的问题或希望改进的点，尽量说明具体场景...',
+      labelMerchant: '门店名称 <span class="req">*</span>',
+      hintMerchant: '门店名称或编号',
+      placeholderMerchant: '例：北京朝阳7-Eleven',
+      labelBizType: '门店类型 <span class="req">*</span>',
+      typeStore: '便利店', typeWarehouse: '仓店', typeHybrid: '前店后仓',
+      labelImpact: '业务影响 <span class="req">*</span>',
+      hintImpact: '此问题对门店日常运营的影响程度',
+      impactHigh: '影响核心流程',
+      impactMid: '影响部分功能',
+      impactLow: '体验改善',
+      labelAttach: '附件',
+      hintAttach: '截图或视频能帮助我们更好理解需求',
+      uploadText: '点击上传或拖拽文件至此',
+      uploadHint: '支持图片或视频 · 单文件最大 20 MB',
+      autoCountry: '所属区域',
+      autoTime: '提交时间',
+      autoId: '反馈 ID',
+      submitBtn: '🔍 让 AI 帮我润色',
+      previewTitle: '✦ AI 帮您润色后的反馈',
+      previewHint: 'AI 已帮您把需求描述得更清晰、更专业。如果理解有偏差，请直接修改后再提交。',
+      previewBack: '← 返回修改',
+      previewConfirm: '✓ 确认提交',
+      successTitle: '提交成功！',
+      successMsg: '产品和运营团队会尽快处理您的反馈',
+      successAI: '系统已自动归并至对应需求池',
+      successNotify: '处理进度变更时您将收到通知',
+      submitAnother: '继续提交',
+    },
+  };
+
+  // ── Token / partner resolution ──
+  const partner = resolvePartner();
+
+  if (!partner) {
+    document.getElementById('invalidPage').style.display = 'flex';
+  } else {
+    document.getElementById('mainCard').style.display = '';
+    document.getElementById('partnerName').textContent = partner.flag + ' ' + partner.name;
+    document.getElementById('autoPartnerVal').textContent = partner.flag + ' ' + partner.name;
+  }
+
+  let currentLang = 'zh';
+  let counter = 0;
+
+  function pad(n) { return String(n).padStart(4, '0'); }
+
+  // Apply zh translations on load
+  function applyZhTexts() {
+    const t = i18n.zh;
+    document.documentElement.lang = 'zh-CN';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key] !== undefined) el.innerHTML = t[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (t[key] !== undefined) el.placeholder = t[key];
+    });
+  }
+
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('nowTime').textContent =
+      now.toLocaleDateString('zh-CN') + ' ' +
+      now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    const prefix = partner ? partner.prefix : '??';
+    document.getElementById('previewId').textContent = prefix + '-' + pad(counter + 1);
+  }
+
+  if (partner) applyZhTexts();
+  updateTime();
+  setInterval(updateTime, 30000);
+
+  // ── File upload ──
+  const uploadArea = document.getElementById('uploadArea');
+  let selectedFiles = [];
+
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  function formatSize(bytes) {
+    return bytes < 1024 * 1024 ? (bytes / 1024).toFixed(0) + ' KB' : (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  }
+
+  function handleFiles(files) {
+    [...files].forEach(file => {
+      if (file.size > 20 * 1024 * 1024) { alert(file.name + ' exceeds 20 MB limit.'); return; }
+      if (selectedFiles.find(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)) return;
+      selectedFiles.push(file);
+    });
+    renderFileList();
+  }
+
+  function removeFile(idx) {
+    selectedFiles.splice(idx, 1);
+    renderFileList();
+  }
+
+  function renderFileList() {
+    const list = document.getElementById('fileList');
+    list.innerHTML = selectedFiles.map((f, i) => {
+      const isImage = f.type.startsWith('image/');
+      const thumbId = 'thumb-' + i;
+      setTimeout(() => {
+        if (isImage) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            const el = document.getElementById(thumbId);
+            if (el) el.innerHTML = `<img src="${e.target.result}" />`;
+          };
+          reader.readAsDataURL(f);
+        }
+      }, 0);
+      return `
+      <div class="file-item">
+        <div class="fi-thumb" id="${thumbId}">${isImage ? '' : '🎬'}</div>
+        <div class="fi-info">
+          <div class="fi-name">${f.name}</div>
+          <div class="fi-size">${formatSize(f.size)}</div>
+        </div>
+        <button class="fi-remove" onclick="removeFile(${i})" type="button">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  const API_BASE = '';
+  let _cachedFormData = null;
+
+  // Phase 1: Analyze → show AI preview
+  document.getElementById('reqForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const text     = document.getElementById('desc').value.trim();
+    const merchant = document.getElementById('merchant').value.trim();
+    const impact   = document.querySelector('input[name="impact"]:checked');
+    const bizType  = document.querySelector('input[name="bizType"]:checked');
+
+    // 必填校验
+    if (!text) { alert('请填写需求描述'); document.getElementById('desc').focus(); return; }
+    if (!merchant) { alert('请填写门店名称'); document.getElementById('merchant').focus(); return; }
+    if (!bizType) { alert('请选择门店类型'); return; }
+    if (!impact) { alert('请选择业务影响程度'); return; }
+
+    const token = new URLSearchParams(location.search).get('token') || '';
+    _cachedFormData = { token, text, merchant, impact: impact.value, bizType: bizType.value };
+
+    const btn = document.getElementById('analyzeBtn');
+    btn.disabled = true;
+    btn.textContent = '✦ AI 分析中…';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/preview-ticket`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, impact: impact.value, biz_type: bizType.value, lang: currentLang }),
+      });
+      if (!res.ok) throw new Error('AI preview failed');
+      const data = await res.json();
+      document.getElementById('aiSummaryText').value = data.summary || '';
+      document.getElementById('aiPreviewCard').classList.add('show');
+      document.getElementById('aiPreviewCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch {
+      // AI 不可用，不允许绕过确认环节直接提交
+      alert('AI 润色服务暂时不可用，请稍后重试。');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = i18n[currentLang]?.submitBtn || '🔍 分析需求';
+    }
+  });
+
+  // Phase 2: Confirm with (possibly edited) summary
+  async function confirmSubmit() {
+    const summary = document.getElementById('aiSummaryText').value.trim();
+    const confirmBtn = document.getElementById('confirmSubmitBtn');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = '提交中…';
+    await doSubmit(summary);
+    confirmBtn.disabled = false;
+  }
+
+  async function doSubmit(userSummary) {
+    const { token, text, merchant, impact, bizType } = _cachedFormData || {};
+    try {
+      const r = await fetch(`${API_BASE}/api/tickets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, text, merchant, impact, biz_type: bizType, lang: currentLang, user_summary: userSummary }),
+      });
+      if (!r.ok) throw new Error();
+      const data = await r.json();
+      document.getElementById('submittedId').textContent = data.id || '—';
+      document.getElementById('successOverlay').classList.add('show');
+      document.getElementById('aiPreviewCard').classList.remove('show');
+    } catch {
+      alert('提交失败，请检查网络或联系管理员');
+    }
+  }
+
+  function backToEdit() {
+    document.getElementById('aiPreviewCard').classList.remove('show');
+    document.getElementById('reqForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function resetForm() {
+    document.getElementById('reqForm').reset();
+    selectedFiles = [];
+    renderFileList();
+    document.getElementById('successOverlay').classList.remove('show');
+    document.getElementById('aiPreviewCard').classList.remove('show');
+    _cachedFormData = null;
+    updateTime();
+  }
+
+// ── Onboarding Guide ──────────────────────────────────────────────────────────
+const ONBOARD_KEY = 'rm_onboarded_form';
+const ONBOARD_STEPS = [
+  { icon: '👋', title: '欢迎使用门店反馈页', desc: '这是专为门店和多门店设计的反馈收集页面。您可以通过此页面向产品和运营团队提交日常运营中遇到的问题或改进建议，我们会定期集中处理。' },
+  { icon: '✍️', title: '如何填写更有效？', desc: '请尽量详细描述门店的具体场景和实际影响——例如涉及哪些业务流程、影响多少门店、出现频率等。描述越具体，越能帮助产品和运营团队快速理解并推进解决。' },
+  { icon: '✨', title: 'AI 帮您润色', desc: '填写完需求描述后，点击「让 AI 帮我润色」，系统会自动帮您把需求描述得更清晰、更专业。您可以在 AI 生成的基础上直接修改，确认无误后再提交。' },
+];
+
+let onboardStep = 0;
+
+function showOnboarding() {
+  onboardStep = 0;
+  document.getElementById('onboardDontShow').checked = false;
+  renderOnboardStep();
+  document.getElementById('onboardingOverlay').style.display = 'flex';
+}
+
+function renderOnboardStep() {
+  const steps = ONBOARD_STEPS;
+  const s = steps[onboardStep];
+  document.getElementById('onboardingStepContent').innerHTML =
+    `<div style="font-size:36px;margin-bottom:12px;text-align:center">${s.icon}</div>` +
+    `<h2 style="font-size:18px;font-weight:700;margin-bottom:10px;text-align:center;color:#111827">${s.title}</h2>` +
+    `<p style="font-size:14px;color:#374151;line-height:1.8;text-align:center">${s.desc}</p>`;
+  document.getElementById('onboardDontShowLabel').textContent = '不再提醒';
+  document.getElementById('onboardPrevBtn').style.visibility = onboardStep === 0 ? 'hidden' : 'visible';
+  document.getElementById('onboardPrevBtn').textContent = '← 上一步';
+  document.getElementById('onboardNextBtn').textContent = onboardStep === steps.length - 1 ? '完成 ✓' : '下一步 →';
+  document.getElementById('onboardDots').innerHTML = steps.map((_, i) =>
+    `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px;background:${i === onboardStep ? '#3b82f6' : '#d1d5db'}"></span>`
+  ).join('');
+}
+
+function onboardNav(dir) {
+  const steps = ONBOARD_STEPS;
+  if (dir === 1 && onboardStep === steps.length - 1) { closeOnboarding(); return; }
+  onboardStep = Math.max(0, Math.min(steps.length - 1, onboardStep + dir));
+  renderOnboardStep();
+}
+
+function closeOnboarding() {
+  document.getElementById('onboardingOverlay').style.display = 'none';
+  if (document.getElementById('onboardDontShow').checked) localStorage.setItem(ONBOARD_KEY, '1');
+}
+
+if (!localStorage.getItem(ONBOARD_KEY)) { document.addEventListener('DOMContentLoaded', showOnboarding); }
+</script>
+
+<!-- Onboarding Overlay -->
+<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:32px 40px;max-width:500px;width:92%;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+    <div id="onboardingStepContent"></div>
+    <div id="onboardDots" style="text-align:center;margin-top:18px;margin-bottom:18px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <label style="font-size:13px;color:#6b7280;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" id="onboardDontShow"> <span id="onboardDontShowLabel">不再提醒</span>
+      </label>
+      <div style="display:flex;gap:8px;">
+        <button id="onboardPrevBtn" onclick="onboardNav(-1)" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:13px;">← 上一步</button>
+        <button id="onboardNextBtn" onclick="onboardNav(1)" style="padding:8px 20px;border:none;border-radius:8px;background:#3b82f6;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">下一步 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

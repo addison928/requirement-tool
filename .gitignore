@@ -1,4 +1,17 @@
 backend/__pycache__/
 *.pyc
+__pycache__/
 .env
 *.zip
+*.db
+*.db-shm
+*.db-wal
+backend/__pycache__/
+backend/.pytest_cache/
+backend/tests/
+backend/data.db*
+migrate_to_pg.py
+supabase_data.sql
+.DS_Store
+.claude/
+.workbuddy/
