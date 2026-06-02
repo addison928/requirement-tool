@@ -3210,7 +3210,7 @@ function rebuildCountryFilters() {
 function renderPartnersPage() {
   const tierLabel = { strategic: '⭐ 战略级', important: '✦ 重要级', normal: '· 普通级' };
   const tierColor = { strategic: '#af52de', important: '#0071e3', normal: '#6e6e73' };
-  const base = location.origin + location.pathname.replace('dashboard.html', '');
+  const base = location.origin + location.pathname.replace(/[^/]+$/, '');
   const container = document.getElementById('partnersCardList');
   if (!container) return;
   container.innerHTML = partnersList.map(p => {
